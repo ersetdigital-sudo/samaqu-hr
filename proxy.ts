@@ -16,6 +16,9 @@ const PUBLIC_PATHS = [
   "/unauthorized",
   "/auth/confirm",
   "/karir",
+  "/knowledge-hub",
+  "/knowledge",
+  "/learning",
   "/api/karir/lamaran",
   "/api/cron/cv-retention",
 ];

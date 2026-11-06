@@ -71,7 +71,10 @@ export function OnboardingView() {
               </div>
               {todo.map((item, k) =>
                 item.group === group ? (
-                  <div key={item.label} className="flex items-center gap-3 py-2">
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-3 py-2"
+                  >
                     <div
                       className={`chk ${item.done ? "on" : ""}`}
                       onClick={() => toggleTodo(k)}
@@ -98,7 +101,7 @@ export function OnboardingView() {
                       {item.label}
                     </span>
                   </div>
-                ) : null
+                ) : null,
               )}
             </Fragment>
           ))}
@@ -109,11 +112,11 @@ export function OnboardingView() {
             <div className="font-bold text-[16px]">Materi Training</div>
             <span className="tag t-info">
               <Icon name="book" style={{ width: 13 }} />
-              dari Knowledge Hub
+              dari Samaqu Academy
             </span>
           </div>
           <div className="sub text-[13px] mb-4">
-            Materi dikelola di Knowledge Hub. Recruitment hanya menugaskan dan
+            Materi dikelola di Samaqu Academy. Recruitment hanya menugaskan dan
             memantau progres.
           </div>
           {TRAINING.map((material) => (
@@ -144,7 +147,7 @@ export function OnboardingView() {
           ))}
           <button
             className="btn btn-g w-full justify-center mt-4"
-            onClick={() => toast("Membuka pemilih materi Knowledge Hub")}
+            onClick={() => toast("Membuka Samaqu Academy")}
           >
             <Icon name="plus" style={{ width: 16 }} />
             Tugaskan Materi

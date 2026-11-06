@@ -17,7 +17,4 @@ export const HRIS_SUMMARY = {
     period: "November 2026",
     progress: 68,
   },
-  learning: {
-    mandatoryPending: 12,
-  },
 } as const;

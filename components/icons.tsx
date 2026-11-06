@@ -114,6 +114,13 @@ const ICONS: Record<IconName, ReactNode> = {
       <path d="M21 12H9" />
     </>
   ),
+  external: (
+    <>
+      <path d="M14 4h6v6" />
+      <path d="m20 4-9 9" />
+      <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+    </>
+  ),
 };
 
 export function Icon({
@@ -126,11 +133,7 @@ export function Icon({
   className?: string;
 }) {
   return (
-    <svg
-      className={`i ${className}`.trim()}
-      style={style}
-      viewBox="0 0 24 24"
-    >
+    <svg className={`i ${className}`.trim()} style={style} viewBox="0 0 24 24">
       {ICONS[name]}
     </svg>
   );

@@ -7,6 +7,7 @@
  */
 
 import type { IconName } from "@/lib/data";
+import { ACADEMY_URL } from "@/lib/external-links";
 
 export type Role = "admin" | "hr_manager" | "recruiter" | "employee";
 
@@ -25,8 +26,10 @@ export type NavModule = {
   id: string;
   label: string;
   icon: IconName;
-  /** Halaman pembuka modul. */
+  /** Halaman pembuka modul; boleh berupa URL absolut untuk aplikasi lain. */
   href: string;
+  /** Buka link absolut di tab baru tanpa ikut routing internal. */
+  external?: boolean;
   description: string;
   /** `live` sudah punya halaman fungsional, `planned` masih kerangka. */
   status: "live" | "planned";
@@ -76,9 +79,21 @@ export const NAV_GROUPS: NavGroup[] = [
             href: "/employees/kontrak",
             status: "live",
           },
-          { id: "organisasi", label: "Struktur Organisasi", href: "/employees/organisasi" },
-          { id: "dokumen", label: "Dokumen & Berkas", href: "/employees/dokumen" },
-          { id: "mutasi", label: "Mutasi & Promosi", href: "/employees/mutasi" },
+          {
+            id: "organisasi",
+            label: "Struktur Organisasi",
+            href: "/employees/organisasi",
+          },
+          {
+            id: "dokumen",
+            label: "Dokumen & Berkas",
+            href: "/employees/dokumen",
+          },
+          {
+            id: "mutasi",
+            label: "Mutasi & Promosi",
+            href: "/employees/mutasi",
+          },
         ],
       },
       {
@@ -94,8 +109,16 @@ export const NAV_GROUPS: NavGroup[] = [
           { id: "lowongan", label: "Lowongan", href: "/recruitment/lowongan" },
           { id: "kandidat", label: "Kandidat", href: "/recruitment/kandidat" },
           { id: "pipeline", label: "Pipeline", href: "/recruitment/pipeline" },
-          { id: "jadwal", label: "Jadwal & Evaluasi", href: "/recruitment/jadwal" },
-          { id: "onboarding", label: "Onboarding", href: "/recruitment/onboarding" },
+          {
+            id: "jadwal",
+            label: "Jadwal & Evaluasi",
+            href: "/recruitment/jadwal",
+          },
+          {
+            id: "onboarding",
+            label: "Onboarding",
+            href: "/recruitment/onboarding",
+          },
           { id: "laporan", label: "Laporan", href: "/recruitment/laporan" },
         ],
       },
@@ -108,10 +131,18 @@ export const NAV_GROUPS: NavGroup[] = [
         status: "planned",
         roles: ["hr_manager", "recruiter", "employee"],
         items: [
-          { id: "kehadiran", label: "Kehadiran Harian", href: "/attendance/kehadiran" },
+          {
+            id: "kehadiran",
+            label: "Kehadiran Harian",
+            href: "/attendance/kehadiran",
+          },
           { id: "cuti", label: "Cuti & Izin", href: "/attendance/cuti" },
           { id: "lembur", label: "Lembur", href: "/attendance/lembur" },
-          { id: "shift", label: "Shift & Jadwal Kerja", href: "/attendance/shift" },
+          {
+            id: "shift",
+            label: "Shift & Jadwal Kerja",
+            href: "/attendance/shift",
+          },
           { id: "rekap", label: "Rekap Kehadiran", href: "/attendance/rekap" },
         ],
       },
@@ -124,9 +155,17 @@ export const NAV_GROUPS: NavGroup[] = [
         status: "planned",
         roles: ["hr_manager"],
         items: [
-          { id: "penggajian", label: "Penggajian Bulanan", href: "/payroll/penggajian" },
+          {
+            id: "penggajian",
+            label: "Penggajian Bulanan",
+            href: "/payroll/penggajian",
+          },
           { id: "komponen", label: "Komponen Gaji", href: "/payroll/komponen" },
-          { id: "tunjangan", label: "Tunjangan & Potongan", href: "/payroll/tunjangan" },
+          {
+            id: "tunjangan",
+            label: "Tunjangan & Potongan",
+            href: "/payroll/tunjangan",
+          },
           { id: "slip", label: "Slip Gaji", href: "/payroll/slip" },
           { id: "pajak", label: "Pajak & BPJS", href: "/payroll/pajak" },
         ],
@@ -141,84 +180,39 @@ export const NAV_GROUPS: NavGroup[] = [
         roles: ["hr_manager"],
         items: [
           { id: "tujuan", label: "Tujuan & KPI", href: "/performance/tujuan" },
-          { id: "review", label: "Review Kinerja", href: "/performance/review" },
-          { id: "feedback", label: "Feedback & 1:1", href: "/performance/feedback" },
-          { id: "kompetensi", label: "Penilaian Kompetensi", href: "/performance/kompetensi" },
-          { id: "laporan", label: "Laporan Kinerja", href: "/performance/laporan" },
+          {
+            id: "review",
+            label: "Review Kinerja",
+            href: "/performance/review",
+          },
+          {
+            id: "feedback",
+            label: "Feedback & 1:1",
+            href: "/performance/feedback",
+          },
+          {
+            id: "kompetensi",
+            label: "Penilaian Kompetensi",
+            href: "/performance/kompetensi",
+          },
+          {
+            id: "laporan",
+            label: "Laporan Kinerja",
+            href: "/performance/laporan",
+          },
         ],
       },
       {
-        id: "learning",
-        label: "Learning & Development",
+        id: "academy",
+        label: "Samaqu Academy",
         icon: "book",
-        href: "/learning",
-        description: "Katalog training, program, dan sertifikasi karyawan.",
-        status: "planned",
-        roles: ["hr_manager", "recruiter", "employee"],
-        items: [
-          { id: "katalog", label: "Katalog Training", href: "/learning/katalog" },
-          { id: "program", label: "Program Saya", href: "/learning/program" },
-          { id: "jadwal", label: "Jadwal Training", href: "/learning/jadwal" },
-          { id: "sertifikasi", label: "Sertifikasi", href: "/learning/sertifikasi" },
-          { id: "laporan", label: "Laporan Training", href: "/learning/laporan" },
-        ],
-      },
-      {
-        id: "knowledge-hub",
-        label: "Knowledge Hub",
-        icon: "bookSpine",
-        href: "/knowledge-hub/beranda",
-        description: "Pusat dokumen, SOP, kebijakan, dan materi belajar.",
+        href: ACADEMY_URL,
+        external: true,
+        description:
+          "SOP, training, dan learning path di aplikasi Samaqu Academy.",
         status: "live",
-        roles: ["hr_manager", "recruiter", "employee"],
-        items: [
-          { id: "beranda", label: "Beranda", href: "/knowledge-hub/beranda" },
-          { id: "semua-dokumen", label: "Semua Dokumen", href: "/knowledge-hub/semua-dokumen" },
-          { id: "kategori", label: "Kategori Dokumen", href: "/knowledge-hub/kategori" },
-          { id: "sop-kebijakan", label: "SOP & Kebijakan", href: "/knowledge-hub/sop-kebijakan" },
-          {
-            id: "training-learning",
-            label: "Training & Learning",
-            href: "/knowledge-hub/training-learning",
-          },
-          { id: "wajib-dibaca", label: "Wajib Dibaca", href: "/knowledge-hub/wajib-dibaca" },
-          { id: "bookmark", label: "Bookmark Saya", href: "/knowledge-hub/bookmark" },
-          {
-            id: "riwayat-aktivitas",
-            label: "Riwayat Aktivitas",
-            href: "/knowledge-hub/riwayat-aktivitas",
-          },
-          {
-            id: "kelola-dokumen",
-            label: "Kelola Dokumen",
-            href: "/knowledge-hub/kelola-dokumen",
-            roles: ["hr_manager"],
-          },
-          {
-            id: "kelola-kategori",
-            label: "Kelola Kategori",
-            href: "/knowledge-hub/kelola-kategori",
-            roles: ["hr_manager"],
-          },
-          {
-            id: "persetujuan-dokumen",
-            label: "Persetujuan Dokumen",
-            href: "/knowledge-hub/persetujuan-dokumen",
-            roles: ["hr_manager"],
-          },
-          {
-            id: "laporan-analitik",
-            label: "Laporan & Analitik",
-            href: "/knowledge-hub/laporan-analitik",
-            roles: ["hr_manager"],
-          },
-          {
-            id: "pengaturan",
-            label: "Pengaturan Knowledge Hub",
-            href: "/knowledge-hub/pengaturan",
-            roles: ["hr_manager"],
-          },
-        ],
+        roles: ["admin", "hr_manager", "recruiter", "employee"],
+        items: [],
       },
       {
         id: "reports",
@@ -230,8 +224,16 @@ export const NAV_GROUPS: NavGroup[] = [
         roles: ["hr_manager"],
         items: [
           { id: "hr", label: "Laporan HR", href: "/reports/hr" },
-          { id: "recruitment", label: "Laporan Recruitment", href: "/reports/recruitment" },
-          { id: "kehadiran", label: "Laporan Kehadiran", href: "/reports/kehadiran" },
+          {
+            id: "recruitment",
+            label: "Laporan Recruitment",
+            href: "/reports/recruitment",
+          },
+          {
+            id: "kehadiran",
+            label: "Laporan Kehadiran",
+            href: "/reports/kehadiran",
+          },
           { id: "payroll", label: "Laporan Payroll", href: "/reports/payroll" },
           { id: "ekspor", label: "Ekspor Data", href: "/reports/ekspor" },
         ],
@@ -261,7 +263,11 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { id: "hak-akses", label: "Hak Akses", href: "/settings/hak-akses" },
           { id: "integrasi", label: "Integrasi", href: "/settings/integrasi" },
-          { id: "notifikasi", label: "Notifikasi", href: "/settings/notifikasi" },
+          {
+            id: "notifikasi",
+            label: "Notifikasi",
+            href: "/settings/notifikasi",
+          },
           { id: "audit", label: "Audit Log", href: "/settings/audit" },
         ],
       },
@@ -270,11 +276,13 @@ export const NAV_GROUPS: NavGroup[] = [
 ];
 
 export const ALL_MODULES: NavModule[] = NAV_GROUPS.flatMap(
-  (group) => group.modules
+  (group) => group.modules,
 );
 
-/** Modul yang punya path sendiri (semua kecuali Dashboard di "/"). */
-const PATH_MODULES = ALL_MODULES.filter((module) => module.href !== "/");
+/** Modul internal yang punya path sendiri. */
+const PATH_MODULES = ALL_MODULES.filter(
+  (module) => module.href !== "/" && !module.external,
+);
 
 export function findModule(moduleId: string): NavModule | undefined {
   return ALL_MODULES.find((module) => module.id === moduleId);
@@ -282,12 +290,12 @@ export function findModule(moduleId: string): NavModule | undefined {
 
 /** Modul yang sedang aktif berdasarkan pathname, termasuk halaman submenu. */
 export function findModuleByPath(
-  pathname: string | null
+  pathname: string | null,
 ): NavModule | undefined {
   const current = pathname ?? "/";
   const byPath = PATH_MODULES.find(
     (module) =>
-      current === `/${module.id}` || current.startsWith(`/${module.id}/`)
+      current === `/${module.id}` || current.startsWith(`/${module.id}/`),
   );
   if (byPath) return byPath;
   return ALL_MODULES.find((module) => module.href === current);
@@ -295,11 +303,11 @@ export function findModuleByPath(
 
 export function findSubItem(
   module: NavModule | undefined,
-  pathname: string | null
+  pathname: string | null,
 ): NavSubItem | undefined {
   const current = pathname ?? "/";
   return module?.items.find(
-    (item) => current === item.href || current.startsWith(`${item.href}/`)
+    (item) => current === item.href || current.startsWith(`${item.href}/`),
   );
 }
 
@@ -317,12 +325,12 @@ export function canAccess(role: Role | null, module: NavModule): boolean {
 /** Submenu yang terlihat oleh role tertentu. */
 export function visibleSubItems(
   role: Role | null,
-  module: NavModule
+  module: NavModule,
 ): NavSubItem[] {
   if (role === null) return [];
   if (isSuperuser(role)) return module.items;
   return module.items.filter((item) =>
-    (item.roles ?? module.roles).includes(role)
+    (item.roles ?? module.roles).includes(role),
   );
 }
 
@@ -335,7 +343,7 @@ export function isSubItemLive(module: NavModule, item: NavSubItem): boolean {
 export function subItemAllowed(
   role: Role | null,
   module: NavModule,
-  pathname: string | null
+  pathname: string | null,
 ): boolean {
   if (role === null) return false;
   if (isSuperuser(role)) return true;

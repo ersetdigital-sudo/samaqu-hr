@@ -236,6 +236,16 @@
     max-width 200ms ease-out;
 }
 
+.externalIcon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: #a59b97;
+  transition:
+    opacity 140ms ease-out,
+    max-width 200ms ease-out;
+}
+
 .chevron {
   width: 12px;
   height: 12px;
@@ -270,7 +280,8 @@
 }
 
 .collapsed .soonBadge,
-.collapsed .chevron {
+.collapsed .chevron,
+.collapsed .externalIcon {
   width: 0;
   max-width: 0;
   margin: 0;

@@ -49,6 +49,9 @@ function ItemContent({
         <span className={styles.labelText}>{module.label}</span>
         {showSoon && <span className={styles.soonBadge}>Segera</span>}
       </span>
+      {module.external && (
+        <Icon name="external" className={styles.externalIcon} />
+      )}
       {subItems.length > 0 && (
         <Icon
           name="chevron"
@@ -200,25 +203,44 @@ export function Sidebar({
                   const submenuId = `sidebar-submenu-${module.id}`;
 
                   if (subItems.length === 0) {
+                    const itemContent = (
+                      <ItemContent
+                        module={module}
+                        subItems={subItems}
+                        open={false}
+                      />
+                    );
+                    const external = Boolean(module.external);
+                    const tooltipLabel = external
+                      ? `${module.label} (buka tab baru)`
+                      : module.label;
                     return (
                       <div key={module.id} className={styles.module}>
                         <SidebarTooltip
-                          label={module.label}
+                          label={tooltipLabel}
                           enabled={collapsed}
                         >
-                          <Link
-                            href={module.href}
-                            prefetch={false}
-                            className={`${styles.itemRow} ${active ? "on" : ""}`}
-                            aria-current={active ? "page" : undefined}
-                            aria-label={collapsed ? module.label : undefined}
-                          >
-                            <ItemContent
-                              module={module}
-                              subItems={subItems}
-                              open={false}
-                            />
-                          </Link>
+                          {external ? (
+                            <a
+                              href={module.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`${styles.itemRow} ${active ? "on" : ""}`}
+                              aria-label={tooltipLabel}
+                            >
+                              {itemContent}
+                            </a>
+                          ) : (
+                            <Link
+                              href={module.href}
+                              prefetch={false}
+                              className={`${styles.itemRow} ${active ? "on" : ""}`}
+                              aria-current={active ? "page" : undefined}
+                              aria-label={collapsed ? module.label : undefined}
+                            >
+                              {itemContent}
+                            </Link>
+                          )}
                         </SidebarTooltip>
                       </div>
                     );

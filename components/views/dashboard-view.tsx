@@ -6,6 +6,7 @@ import { ActivityCard } from "@/components/overview/activity-card";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
 import { useRecruitment } from "@/components/recruitment-provider";
+import { ACADEMY_URL } from "@/lib/external-links";
 import { HRIS_SUMMARY } from "@/lib/hris/summary";
 import { ALL_MODULES, canAccess, type NavModule } from "@/lib/navigation";
 import {
@@ -43,12 +44,8 @@ function SummaryCard({
 
 function ModuleCard({ module }: { module: NavModule }) {
   const live = module.status === "live";
-  return (
-    <Link
-      prefetch={false}
-      href={module.href}
-      className="card p-5 flex flex-col gap-3 transition hover:-translate-y-0.5"
-    >
+  const content = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div
           className="w-9 h-9 rounded-lg grid place-items-center"
@@ -56,9 +53,16 @@ function ModuleCard({ module }: { module: NavModule }) {
         >
           <Icon name={module.icon} style={{ width: 17 }} />
         </div>
-        <span className={`tag ${live ? "t-ok" : "t-mute"}`}>
-          {live ? "Tersedia" : "Segera"}
-        </span>
+        {module.external ? (
+          <span className="tag t-info">
+            <Icon name="external" style={{ width: 12 }} />
+            Eksternal
+          </span>
+        ) : (
+          <span className={`tag ${live ? "t-ok" : "t-mute"}`}>
+            {live ? "Tersedia" : "Segera"}
+          </span>
+        )}
       </div>
       <div>
         <div className="font-bold text-[14px]">{module.label}</div>
@@ -66,6 +70,25 @@ function ModuleCard({ module }: { module: NavModule }) {
           {module.description}
         </div>
       </div>
+    </>
+  );
+
+  return module.external ? (
+    <a
+      href={module.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="card p-5 flex flex-col gap-3 transition hover:-translate-y-0.5"
+    >
+      {content}
+    </a>
+  ) : (
+    <Link
+      prefetch={false}
+      href={module.href}
+      className="card p-5 flex flex-col gap-3 transition hover:-translate-y-0.5"
+    >
+      {content}
     </Link>
   );
 }
@@ -88,7 +111,13 @@ export function DashboardView({ user }: { user: SessionUser }) {
   );
 
   const modules = ALL_MODULES.filter(
-    (module) => module.id !== "dashboard" && canAccess(user.role, module),
+    (module) =>
+      module.id !== "dashboard" &&
+      !module.external &&
+      canAccess(user.role, module),
+  );
+  const externalModules = ALL_MODULES.filter(
+    (module) => module.external && canAccess(user.role, module),
   );
 
   return (
@@ -104,13 +133,15 @@ export function DashboardView({ user }: { user: SessionUser }) {
         >
           Buka Recruitment
         </Link>
-        <Link
-          prefetch={false}
+        <a
           className="btn btn-p"
-          href="/knowledge-hub/beranda"
+          href={ACADEMY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Knowledge Hub
-        </Link>
+          Samaqu Academy
+          <Icon name="external" style={{ width: 14 }} />
+        </a>
       </PageHead>
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
@@ -153,6 +184,9 @@ export function DashboardView({ user }: { user: SessionUser }) {
             {modules.map((module) => (
               <ModuleCard key={module.id} module={module} />
             ))}
+            {externalModules.map((module) => (
+              <ModuleCard key={module.id} module={module} />
+            ))}
           </div>
         </div>
 
@@ -173,16 +207,6 @@ export function DashboardView({ user }: { user: SessionUser }) {
                 <span>Payroll {HRIS_SUMMARY.payroll.period}</span>
                 <span className="tag t-warn">
                   {HRIS_SUMMARY.payroll.progress}% siap
-                </span>
-              </Link>
-              <Link
-                prefetch={false}
-                href="/learning"
-                className="flex items-center justify-between gap-3"
-              >
-                <span>Training wajib belum selesai</span>
-                <span className="tag t-info">
-                  {HRIS_SUMMARY.learning.mandatoryPending} materi
                 </span>
               </Link>
               <Link

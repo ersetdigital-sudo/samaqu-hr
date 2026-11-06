@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHead } from "@/components/page-head";
+import { ACADEMY_URL } from "@/lib/external-links";
 import { findModule, isSubItemLive } from "@/lib/navigation";
 
 /**
@@ -22,7 +23,7 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
         <div className="font-bold mb-1">Modul sudah terdaftar di navigasi</div>
         <div className="sub text-[13px] max-w-[720px]">
           {module.label} memakai layout, sidebar, sesi, dan aturan akses yang
-          sama dengan Recruitment dan Knowledge Hub. Halaman di bawah ini
+          sama dengan Recruitment dan Samaqu Academy. Halaman di bawah ini
           dibangun bertahap tanpa mengubah struktur navigasinya.
         </div>
         <div className="flex flex-wrap gap-2 mt-4">
@@ -82,13 +83,14 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
           Recruitment
         </Link>{" "}
         dan{" "}
-        <Link
-          prefetch={false}
+        <a
           className="font-semibold underline"
-          href="/knowledge-hub/beranda"
+          href={ACADEMY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          Knowledge Hub
-        </Link>
+          Samaqu Academy
+        </a>
         .
       </div>
     </>

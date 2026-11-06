@@ -21,7 +21,9 @@ export default async function LoginPage({
     <div className="min-h-screen grid lg:grid-cols-2">
       <div
         className="hidden lg:flex flex-col justify-between p-12 text-white"
-        style={{ background: "linear-gradient(150deg,#2B2523 0%,#4A3F3B 100%)" }}
+        style={{
+          background: "linear-gradient(150deg,#2B2523 0%,#4A3F3B 100%)",
+        }}
       >
         <div className="flex items-center gap-3">
           <div
@@ -31,7 +33,9 @@ export default async function LoginPage({
             S
           </div>
           <div>
-            <div className="font-extrabold text-[19px] leading-none">SAMAQU</div>
+            <div className="font-extrabold text-[19px] leading-none">
+              SAMAQU
+            </div>
             <div className="text-[10px] font-semibold tracking-widest mt-1 opacity-70">
               HRIS
             </div>
@@ -43,8 +47,8 @@ export default async function LoginPage({
             Satu sistem untuk seluruh pengelolaan SDM.
           </div>
           <p className="mt-4 text-[14px] leading-relaxed opacity-80">
-            Karyawan, kontrak, rekrutmen, hingga knowledge hub dalam satu
-            aplikasi internal yang aman.
+            Karyawan, kontrak, dan rekrutmen dalam satu aplikasi internal yang
+            aman, dengan pembelajaran di Samaqu Academy.
           </p>
         </div>
 

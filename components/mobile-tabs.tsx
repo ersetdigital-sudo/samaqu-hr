@@ -31,18 +31,30 @@ export function MobileTabs({ user }: { user: SessionUser }) {
         id="mnav"
       >
         {ALL_MODULES.filter((module) => canAccess(user.role, module)).map(
-          (module) => (
-            <Link
-              key={module.id}
-              href={module.href}
-              prefetch={false}
-              className={`tab ${
-                activeModule?.id === module.id ? "on" : ""
-              } whitespace-nowrap`}
-            >
-              {module.label}
-            </Link>
-          ),
+          (module) =>
+            module.external ? (
+              <a
+                key={module.id}
+                href={module.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tab whitespace-nowrap"
+                aria-label={`${module.label} (buka tab baru)`}
+              >
+                {module.label}
+              </a>
+            ) : (
+              <Link
+                key={module.id}
+                href={module.href}
+                prefetch={false}
+                className={`tab ${
+                  activeModule?.id === module.id ? "on" : ""
+                } whitespace-nowrap`}
+              >
+                {module.label}
+              </Link>
+            ),
         )}
       </div>
 
