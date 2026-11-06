@@ -485,6 +485,7 @@ export function JobForm({
                 <span className="rl-btn rl-text-btn">Batal</span>
               ) : (
                 <Link
+                  prefetch={false}
                   href="/recruitment/lowongan"
                   className="rl-btn rl-text-btn"
                 >

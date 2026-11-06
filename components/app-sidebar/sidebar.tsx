@@ -208,6 +208,7 @@ export function Sidebar({
                         >
                           <Link
                             href={module.href}
+                            prefetch={false}
                             className={`${styles.itemRow} ${active ? "on" : ""}`}
                             aria-current={active ? "page" : undefined}
                             aria-label={collapsed ? module.label : undefined}
@@ -289,6 +290,7 @@ export function Sidebar({
                                 <Link
                                   key={item.id}
                                   href={item.href}
+                                  prefetch={false}
                                   className={pathname === item.href ? "on" : ""}
                                   aria-current={
                                     pathname === item.href ? "page" : undefined

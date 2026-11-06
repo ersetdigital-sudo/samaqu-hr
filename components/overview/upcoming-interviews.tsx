@@ -14,6 +14,7 @@ export function UpcomingInterviews({
       <div className="px-6 pt-5 pb-3 flex justify-between items-center">
         <span className="font-bold text-[16px]">Wawancara Terdekat</span>
         <Link
+          prefetch={false}
           className="text-[13px] font-semibold cursor-pointer"
           style={{ color: "var(--pink)" }}
           href="/recruitment/jadwal"

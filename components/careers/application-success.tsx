@@ -98,7 +98,7 @@ export function ApplicationSuccess({
           Simpan nomor lamaran ini. Sebutkan nomornya kalau mau tanya status
           lamaran.
         </p>
-        <Link href="/karir" className={styles.secondary}>
+        <Link prefetch={false} href="/karir" className={styles.secondary}>
           Lihat lowongan lain
         </Link>
       </main>

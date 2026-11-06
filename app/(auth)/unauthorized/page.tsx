@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { SignOutButton } from "./sign-out-button";
 
-export const dynamic = "force-dynamic";
-
 export default function UnauthorizedPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -12,9 +10,9 @@ export default function UnauthorizedPage() {
           Akun Anda belum memiliki akses ke halaman ini
         </div>
         <div className="sub mt-2">
-          Role yang diberikan tidak mencakup modul tersebut, atau akun Anda belum
-          diaktifkan oleh administrator. Hubungi administrator HRIS untuk meminta
-          akses.
+          Role yang diberikan tidak mencakup modul tersebut, atau akun Anda
+          belum diaktifkan oleh administrator. Hubungi administrator HRIS untuk
+          meminta akses.
         </div>
 
         <div className="flex flex-wrap gap-2 mt-6">

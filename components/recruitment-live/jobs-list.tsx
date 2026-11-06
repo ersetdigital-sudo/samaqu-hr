@@ -121,6 +121,7 @@ export function JobsList({
             Halaman Karir
           </a>
           <Link
+            prefetch={false}
             href="/recruitment/lowongan/baru"
             className="rl-btn rl-primary"
             style={{ padding: "0 18px" }}
@@ -171,6 +172,7 @@ export function JobsList({
           </p>
           {!jobs.length && (
             <Link
+              prefetch={false}
               href="/recruitment/lowongan/baru"
               className="rl-btn rl-primary"
             >
@@ -209,10 +211,15 @@ export function JobsList({
                     <Icon name="more" />
                   </summary>
                   <div className="rl-menu-pop">
-                    <Link href={`/recruitment/lowongan/${job.id}/edit`}>
+                    <Link
+                      prefetch={false}
+                      href={`/recruitment/lowongan/${job.id}/edit`}
+                    >
                       Edit
                     </Link>
-                    <Link href={duplicate}>Duplikat</Link>
+                    <Link prefetch={false} href={duplicate}>
+                      Duplikat
+                    </Link>
                     {job.status === "Aktif" && (
                       <button type="button" onClick={() => ask(job, "close")}>
                         Tutup Lowongan
@@ -238,6 +245,7 @@ export function JobsList({
                   <div style={{ flex: 1 }} />
                   <div className="rl-two">
                     <Link
+                      prefetch={false}
                       href={`/recruitment/lowongan/${job.id}/edit`}
                       className="rl-btn"
                     >
@@ -301,6 +309,7 @@ export function JobsList({
                         </div>
                       </div>
                       <Link
+                        prefetch={false}
                         href={`/recruitment/lowongan/${job.id}/pelamar`}
                         className="rl-btn rl-primary"
                       >
@@ -315,12 +324,17 @@ export function JobsList({
                       </span>
                       <div className="rl-two">
                         <Link
+                          prefetch={false}
                           href={`/recruitment/lowongan/${job.id}/pelamar`}
                           className="rl-btn"
                         >
                           Lihat Pelamar
                         </Link>
-                        <Link href={duplicate} className="rl-btn">
+                        <Link
+                          prefetch={false}
+                          href={duplicate}
+                          className="rl-btn"
+                        >
                           <Icon name="copy" size={15} />
                           Duplikat
                         </Link>

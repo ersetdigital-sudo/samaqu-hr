@@ -87,7 +87,7 @@ export function CareerHeader({ otherJobs = false }: { otherJobs?: boolean }) {
         </div>
       </div>
       {otherJobs && (
-        <Link href="/karir" className={styles.otherJobs}>
+        <Link prefetch={false} href="/karir" className={styles.otherJobs}>
           Lowongan lain
         </Link>
       )}

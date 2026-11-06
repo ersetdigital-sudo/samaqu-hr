@@ -29,9 +29,7 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
           <span className="tag t-mute">
             {module.items.length} halaman direncanakan
           </span>
-          <span className="tag t-mute">
-            Role: {module.roles.join(", ")}
-          </span>
+          <span className="tag t-mute">Role: {module.roles.join(", ")}</span>
           <span className="tag t-mute">Satu sesi aplikasi</span>
         </div>
       </div>
@@ -59,6 +57,7 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
 
           return live ? (
             <Link
+              prefetch={false}
               key={item.id}
               href={item.href}
               className="card p-5 transition hover:-translate-y-0.5"
@@ -75,11 +74,19 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
 
       <div className="mt-6 text-[13px] sub">
         Modul yang sudah berjalan:{" "}
-        <Link className="font-semibold underline" href="/recruitment/overview">
+        <Link
+          prefetch={false}
+          className="font-semibold underline"
+          href="/recruitment/overview"
+        >
           Recruitment
         </Link>{" "}
         dan{" "}
-        <Link className="font-semibold underline" href="/knowledge-hub/beranda">
+        <Link
+          prefetch={false}
+          className="font-semibold underline"
+          href="/knowledge-hub/beranda"
+        >
           Knowledge Hub
         </Link>
         .

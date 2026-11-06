@@ -7,11 +7,7 @@ import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
 import { useRecruitment } from "@/components/recruitment-provider";
 import { HRIS_SUMMARY } from "@/lib/hris/summary";
-import {
-  ALL_MODULES,
-  canAccess,
-  type NavModule,
-} from "@/lib/navigation";
+import { ALL_MODULES, canAccess, type NavModule } from "@/lib/navigation";
 import {
   countInterviewsToday,
   latestActivities,
@@ -33,7 +29,11 @@ function SummaryCard({
   href: string;
 }) {
   return (
-    <Link href={href} className="card p-5 transition hover:-translate-y-0.5">
+    <Link
+      prefetch={false}
+      href={href}
+      className="card p-5 transition hover:-translate-y-0.5"
+    >
       <div className="text-[12px] sub font-semibold">{label}</div>
       <div className="text-[26px] font-bold tracking-tight mt-2">{value}</div>
       <div className="text-[12px] sub mt-1">{hint}</div>
@@ -45,6 +45,7 @@ function ModuleCard({ module }: { module: NavModule }) {
   const live = module.status === "live";
   return (
     <Link
+      prefetch={false}
       href={module.href}
       className="card p-5 flex flex-col gap-3 transition hover:-translate-y-0.5"
     >
@@ -75,20 +76,19 @@ export function DashboardView({ user }: { user: SessionUser }) {
   const activeJobs = jobs.filter((job) => job.st === ACTIVE_JOB_STATUS).length;
   const todayInterviews = useMemo(
     () => countInterviewsToday(interviews),
-    [interviews]
+    [interviews],
   );
   const pipelineNow = useMemo(
     () => upcomingInterviews(interviews, new Date()).length,
-    [interviews]
+    [interviews],
   );
   const latest = useMemo(
     () => latestActivities(activities).slice(0, 4),
-    [activities]
+    [activities],
   );
 
   const modules = ALL_MODULES.filter(
-    (module) =>
-      module.id !== "dashboard" && canAccess(user.role, module)
+    (module) => module.id !== "dashboard" && canAccess(user.role, module),
   );
 
   return (
@@ -97,10 +97,18 @@ export function DashboardView({ user }: { user: SessionUser }) {
         title={`Selamat pagi, ${user.name}`}
         subtitle="Ringkasan HRIS lintas modul. Angka recruitment diambil dari data terbaru, modul lain masih data contoh."
       >
-        <Link className="btn btn-g" href="/recruitment/overview">
+        <Link
+          prefetch={false}
+          className="btn btn-g"
+          href="/recruitment/overview"
+        >
           Buka Recruitment
         </Link>
-        <Link className="btn btn-p" href="/knowledge-hub/beranda">
+        <Link
+          prefetch={false}
+          className="btn btn-p"
+          href="/knowledge-hub/beranda"
+        >
           Knowledge Hub
         </Link>
       </PageHead>
@@ -158,6 +166,7 @@ export function DashboardView({ user }: { user: SessionUser }) {
             </div>
             <div className="flex flex-col gap-3 text-[13px]">
               <Link
+                prefetch={false}
                 href="/payroll"
                 className="flex items-center justify-between gap-3"
               >
@@ -167,6 +176,7 @@ export function DashboardView({ user }: { user: SessionUser }) {
                 </span>
               </Link>
               <Link
+                prefetch={false}
                 href="/learning"
                 className="flex items-center justify-between gap-3"
               >
@@ -176,6 +186,7 @@ export function DashboardView({ user }: { user: SessionUser }) {
                 </span>
               </Link>
               <Link
+                prefetch={false}
                 href="/recruitment/jadwal"
                 className="flex items-center justify-between gap-3"
               >

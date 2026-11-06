@@ -2,8 +2,6 @@ import { notFound } from "next/navigation";
 import { getPublicJob } from "@/lib/recruitment/live/public-repository";
 import { JobDetails } from "@/components/careers/job-details";
 
-export const dynamic = "force-dynamic";
-
 export default async function JobPage({
   params,
 }: {

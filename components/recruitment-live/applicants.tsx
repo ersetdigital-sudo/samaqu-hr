@@ -322,6 +322,7 @@ export function Applicants({
       <div className="rl-header" style={{ alignItems: "center" }}>
         <div className="rl-form-header">
           <Link
+            prefetch={false}
             href="/recruitment/lowongan"
             className="rl-btn rl-back"
             aria-label="Kembali ke daftar lowongan"

@@ -17,7 +17,7 @@ export function MobileTabs({ user }: { user: SessionUser }) {
   const activeModule = findModuleByPath(pathname);
   const subItems = activeModule
     ? visibleSubItems(user.role, activeModule).filter((item) =>
-        isSubItemLive(activeModule, item)
+        isSubItemLive(activeModule, item),
       )
     : [];
 
@@ -26,28 +26,36 @@ export function MobileTabs({ user }: { user: SessionUser }) {
       className="lg:hidden bg-white border-b"
       style={{ borderColor: "var(--line)" }}
     >
-      <div className="flex gap-1 overflow-auto no-scrollbar px-3 py-2" id="mnav">
+      <div
+        className="flex gap-1 overflow-auto no-scrollbar px-3 py-2"
+        id="mnav"
+      >
         {ALL_MODULES.filter((module) => canAccess(user.role, module)).map(
           (module) => (
             <Link
               key={module.id}
               href={module.href}
+              prefetch={false}
               className={`tab ${
                 activeModule?.id === module.id ? "on" : ""
               } whitespace-nowrap`}
             >
               {module.label}
             </Link>
-          )
+          ),
         )}
       </div>
 
       {subItems.length > 0 && (
-        <div className="flex gap-1 overflow-auto no-scrollbar px-3 pb-2" id="msubnav">
+        <div
+          className="flex gap-1 overflow-auto no-scrollbar px-3 pb-2"
+          id="msubnav"
+        >
           {subItems.map((item) => (
             <Link
               key={item.id}
               href={item.href}
+              prefetch={false}
               className={`tab ${
                 pathname === item.href ? "on" : ""
               } whitespace-nowrap`}

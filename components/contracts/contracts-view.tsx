@@ -7,6 +7,12 @@ import type { ContractModalState } from "@/components/contracts/contract-modal-s
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
 import { useRecruitment } from "@/components/recruitment-provider";
+import {
+  DataTable,
+  EllipsisText,
+  TwoLineCell,
+  type DataTableColumn,
+} from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
 import {
   CONTRACT_DISPLAY_STATUSES,
@@ -21,14 +27,12 @@ import {
   type ContractFilters,
   type ContractSort,
 } from "@/lib/contracts/query";
-import { contractDurationLabel } from "@/lib/contracts/rules";
 import type {
   Contract,
   ContractEmployeeRef,
   ContractListResponse,
   ContractSummary,
 } from "@/lib/contracts/types";
-import { ini } from "@/lib/data";
 import { formatIsoDateID } from "@/lib/employees/format";
 import { EMPLOYMENT_TYPES } from "@/lib/employees/types";
 
@@ -43,7 +47,7 @@ export function ContractsView({
   const [contracts, setContracts] = useState(initialContracts);
   const [employees, setEmployees] = useState(initialEmployees);
   const [filters, setFilters] = useState<ContractFilters>(
-    DEFAULT_CONTRACT_FILTERS
+    DEFAULT_CONTRACT_FILTERS,
   );
   const [detailEmployeeId, setDetailEmployeeId] = useState<string | null>(null);
   const [modal, setModal] = useState<ContractModalState | null>(null);
@@ -51,19 +55,19 @@ export function ContractsView({
 
   const stats = useMemo(
     () => buildContractStats(contracts, employees),
-    [contracts, employees]
+    [contracts, employees],
   );
   const result = useMemo(
     () => filterContracts(contracts, filters),
-    [contracts, filters]
+    [contracts, filters],
   );
   const departments = useMemo(
     () => uniqueContractValues(contracts, "department"),
-    [contracts]
+    [contracts],
   );
   const types = useMemo(
     () => uniqueContractValues(contracts, "employmentType"),
-    [contracts]
+    [contracts],
   );
 
   const refresh = useCallback(async () => {
@@ -86,12 +90,12 @@ export function ContractsView({
         setBusy(false);
       }
     },
-    [refresh, toast]
+    [refresh, toast],
   );
 
-  const setFilter = <K extends keyof ContractFilters,>(
+  const setFilter = <K extends keyof ContractFilters>(
     key: K,
-    value: ContractFilters[K]
+    value: ContractFilters[K],
   ) =>
     setFilters((prev) => ({
       ...prev,
@@ -109,7 +113,7 @@ export function ContractsView({
 
   const endContract = async (contract: Contract): Promise<boolean> => {
     const confirmed = window.confirm(
-      `Akhiri kontrak ${contract.contractNumber}?`
+      `Akhiri kontrak ${contract.contractNumber}?`,
     );
     if (!confirmed) return false;
 
@@ -120,25 +124,88 @@ export function ContractsView({
         body: JSON.stringify({ action: "end" }),
       });
       const data = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "Gagal mengakhiri kontrak");
+      if (!response.ok)
+        throw new Error(data.error ?? "Gagal mengakhiri kontrak");
       await reload(`Kontrak ${contract.contractNumber} diakhiri`);
       setDetailEmployeeId(contract.employeeId);
       return true;
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Gagal mengakhiri kontrak");
+      toast(
+        error instanceof Error ? error.message : "Gagal mengakhiri kontrak",
+      );
       return false;
     }
   };
 
+  const columns: DataTableColumn<ContractSummary>[] = [
+    {
+      key: "employee",
+      label: "Karyawan",
+      width: "24%",
+      render: (contract) => (
+        <TwoLineCell
+          primary={contract.employeeName}
+          secondary={contract.employeeId}
+        />
+      ),
+    },
+    {
+      key: "position",
+      label: "Jabatan",
+      width: "22%",
+      render: (contract) => (
+        <TwoLineCell
+          primary={contract.position}
+          secondary={contract.department}
+        />
+      ),
+    },
+    {
+      key: "number",
+      label: "Kontrak",
+      width: "15%",
+      render: (contract) => <EllipsisText text={contract.contractNumber} />,
+    },
+    {
+      key: "period",
+      label: "Periode",
+      width: "19%",
+      render: (contract) => {
+        const period = `${formatIsoDateID(contract.startDate)} – ${
+          contract.endDate ? formatIsoDateID(contract.endDate) : "Tanpa batas"
+        }`;
+        return <EllipsisText text={period} />;
+      },
+    },
+    {
+      key: "status",
+      label: "Status",
+      width: "20%",
+      render: (contract) => (
+        <span className={`tag ${contractStatusTone(contract.displayStatus)}`}>
+          {contract.displayStatus}
+        </span>
+      ),
+    },
+  ];
+
   const summary = [
-    { label: "Kontrak Aktif", value: stats.active, hint: "termasuk akan berakhir" },
+    {
+      label: "Kontrak Aktif",
+      value: stats.active,
+      hint: "termasuk akan berakhir",
+    },
     {
       label: "Akan Berakhir",
       value: stats.expiring30,
       hint: "dalam 30 hari",
       highlight: true,
     },
-    { label: "Pantauan 90 hari", value: stats.expiring90, hint: "perlu persiapan" },
+    {
+      label: "Pantauan 90 hari",
+      value: stats.expiring90,
+      hint: "perlu persiapan",
+    },
     { label: "Sudah Berakhir", value: stats.ended, hint: "tidak aktif" },
   ];
 
@@ -157,7 +224,9 @@ export function ContractsView({
         </button>
         <button
           className="btn btn-p"
-          onClick={() => setModal({ mode: "create", contract: null, employeeId: null })}
+          onClick={() =>
+            setModal({ mode: "create", contract: null, employeeId: null })
+          }
         >
           <Icon name="plus" /> Tambah Kontrak
         </button>
@@ -203,10 +272,7 @@ export function ContractsView({
             value={filters.q}
             onChange={(event) => setFilter("q", event.target.value)}
           />
-          <Icon
-            name="search"
-            className="search-icon"
-          />
+          <Icon name="search" className="search-icon" />
         </div>
 
         <select
@@ -224,9 +290,11 @@ export function ContractsView({
           value={filters.employmentType}
           onChange={(event) => setFilter("employmentType", event.target.value)}
         >
-          {["Semua", ...new Set([...types, ...EMPLOYMENT_TYPES])].map((value) => (
-            <option key={value}>{value}</option>
-          ))}
+          {["Semua", ...new Set([...types, ...EMPLOYMENT_TYPES])].map(
+            (value) => (
+              <option key={value}>{value}</option>
+            ),
+          )}
         </select>
 
         <select
@@ -281,88 +349,15 @@ export function ContractsView({
         )}
       </div>
 
-      <div className="card overflow-x-auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Karyawan</th>
-              <th>No. Kontrak</th>
-              <th>Jenis</th>
-              <th>Mulai</th>
-              <th>Berakhir</th>
-              <th>Durasi</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.rows.map((contract) => {
-              const displayStatus = contract.displayStatus;
-              return (
-                <tr
-                  key={contract.id}
-                  className="cursor-pointer"
-                  onClick={() => setDetailEmployeeId(contract.employeeId)}
-                >
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="av">{ini(contract.employeeName)}</div>
-                      <div className="min-w-0">
-                        <b className="whitespace-nowrap">
-                          {contract.employeeName}
-                        </b>
-                        <div className="text-[11px] sub whitespace-nowrap">
-                          {contract.employeeId} · {contract.position} ·{" "}
-                          {contract.department}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="sub whitespace-nowrap font-medium">
-                    {contract.contractNumber}
-                  </td>
-                  <td className="sub whitespace-nowrap">
-                    {contract.employmentType}
-                  </td>
-                  <td className="sub whitespace-nowrap">
-                    {formatIsoDateID(contract.startDate)}
-                  </td>
-                  <td className="sub whitespace-nowrap">
-                    {formatIsoDateID(contract.endDate)}
-                  </td>
-                  <td className="sub whitespace-nowrap">
-                    {contractDurationLabel(contract)}
-                  </td>
-                  <td>
-                    <span className={`tag ${contractStatusTone(displayStatus)}`}>
-                      {displayStatus}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-g !py-1.5 !px-3"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setDetailEmployeeId(contract.employeeId);
-                      }}
-                    >
-                      Lihat Detail
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-
-            {result.rows.length === 0 && (
-              <tr>
-                <td colSpan={8} className="text-center sub py-10">
-                  Tidak ada kontrak yang cocok dengan pencarian/filter.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        ariaLabel="Daftar kontrak"
+        columns={columns}
+        rows={result.rows}
+        rowKey={(contract) => contract.id}
+        rowLabel={(contract) => `Buka detail kontrak ${contract.employeeName}`}
+        onRowActivate={(contract) => setDetailEmployeeId(contract.employeeId)}
+        empty="Tidak ada kontrak yang cocok dengan pencarian/filter."
+      />
 
       <Pagination
         page={result.page}

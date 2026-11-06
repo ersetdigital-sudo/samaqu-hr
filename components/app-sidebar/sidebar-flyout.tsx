@@ -123,6 +123,7 @@ export function SidebarFlyout({
             <Link
               key={item.id}
               href={item.href}
+              prefetch={false}
               className={pathname === item.href ? styles.flyoutActive : ""}
               aria-current={pathname === item.href ? "page" : undefined}
               onClick={() => onClose(false)}

@@ -1,4 +1,6 @@
 import "server-only";
+import { revalidateTag } from "next/cache";
+import { PUBLIC_JOBS_TAG } from "./cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { DEPARTMENTS } from "@/lib/employees/types";
 import { requireRole } from "@/lib/auth/session";
@@ -144,7 +146,10 @@ export async function saveJob(
       });
     dbFailure(error);
   }
-  return effective(data as JobPosting);
+  const saved = data as JobPosting;
+  if (saved.published_at)
+    revalidateTag(PUBLIC_JOBS_TAG, { expire: 0 });
+  return effective(saved);
 }
 export async function changeJobStatus(
   id: string,
@@ -171,6 +176,7 @@ export async function changeJobStatus(
       "Lowongan sudah berubah. Muat ulang halaman.",
       409,
     );
+  revalidateTag(PUBLIC_JOBS_TAG, { expire: 0 });
   return effective(data as JobPosting);
 }
 export async function listApplications(

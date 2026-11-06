@@ -6,9 +6,14 @@ import { EmployeeModal } from "@/components/employees/employee-modal";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
+import {
+  DataTable,
+  EllipsisText,
+  TwoLineCell,
+  type DataTableColumn,
+} from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
 import { useRecruitment } from "@/components/recruitment-provider";
-import { ini } from "@/lib/data";
 import { formatIsoDateID } from "@/lib/employees/format";
 import {
   DEFAULT_FILTERS,
@@ -54,7 +59,7 @@ export function DirectoryView({
   const locations = useMemo(() => uniqueOptions(rows, "location"), [rows]);
   const employmentTypes = useMemo(
     () => uniqueOptions(rows, "employmentType"),
-    [rows]
+    [rows],
   );
 
   const refresh = useCallback(async () => {
@@ -73,18 +78,18 @@ export function DirectoryView({
         if (message) toast(message);
       } catch (error) {
         toast(
-          error instanceof Error ? error.message : "Gagal memuat data karyawan"
+          error instanceof Error ? error.message : "Gagal memuat data karyawan",
         );
       } finally {
         setBusy(false);
       }
     },
-    [refresh, toast]
+    [refresh, toast],
   );
 
-  const setFilter = <K extends keyof DirectoryFilters,>(
+  const setFilter = <K extends keyof DirectoryFilters>(
     key: K,
-    value: DirectoryFilters[K]
+    value: DirectoryFilters[K],
   ) =>
     setFilters((prev) => ({
       ...prev,
@@ -109,6 +114,52 @@ export function DirectoryView({
     setEditing(null);
     await reload(message);
   };
+
+  const columns: DataTableColumn<EmployeeSummary>[] = [
+    {
+      key: "employee",
+      label: "Karyawan",
+      width: "26%",
+      render: (employee) => (
+        <TwoLineCell primary={employee.fullName} secondary={employee.id} />
+      ),
+    },
+    {
+      key: "position",
+      label: "Jabatan",
+      width: "24%",
+      render: (employee) => (
+        <TwoLineCell
+          primary={employee.position}
+          secondary={employee.department}
+        />
+      ),
+    },
+    {
+      key: "employment",
+      label: "Hubungan Kerja",
+      width: "17%",
+      render: (employee) => <EllipsisText text={employee.employmentType} />,
+    },
+    {
+      key: "status",
+      label: "Status",
+      width: "16%",
+      render: (employee) => (
+        <span className={`tag ${employeeStatusTone(employee.status)}`}>
+          {employee.status}
+        </span>
+      ),
+    },
+    {
+      key: "joined",
+      label: "Tanggal Masuk",
+      width: "17%",
+      render: (employee) => (
+        <EllipsisText text={formatIsoDateID(employee.joinedAt)} />
+      ),
+    },
+  ];
 
   const summary = [
     {
@@ -183,10 +234,7 @@ export function DirectoryView({
             value={filters.q}
             onChange={(event) => setFilter("q", event.target.value)}
           />
-          <Icon
-            name="search"
-            className="search-icon"
-          />
+          <Icon name="search" className="search-icon" />
         </div>
 
         <select
@@ -253,79 +301,15 @@ export function DirectoryView({
         )}
       </div>
 
-      <div className="card overflow-x-auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Karyawan</th>
-              <th>Employee ID</th>
-              <th>Jabatan</th>
-              <th>Departemen</th>
-              <th>Lokasi</th>
-              <th>Atasan Langsung</th>
-              <th>Hubungan Kerja</th>
-              <th>Status</th>
-              <th>Bergabung</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.rows.map((employee) => (
-              <tr
-                key={employee.id}
-                className="cursor-pointer"
-                onClick={() => setDetailId(employee.id)}
-              >
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="av">{ini(employee.fullName)}</div>
-                    <b className="whitespace-nowrap">{employee.fullName}</b>
-                  </div>
-                </td>
-                <td className="sub whitespace-nowrap font-medium">
-                  {employee.id}
-                </td>
-                <td className="sub">{employee.position}</td>
-                <td className="sub">{employee.department}</td>
-                <td className="sub whitespace-nowrap">{employee.location}</td>
-                <td className="sub whitespace-nowrap">
-                  {employee.managerName ?? "—"}
-                </td>
-                <td className="sub whitespace-nowrap">
-                  {employee.employmentType}
-                </td>
-                <td>
-                  <span className={`tag ${employeeStatusTone(employee.status)}`}>
-                    {employee.status}
-                  </span>
-                </td>
-                <td className="sub whitespace-nowrap">
-                  {formatIsoDateID(employee.joinedAt)}
-                </td>
-                <td>
-                  <button
-                    className="btn btn-g !py-1.5 !px-3"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setDetailId(employee.id);
-                    }}
-                  >
-                    Lihat Detail
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {result.rows.length === 0 && (
-              <tr>
-                <td colSpan={10} className="text-center sub py-10">
-                  Tidak ada karyawan yang cocok dengan pencarian/filter.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        ariaLabel="Daftar karyawan"
+        columns={columns}
+        rows={result.rows}
+        rowKey={(employee) => employee.id}
+        rowLabel={(employee) => `Buka detail ${employee.fullName}`}
+        onRowActivate={(employee) => setDetailId(employee.id)}
+        empty="Tidak ada karyawan yang cocok dengan pencarian/filter."
+      />
 
       <Pagination
         page={result.page}

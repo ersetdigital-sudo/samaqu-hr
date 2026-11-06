@@ -3,8 +3,6 @@ import { getPublicJobs } from "@/lib/recruitment/live/public-repository";
 import { CareerHeader, JobInfo } from "@/components/careers/primitives";
 import styles from "@/components/careers/careers.module.css";
 
-export const dynamic = "force-dynamic";
-
 export default async function CareersPage() {
   const jobs = await getPublicJobs();
   return (
@@ -36,6 +34,7 @@ export default async function CareersPage() {
                 className={styles.primary}
                 href={`/karir/${encodeURIComponent(job.slug)}`}
                 aria-label={`Lihat lowongan ${job.title}`}
+                prefetch={false}
               >
                 Lihat
               </Link>

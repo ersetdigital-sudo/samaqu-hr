@@ -400,6 +400,7 @@ export function ApplicationWizard({ job }: { job: PublicJob }) {
         <div className={styles.headerRow}>
           {step === 1 ? (
             <Link
+              prefetch={false}
               href={`/karir/${encodeURIComponent(job.slug)}`}
               className={styles.backIcon}
               aria-label="Kembali ke lowongan"

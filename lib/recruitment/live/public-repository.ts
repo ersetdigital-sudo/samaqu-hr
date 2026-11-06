@@ -1,5 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
+import { unstable_cache } from "next/cache";
+import { PUBLIC_JOBS_REVALIDATE, PUBLIC_JOBS_TAG } from "./cache";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type { ApplicationInput, PublicJob } from "@/lib/recruitment/live/types";
 import {
@@ -11,37 +13,54 @@ import { dbFailure, RecruitmentError } from "@/lib/recruitment/live/http";
 
 const PUBLIC_COLUMNS =
   "id,slug,title,department,location,employment_type,headcount,summary,duties,qualifications,closes_at,status,published_at,closed_at,created_at,updated_at";
-export async function getPublicJobs(): Promise<PublicJob[]> {
-  const db = getServiceSupabase();
-  const jobs: PublicJob[] = [];
-  for (let from = 0; ; from += 200) {
-    const { data, error } = await db
+const loadPublicJobs = unstable_cache(
+  async (): Promise<PublicJob[]> => {
+    const db = getServiceSupabase();
+    const jobs: PublicJob[] = [];
+    for (let from = 0; ; from += 200) {
+      const { data, error } = await db
+        .from("job_postings")
+        .select(PUBLIC_COLUMNS)
+        .eq("status", "Aktif")
+        .or(`closes_at.is.null,closes_at.gte.${jakartaDate()}`)
+        .order("published_at", { ascending: false })
+        .order("id")
+        .range(from, from + 199);
+      if (error) dbFailure(error);
+      jobs.push(...(data as PublicJob[]));
+      if (data.length < 200) break;
+    }
+    return jobs;
+  },
+  ["public-jobs"],
+  { revalidate: PUBLIC_JOBS_REVALIDATE, tags: [PUBLIC_JOBS_TAG] },
+);
+
+const loadPublicJob = unstable_cache(
+  async (slug: string): Promise<PublicJob | null> => {
+    const { data, error } = await getServiceSupabase()
       .from("job_postings")
       .select(PUBLIC_COLUMNS)
-      .eq("status", "Aktif")
-      .or(`closes_at.is.null,closes_at.gte.${jakartaDate()}`)
-      .order("published_at", { ascending: false })
-      .order("id")
-      .range(from, from + 199);
+      .eq("slug", slug)
+      .neq("status", "Draf")
+      .maybeSingle();
     if (error) dbFailure(error);
-    jobs.push(...(data as PublicJob[]));
-    if (data.length < 200) break;
-  }
-  return jobs;
+    if (!data) return null;
+    const job = data as PublicJob;
+    return { ...job, status: effectiveStatus(job.status, job.closes_at) };
+  },
+  ["public-job"],
+  { revalidate: PUBLIC_JOBS_REVALIDATE, tags: [PUBLIC_JOBS_TAG] },
+);
+
+export function getPublicJobs(): Promise<PublicJob[]> {
+  return loadPublicJobs();
 }
-export async function getPublicJob(slug: string): Promise<PublicJob | null> {
+
+export function getPublicJob(slug: string): Promise<PublicJob | null> {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 120)
-    return null;
-  const { data, error } = await getServiceSupabase()
-    .from("job_postings")
-    .select(PUBLIC_COLUMNS)
-    .eq("slug", slug)
-    .neq("status", "Draf")
-    .maybeSingle();
-  if (error) dbFailure(error);
-  if (!data) return null;
-  const job = data as PublicJob;
-  return { ...job, status: effectiveStatus(job.status, job.closes_at) };
+    return Promise.resolve(null);
+  return loadPublicJob(slug);
 }
 export async function submitApplication(
   jobId: string,

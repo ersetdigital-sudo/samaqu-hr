@@ -21,7 +21,9 @@ const PUBLIC_PATHS = [
 
 const isPublic = (pathname: string) =>
   PUBLIC_PATHS.some(
-    (path) => pathname === path || (path !== "/api/karir/lamaran" && pathname.startsWith(`${path}/`))
+    (path) =>
+      pathname === path ||
+      (path !== "/api/karir/lamaran" && pathname.startsWith(`${path}/`)),
   );
 
 const CONFIG_ERROR_MESSAGE =
@@ -55,7 +57,7 @@ function configErrorResponse(request: NextRequest): NextResponse {
   if (request.nextUrl.pathname.startsWith("/api/")) {
     return NextResponse.json(
       { error: CONFIG_ERROR_MESSAGE },
-      { status: 503, headers: { "Cache-Control": "no-store" } }
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 
@@ -79,16 +81,24 @@ export default async function proxy(request: NextRequest) {
     return configErrorResponse(request);
   }
 
+  const { pathname, search } = request.nextUrl;
+
+  // Public pages and the application endpoint do not need a session lookup.
+  // Keep /login dynamic so an already signed-in user is still redirected home.
+  if (isPublic(pathname) && pathname !== "/login") {
+    return response;
+  }
+
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (cookiesToSet) => {
         cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value)
+          request.cookies.set(name, value),
         );
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options)
+          response.cookies.set(name, value, options),
         );
       },
     },
@@ -97,8 +107,6 @@ export default async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname, search } = request.nextUrl;
 
   if (!user && !isPublic(pathname)) {
     const redirectUrl = request.nextUrl.clone();
@@ -119,6 +127,6 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot|css|js|map|txt|xml|webmanifest)$).*)",
   ],
 };

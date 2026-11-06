@@ -145,12 +145,14 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 16px;
+  padding: 16px 16px 28px;
+  overscroll-behavior: contain;
+  scroll-padding-bottom: 24px;
   transition: padding 200ms ease-out;
 }
 
 .collapsed .navScroll {
-  padding: 12px 8px;
+  padding: 12px 8px 26px;
 }
 
 .group {
@@ -416,14 +418,28 @@
 }
 
 .footer {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 16px;
   border-top: 1px solid var(--line);
+  background: #fff;
   transition:
     padding 200ms ease-out,
     gap 200ms ease-out;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: 22px;
+  background: linear-gradient(to top, #fff 20%, rgb(255 255 255 / 0%));
+  pointer-events: none;
 }
 
 .userText {

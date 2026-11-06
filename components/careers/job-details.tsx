@@ -88,7 +88,7 @@ export function JobDetails({
       </main>
       <div className={styles.actionBar}>
         {closed ? (
-          <Link href="/karir" className={styles.primary}>
+          <Link prefetch={false} href="/karir" className={styles.primary}>
             Lihat lowongan lain
           </Link>
         ) : preview ? (
@@ -97,6 +97,7 @@ export function JobDetails({
           </button>
         ) : (
           <Link
+            prefetch={false}
             href={`/karir/${encodeURIComponent(job.slug)}/lamar`}
             className={styles.primary}
           >

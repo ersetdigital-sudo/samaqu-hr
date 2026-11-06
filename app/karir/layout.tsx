@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: "Temukan lowongan kerja dan bergabung bersama tim SAMAQU.",
 };
 
+/** Public job pages are refreshed on publish/close or after one hour. */
+export const revalidate = 3600;
+
 export default function CareersLayout({ children }: { children: ReactNode }) {
   return children;
 }
