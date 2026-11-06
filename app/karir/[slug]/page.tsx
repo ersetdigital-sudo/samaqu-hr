@@ -4,7 +4,11 @@ import { JobDetails } from "@/components/careers/job-details";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function JobPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const job = await getPublicJob(slug);
   if (!job) notFound();

@@ -4,9 +4,16 @@ import { ApplicationWizard } from "@/components/careers/application-wizard";
 import { JobDetails } from "@/components/careers/job-details";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Form Lamaran · SAMAQU Karir", robots: { index: false, follow: false } };
+export const metadata = {
+  title: "Form Lamaran · SAMAQU Karir",
+  robots: { index: false, follow: false },
+};
 
-export default async function ApplyPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ApplyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const job = await getPublicJob(slug);
   if (!job) notFound();

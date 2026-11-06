@@ -8,6 +8,11 @@ export default async function RecruitmentLowonganPage() {
     const jobs = await listJobs();
     return <JobsList jobs={jobs} />;
   } catch {
-    return <JobsList jobs={[]} error="Daftar lowongan belum dapat dimuat. Silakan coba lagi." />;
+    return (
+      <JobsList
+        jobs={[]}
+        error="Daftar lowongan belum dapat dimuat. Silakan coba lagi."
+      />
+    );
   }
 }

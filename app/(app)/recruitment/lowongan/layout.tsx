@@ -4,7 +4,11 @@ import "@/components/recruitment-live/live.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function LowonganLayout({ children }: { children: ReactNode }) {
+export default async function LowonganLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   await requireRole(["hr_manager", "recruiter"]);
   return children;
 }
