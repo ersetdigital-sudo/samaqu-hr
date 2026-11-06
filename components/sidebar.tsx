@@ -56,7 +56,7 @@ export function Sidebar({ user }: { user: SessionUser }) {
         </div>
       </div>
 
-      <div className="p-4 flex-1 overflow-auto">
+      <div className="p-4 flex-1 overflow-auto no-scrollbar">
         {NAV_GROUPS.map((group) => {
           const modules = group.modules.filter((module) =>
             canAccess(user.role, module)

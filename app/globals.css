@@ -83,6 +83,16 @@ body {
   font-weight: 600;
 }
 
+/* Menu tetap bisa di-scroll, tapi indikator scrollbar tidak ditampilkan. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .nav-soon {
   display: flex;
   align-items: center;
