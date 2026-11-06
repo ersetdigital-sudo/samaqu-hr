@@ -16,7 +16,10 @@ export type IconName =
   | "search"
   | "wallet"
   | "target"
-  | "settings";
+  | "settings"
+  | "panel"
+  | "chevron"
+  | "logout";
 
 export const STAGES = [
   "Lamaran Masuk",

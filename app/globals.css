@@ -31,23 +31,31 @@ body {
   border-radius: 14px;
 }
 
-.nav a {
+.nav a,
+.nav .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
   border-radius: 10px;
+  background: transparent;
   color: var(--mute);
+  font: inherit;
   font-weight: 500;
+  text-align: left;
   cursor: pointer;
 }
 
-.nav a:hover {
+.nav a:hover,
+.nav .nav-item:hover {
   background: #f4f0ee;
   color: var(--ink);
 }
 
-.nav a.on {
+.nav a.on,
+.nav .nav-item.on {
   background: var(--pink-50);
   color: var(--pink);
   font-weight: 600;
@@ -254,6 +262,10 @@ tbody tr:hover {
   box-shadow: 0 0 0 3px var(--pink-50);
 }
 
+.inp-search {
+  padding-left: 38px;
+}
+
 .lbl {
   font-size: 12px;
   font-weight: 600;
@@ -413,6 +425,20 @@ svg.i {
   stroke-linecap: round;
   stroke-linejoin: round;
   flex: none;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #a59b97;
+  pointer-events: none;
+}
+
+svg.search-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .h1 {

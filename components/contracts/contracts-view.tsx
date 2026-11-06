@@ -198,15 +198,14 @@ export function ContractsView({
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative w-full md:w-72">
           <input
-            className="inp pl-9"
+            className="inp inp-search"
             placeholder="Cari nama, Employee ID, atau nomor kontrak…"
             value={filters.q}
             onChange={(event) => setFilter("q", event.target.value)}
           />
           <Icon
             name="search"
-            className="absolute left-3 top-[11px]"
-            style={{ color: "#A59B97", width: 16 }}
+            className="search-icon"
           />
         </div>
 

@@ -219,15 +219,14 @@ export function UsersView({
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative w-full md:w-80">
           <input
-            className="inp pl-9"
+            className="inp inp-search"
             placeholder="Cari nama, email, atau role…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
           <Icon
             name="search"
-            className="absolute left-3 top-[11px]"
-            style={{ color: "#A59B97", width: 16 }}
+            className="search-icon"
           />
         </div>
       </div>

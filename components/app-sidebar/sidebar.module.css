@@ -1,0 +1,516 @@
+.sidebar {
+  width: 252px;
+  overflow: hidden;
+  transition: width 200ms ease-out;
+}
+
+.collapsed {
+  width: 72px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  transition:
+    padding 200ms ease-out,
+    gap 200ms ease-out;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--pink);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  flex: none;
+  transition:
+    width 200ms ease-out,
+    height 200ms ease-out,
+    border-radius 200ms ease-out;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  min-width: 0;
+  max-width: 120px;
+  overflow: hidden;
+  opacity: 1;
+  white-space: nowrap;
+  transition:
+    opacity 140ms ease-out,
+    max-width 200ms ease-out;
+}
+
+.brandText strong {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.brandText span {
+  margin-top: 4px;
+  color: #a59b97;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.toggle {
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--mute);
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    width 200ms ease-out,
+    height 200ms ease-out;
+}
+
+.toggle:hover {
+  background: var(--pink-50);
+  border-color: #ddd5d1;
+  color: var(--ink);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid #1f5a94;
+  outline-offset: 2px;
+}
+
+.toggleIcon {
+  width: 17px;
+  height: 17px;
+  transition: transform 200ms ease-out;
+}
+
+.collapsed .header {
+  gap: 4px;
+  padding: 0 6px;
+}
+
+.collapsed .brand {
+  gap: 4px;
+}
+
+.collapsed .logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+.collapsed .brandText {
+  max-width: 0;
+  opacity: 0;
+}
+
+.collapsed .toggle {
+  width: 28px;
+  height: 28px;
+  margin-left: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.collapsed .toggleIcon {
+  transform: scaleX(-1);
+}
+
+.navScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+  transition: padding 200ms ease-out;
+}
+
+.collapsed .navScroll {
+  padding: 12px 8px;
+}
+
+.group {
+  margin-bottom: 20px;
+}
+
+.group:last-child {
+  margin-bottom: 0;
+}
+
+.groupLabel {
+  max-height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+    opacity 140ms ease-out,
+    max-height 160ms ease-out,
+    margin 160ms ease-out;
+}
+
+.collapsed .groupLabel {
+  max-height: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.module {
+  margin-bottom: 2px;
+}
+
+.itemRow {
+  width: 100%;
+}
+
+.itemIcon {
+  display: flex;
+  flex: none;
+}
+
+.itemLabel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    opacity 140ms ease-out 80ms,
+    max-width 200ms ease-out;
+}
+
+.labelText {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.soonBadge {
+  flex: none;
+  align-self: flex-start;
+  padding: 2px 4px;
+  border-radius: 5px;
+  background: #f2eeec;
+  color: #8a8380;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    opacity 140ms ease-out,
+    max-width 200ms ease-out;
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: #a59b97;
+  transition:
+    transform 200ms ease-out,
+    opacity 140ms ease-out,
+    max-width 200ms ease-out;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.collapsed .itemRow {
+  width: 44px;
+  margin: 0 auto;
+  justify-content: center;
+  gap: 0;
+  padding: 10px 0;
+}
+
+.collapsed .itemLabel {
+  flex: 0 0 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    opacity 80ms ease-out,
+    max-width 200ms ease-out;
+}
+
+.collapsed .soonBadge,
+.collapsed .chevron {
+  width: 0;
+  max-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.tooltipHost {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 90;
+  transform: translateY(-50%);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #1f1a1c;
+  color: #fff;
+  box-shadow: 0 6px 18px rgb(31 26 28 / 18%);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltipIn 120ms ease-out;
+}
+
+.tooltip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: #1f1a1c;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.submenu {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 200ms ease-out,
+    opacity 140ms ease-out;
+}
+
+.submenu[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.collapsed .submenu {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.submenuClip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.flyout {
+  position: fixed;
+  z-index: 80;
+  width: 240px;
+  padding: 8px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 36px rgb(31 26 28 / 14%);
+  animation: flyoutIn 140ms ease-out;
+}
+
+.flyoutTitle {
+  margin: 0;
+  padding: 8px 10px 6px;
+  overflow: hidden;
+  color: #a59b97;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.flyoutItems {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flyout a,
+.flyoutSoon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--mute);
+  font-size: 12.8px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.flyout a:hover {
+  background: #f4f0ee;
+  color: var(--ink);
+}
+
+.flyout a:focus-visible {
+  outline: 2px solid #1f5a94;
+  outline-offset: -2px;
+}
+
+.flyoutActive {
+  background: var(--pink-50);
+  color: var(--ink) !important;
+  font-weight: 700;
+}
+
+.flyoutSoon {
+  color: #a59b97;
+  cursor: default;
+}
+
+.flyoutSoon em {
+  flex: none;
+  color: #b8b0ac;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--line);
+  transition:
+    padding 200ms ease-out,
+    gap 200ms ease-out;
+}
+
+.userText {
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    opacity 140ms ease-out,
+    max-width 200ms ease-out,
+    max-height 200ms ease-out;
+}
+
+.logout {
+  flex: none;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.logoutTooltip {
+  width: auto;
+  align-self: center;
+}
+
+.footerCollapsed {
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 8px;
+}
+
+.footerCollapsed .userText {
+  flex: 0 0 auto;
+  max-width: 0;
+  max-height: 0;
+  opacity: 0;
+}
+
+.footerCollapsed .logout {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes flyoutIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .header,
+  .logo,
+  .brandText,
+  .toggle,
+  .toggleIcon,
+  .navScroll,
+  .groupLabel,
+  .itemLabel,
+  .soonBadge,
+  .chevron,
+  .submenu,
+  .footer,
+  .userText {
+    transition: none !important;
+  }
+
+  .tooltip,
+  .flyout {
+    animation: none !important;
+  }
+}

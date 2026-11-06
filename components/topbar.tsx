@@ -56,15 +56,14 @@ export function Topbar({ user }: { user: SessionUser }) {
       {canAccessSearch(user) && (
         <div className="relative hidden md:block w-72">
           <input
-            className="inp pl-9"
+            className="inp inp-search"
             placeholder="Cari kandidat, lowongan…"
             value={search}
             onChange={(event) => handleSearch(event.target.value)}
           />
           <Icon
             name="search"
-            className="absolute left-3 top-[11px]"
-            style={{ color: "#A59B97", width: 16 }}
+            className="search-icon"
           />
         </div>
       )}
