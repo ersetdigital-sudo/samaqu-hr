@@ -9,7 +9,7 @@
 import { redirect } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { initialsOf, type SessionUser } from "@/lib/session";
-import type { Role } from "@/lib/navigation";
+import { isSuperuser, type Role } from "@/lib/navigation";
 
 /** Urutan prioritas bila pengguna punya lebih dari satu role. */
 const ROLE_PRIORITY: Role[] = ["admin", "hr_manager", "recruiter", "employee"];
@@ -95,6 +95,8 @@ export async function requireRole(
   nextPath?: string
 ): Promise<SessionUser> {
   const user = await requireUser(nextPath);
-  if (!roles.includes(user.role)) redirect("/unauthorized");
+  if (!isSuperuser(user.role) && !roles.includes(user.role)) {
+    redirect("/unauthorized");
+  }
   return user;
 }

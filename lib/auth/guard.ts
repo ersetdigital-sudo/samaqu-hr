@@ -7,7 +7,13 @@
 
 import { NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth/session";
-import { canAccess, findModule, subItemAllowed, type Role } from "@/lib/navigation";
+import {
+  canAccess,
+  findModule,
+  isSuperuser,
+  subItemAllowed,
+  type Role,
+} from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
 
 export type GuardResult =
@@ -34,7 +40,7 @@ export async function requireApiRole(roles: Role[]): Promise<GuardResult> {
   const result = await requireApiUser();
   if (result.response) return result;
 
-  if (!roles.includes(result.user.role)) {
+  if (!isSuperuser(result.user.role) && !roles.includes(result.user.role)) {
     return {
       response: NextResponse.json({ error: "Akses ditolak" }, { status: 403 }),
     };

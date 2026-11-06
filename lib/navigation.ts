@@ -306,7 +306,7 @@ export function findSubItem(
 /** Role superuser: semua modul dan submenu terbuka. */
 const SUPERUSER_ROLES: Role[] = ["admin"];
 
-const isSuperuser = (role: Role | null): boolean =>
+export const isSuperuser = (role: Role | null): boolean =>
   role !== null && SUPERUSER_ROLES.includes(role);
 
 /** Role yang boleh membuka modul. */
