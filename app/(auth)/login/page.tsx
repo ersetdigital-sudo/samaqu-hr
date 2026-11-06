@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getAuthUser } from "@/lib/auth/session";
@@ -5,9 +6,16 @@ import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const user = await getAuthUser();
   if (user) redirect("/");
+
+  const { error } = await searchParams;
+  const linkError = error === "link";
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -61,6 +69,20 @@ export default async function LoginPage() {
           <div className="sub mt-1 mb-6">
             Gunakan akun internal yang diberikan administrator.
           </div>
+
+          {linkError && (
+            <div
+              className="p-3 rounded-xl text-[12px] mb-5"
+              style={{ background: "var(--badb)", color: "var(--bad)" }}
+              role="alert"
+            >
+              Tautan reset kata sandi tidak valid atau sudah kedaluwarsa.{" "}
+              <Link className="font-semibold underline" href="/forgot-password">
+                Minta tautan baru
+              </Link>
+              .
+            </div>
+          )}
 
           <Suspense fallback={<div className="sub text-[13px]">Memuat…</div>}>
             <LoginForm />
