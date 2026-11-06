@@ -266,6 +266,44 @@ tbody tr:hover {
   padding-left: 38px;
 }
 
+.inp-date {
+  width: 138px;
+  padding-right: 38px;
+}
+
+.date-picker-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: var(--pink-50);
+  color: var(--mute);
+  transform: translateY(-50%);
+}
+
+.date-picker-btn:hover {
+  color: var(--ink);
+  background: var(--pink-100);
+}
+
+.date-picker-btn:focus-visible {
+  outline: 2px solid #1f5a94;
+  outline-offset: 1px;
+}
+
+.date-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .lbl {
   font-size: 12px;
   font-weight: 600;

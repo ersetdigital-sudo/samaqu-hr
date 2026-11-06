@@ -13,6 +13,7 @@ import {
   TwoLineCell,
   type DataTableColumn,
 } from "@/components/ui/data-table";
+import { DateFilterInput } from "@/components/ui/date-filter";
 import { Pagination } from "@/components/ui/pagination";
 import {
   CONTRACT_DISPLAY_STATUSES,
@@ -152,7 +153,7 @@ export function ContractsView({
     {
       key: "position",
       label: "Jabatan",
-      width: "22%",
+      width: "23%",
       render: (contract) => (
         <TwoLineCell
           primary={contract.position}
@@ -163,19 +164,23 @@ export function ContractsView({
     {
       key: "number",
       label: "Kontrak",
-      width: "15%",
+      width: "13%",
       render: (contract) => <EllipsisText text={contract.contractNumber} />,
     },
     {
       key: "period",
       label: "Periode",
-      width: "19%",
-      render: (contract) => {
-        const period = `${formatIsoDateID(contract.startDate)} – ${
-          contract.endDate ? formatIsoDateID(contract.endDate) : "Tanpa batas"
-        }`;
-        return <EllipsisText text={period} />;
-      },
+      width: "20%",
+      render: (contract) => (
+        <TwoLineCell
+          primary={formatIsoDateID(contract.startDate)}
+          secondary={
+            contract.endDate
+              ? `s/d ${formatIsoDateID(contract.endDate)}`
+              : "Tanpa batas"
+          }
+        />
+      ),
     },
     {
       key: "status",
@@ -308,20 +313,16 @@ export function ContractsView({
         </select>
 
         <div className="flex items-center gap-2">
-          <input
-            className="inp !w-auto"
-            type="date"
+          <DateFilterInput
             value={filters.endFrom}
-            onChange={(event) => setFilter("endFrom", event.target.value)}
-            aria-label="Berakhir dari tanggal"
+            onChange={(value) => setFilter("endFrom", value)}
+            ariaLabel="Berakhir dari tanggal"
           />
           <span className="text-[12px] sub">s/d</span>
-          <input
-            className="inp !w-auto"
-            type="date"
+          <DateFilterInput
             value={filters.endTo}
-            onChange={(event) => setFilter("endTo", event.target.value)}
-            aria-label="Berakhir sampai tanggal"
+            onChange={(value) => setFilter("endTo", value)}
+            ariaLabel="Berakhir sampai tanggal"
           />
         </div>
 
@@ -356,6 +357,10 @@ export function ContractsView({
         rowKey={(contract) => contract.id}
         rowLabel={(contract) => `Buka detail kontrak ${contract.employeeName}`}
         onRowActivate={(contract) => setDetailEmployeeId(contract.employeeId)}
+        rowAction={{
+          ariaLabel: (contract) =>
+            `Lihat detail kontrak ${contract.contractNumber}`,
+        }}
         empty="Tidak ada kontrak yang cocok dengan pencarian/filter."
       />
 

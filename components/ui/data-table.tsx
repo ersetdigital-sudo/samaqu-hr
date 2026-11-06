@@ -1,6 +1,7 @@
 "use client";
 
 import type { KeyboardEvent, ReactNode } from "react";
+import { Icon } from "@/components/icons";
 import styles from "./data-table.module.css";
 
 export type DataTableColumn<T> = {
@@ -46,6 +47,13 @@ export function EllipsisText({
   );
 }
 
+type RowAction<T> = {
+  ariaLabel: (row: T) => string;
+  label?: string;
+  width?: number;
+  onClick?: (row: T) => void;
+};
+
 export function DataTable<T>({
   ariaLabel,
   columns,
@@ -53,6 +61,7 @@ export function DataTable<T>({
   rowKey,
   rowLabel,
   onRowActivate,
+  rowAction,
   empty,
   minWidth = 680,
 }: {
@@ -62,11 +71,30 @@ export function DataTable<T>({
   rowKey: (row: T) => string;
   rowLabel?: (row: T) => string;
   onRowActivate?: (row: T) => void;
+  rowAction?: RowAction<T>;
   empty: ReactNode;
   minWidth?: number;
 }) {
+  const actionWidth = rowAction?.width ?? 56;
+  const percentageWidths = columns.every((column) =>
+    column.width.trim().endsWith("%"),
+  );
+  const widthTotal = columns.reduce(
+    (total, column) => total + (Number.parseFloat(column.width) || 0),
+    0,
+  );
+  const columnWidth = (width: string) => {
+    if (!rowAction || !widthTotal || !percentageWidths) return width;
+    const percent = Number.parseFloat(width);
+    if (!Number.isFinite(percent)) return width;
+    const normalized = percent / widthTotal;
+    return `calc(${(normalized * 100).toFixed(4)}% - ${(
+      normalized * actionWidth
+    ).toFixed(4)}px)`;
+  };
   const activate = (row: T) => onRowActivate?.(row);
   const onKeyDown = (event: KeyboardEvent<HTMLTableRowElement>, row: T) => {
+    if (event.target !== event.currentTarget) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
     activate(row);
@@ -81,8 +109,12 @@ export function DataTable<T>({
       >
         <colgroup>
           {columns.map((column) => (
-            <col key={column.key} style={{ width: column.width }} />
+            <col
+              key={column.key}
+              style={{ width: columnWidth(column.width) }}
+            />
           ))}
+          {rowAction && <col style={{ width: actionWidth }} />}
         </colgroup>
         <thead>
           <tr>
@@ -91,6 +123,9 @@ export function DataTable<T>({
                 {column.label}
               </th>
             ))}
+            {rowAction && (
+              <th className={styles.actionHeader} aria-label="Aksi" />
+            )}
           </tr>
         </thead>
         <tbody>
@@ -108,11 +143,30 @@ export function DataTable<T>({
                   {column.render(row)}
                 </td>
               ))}
+              {rowAction && (
+                <td className={styles.actionCell}>
+                  <button
+                    type="button"
+                    className={styles.rowAction}
+                    aria-label={rowAction.ariaLabel(row)}
+                    data-tooltip={rowAction.label ?? "Lihat detail"}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      (rowAction.onClick ?? onRowActivate)?.(row);
+                    }}
+                  >
+                    <Icon name="chevron" style={{ width: 16, height: 16 }} />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={columns.length} className={styles.empty}>
+              <td
+                colSpan={columns.length + (rowAction ? 1 : 0)}
+                className={styles.empty}
+              >
                 {empty}
               </td>
             </tr>

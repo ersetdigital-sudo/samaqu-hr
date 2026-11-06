@@ -308,6 +308,9 @@ export function DirectoryView({
         rowKey={(employee) => employee.id}
         rowLabel={(employee) => `Buka detail ${employee.fullName}`}
         onRowActivate={(employee) => setDetailId(employee.id)}
+        rowAction={{
+          ariaLabel: (employee) => `Lihat detail ${employee.fullName}`,
+        }}
         empty="Tidak ada karyawan yang cocok dengan pencarian/filter."
       />
 
