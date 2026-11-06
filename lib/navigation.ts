@@ -303,9 +303,15 @@ export function findSubItem(
   );
 }
 
+/** Role superuser: semua modul dan submenu terbuka. */
+const SUPERUSER_ROLES: Role[] = ["admin"];
+
+const isSuperuser = (role: Role | null): boolean =>
+  role !== null && SUPERUSER_ROLES.includes(role);
+
 /** Role yang boleh membuka modul. */
 export function canAccess(role: Role | null, module: NavModule): boolean {
-  return role !== null && module.roles.includes(role);
+  return role !== null && (isSuperuser(role) || module.roles.includes(role));
 }
 
 /** Submenu yang terlihat oleh role tertentu. */
@@ -314,6 +320,7 @@ export function visibleSubItems(
   module: NavModule
 ): NavSubItem[] {
   if (role === null) return [];
+  if (isSuperuser(role)) return module.items;
   return module.items.filter((item) =>
     (item.roles ?? module.roles).includes(role)
   );
@@ -331,6 +338,7 @@ export function subItemAllowed(
   pathname: string | null
 ): boolean {
   if (role === null) return false;
+  if (isSuperuser(role)) return true;
   const item = findSubItem(module, pathname);
   if (!item) return true;
   return (item.roles ?? module.roles).includes(role);
