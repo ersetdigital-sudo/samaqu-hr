@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Form Lamaran — Pengalaman</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f1a1c}a:hover{color:#000}
+input::placeholder{color:#8a8083}
+</style>
+</helmet>
+<div style="width: 390px; height: 1240px; box-sizing: border-box; background: #faf8f6; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1f1a1c; display: flex; flex-direction: column; position: relative">
+<header style="display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 18px; border-bottom: 1px solid #ece7e4; background: #ffffff">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="Step1.dc.html" aria-label="Kembali ke data diri" style="width: 40px; height: 40px; border-radius: 12px; border: 1px solid #ece7e4; display: flex; align-items: center; justify-content: center; text-decoration: none">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column; line-height: 1.25">
+<span style="font-size: 12px; color: #6f6669; font-weight: 600">Melamar sebagai</span>
+<span style="font-size: 15.5px; font-weight: 700">Staf Admin</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600"><span>Pengalaman</span><span style="color: #6f6669">Langkah 2 dari 3</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<div style="height: 5px; border-radius: 999px; background: #111111"></div>
+<div style="height: 5px; border-radius: 999px; background: #111111"></div>
+<div style="height: 5px; border-radius: 999px; background: #e4e0de"></div>
+</div>
+</div>
+</header>
+
+<form style="display: flex; flex-direction: column; gap: 20px; padding: 22px 20px 130px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 21px; font-weight: 800">Ceritain pengalaman kamu</h1>
+<p style="margin: 0; font-size: 13.5px; color: #6f6669; line-height: 1.5">Belum punya pengalaman? Tetap boleh melamar.</p>
+</div>
+
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 9px">Pernah kerja sebagai admin? <span style="color: #c53030">*</span></legend>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" aria-pressed="true" style="height: 46px; border-radius: 12px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 14px; font-weight: 600; color: #ffffff">Ya, pernah</button>
+<button type="button" aria-pressed="false" style="height: 46px; border-radius: 12px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 14px; font-weight: 600; color: #1f1a1c">Belum</button>
+</div>
+</fieldset>
+
+<div style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 13.5px; font-weight: 700">Pekerjaan terakhir</span>
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="posisi" style="font-size: 13px; font-weight: 600; color: #3d3538">Posisi</label>
+<input id="posisi" type="text" placeholder="Contoh: Admin Online Shop" style="height: 48px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 16px; color: #1f1a1c; background: #ffffff">
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="tempat" style="font-size: 13px; font-weight: 600; color: #3d3538">Tempat kerja</label>
+<input id="tempat" type="text" placeholder="Nama toko atau perusahaan" style="height: 48px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 16px; color: #1f1a1c; background: #ffffff">
+</div>
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13px; font-weight: 600; color: #3d3538; padding: 0; margin-bottom: 8px">Lama bekerja</legend>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" aria-pressed="false" style="height: 42px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">&lt; 1 tahun</button>
+<button type="button" aria-pressed="true" style="height: 42px; border-radius: 10px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff">1–2 tahun</button>
+<button type="button" aria-pressed="false" style="height: 42px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">&gt; 2 tahun</button>
+</div>
+</fieldset>
+</div>
+
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 4px">Aplikasi yang kamu kuasai</legend>
+<p style="margin: 0 0 9px; font-size: 12.5px; color: #6f6669">Boleh pilih lebih dari satu</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" aria-pressed="true" style="height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 6px">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Excel / Google Sheets</button>
+<button type="button" aria-pressed="true" style="height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 6px">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Shopee / TikTok Seller</button>
+<button type="button" aria-pressed="false" style="height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">WhatsApp Business</button>
+<button type="button" aria-pressed="false" style="height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Canva</button>
+</div>
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="gaji" style="font-size: 13.5px; font-weight: 600">Ekspektasi gaji per bulan <span style="color: #c53030">*</span></label>
+<div style="display: flex; height: 50px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; background: #ffffff; overflow: hidden">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #f2f0ef; border-right: 1px solid #ddd5d1; font-size: 15px; font-weight: 600">Rp</span>
+<input id="gaji" type="text" inputmode="numeric" placeholder="0" style="flex: 1; min-width: 0; border: 0; padding: 0 14px; font-family: inherit; font-size: 16px; color: #1f1a1c; background: transparent">
+</div>
+</div>
+
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 9px">Bisa mulai kerja <span style="color: #c53030">*</span></legend>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" aria-pressed="true" style="height: 44px; border-radius: 10px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff">Segera</button>
+<button type="button" aria-pressed="false" style="height: 44px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">2 minggu</button>
+<button type="button" aria-pressed="false" style="height: 44px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">1 bulan</button>
+</div>
+</fieldset>
+
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 9px">Tahu lowongan ini dari</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" aria-pressed="true" style="height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff">Instagram</button>
+<button type="button" aria-pressed="false" style="height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">WhatsApp</button>
+<button type="button" aria-pressed="false" style="height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Teman</button>
+<button type="button" aria-pressed="false" style="height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Lainnya</button>
+</div>
+</fieldset>
+</form>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 20px 22px; background: #ffffff; border-top: 1px solid #ece7e4; display: grid; grid-template-columns: 1fr 2fr; gap: 10px">
+<a href="Step1.dc.html" style="display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 14px; border: 1px solid #ddd5d1; background: #ffffff; color: #1f1a1c; font-size: 15px; font-weight: 700; text-decoration: none">Kembali</a>
+<a href="Step3.dc.html" style="display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 14px; background: #111111; color: #ffffff; font-size: 15.5px; font-weight: 700; text-decoration: none">Lanjut</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -15,11 +15,13 @@ const PUBLIC_PATHS = [
   "/reset-password",
   "/unauthorized",
   "/auth/confirm",
+  "/karir",
+  "/api/karir/lamaran",
 ];
 
 const isPublic = (pathname: string) =>
   PUBLIC_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`)
+    (path) => pathname === path || (path !== "/api/karir/lamaran" && pathname.startsWith(`${path}/`))
   );
 
 const CONFIG_ERROR_MESSAGE =

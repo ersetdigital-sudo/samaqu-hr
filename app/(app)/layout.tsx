@@ -10,6 +10,7 @@ import { Toast } from "@/components/toast";
 import { Topbar } from "@/components/topbar";
 import { requireUser } from "@/lib/auth/session";
 import { getRecruitmentSnapshot } from "@/lib/recruitment/repository";
+import { canAccess, findModule } from "@/lib/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,10 @@ export default async function AppLayout({
 }: Readonly<{ children: ReactNode }>) {
   // Pertahanan berlapis: proxy sudah menolak, layout memverifikasi ulang.
   const user = await requireUser();
-  const initial = await getRecruitmentSnapshot();
+  const recruitment = findModule("recruitment");
+  const initial = recruitment && canAccess(user.role, recruitment)
+    ? await getRecruitmentSnapshot()
+    : { jobs: [], candidates: [], interviews: [], activities: [] };
 
   return (
     <RecruitmentProvider initial={initial}>

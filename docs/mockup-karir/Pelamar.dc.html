@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Recruitment — Pelamar Staf Admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f1a1c}a:hover{color:#000}
+textarea::placeholder,input::placeholder{color:#8a8083}
+.nv{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#6f6669;font-weight:500;font-size:14px;text-decoration:none}
+.nvs{display:block;padding:7px 10px;border-radius:8px;font-size:12.5px;font-weight:500;color:#6f6669;text-decoration:none}
+</style>
+</helmet>
+<div style="min-height: 1100px; box-sizing: border-box; background: #faf8f6; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1f1a1c; display: flex; flex-wrap: wrap; align-items: stretch">
+
+<aside style="flex: 1 1 252px; max-width: 100%; background: #ffffff; border-right: 1px solid #ece7e4; box-sizing: border-box">
+<div style="height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 24px; border-bottom: 1px solid #ece7e4">
+<div style="width: 32px; height: 32px; border-radius: 8px; background: #111111; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 800">S</div>
+<div style="display: flex; flex-direction: column; line-height: 1"><span style="font-weight: 800; font-size: 17px">SAMAQU</span><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #8a8083; margin-top: 3px">HRIS</span></div>
+</div>
+<nav aria-label="Menu utama" style="padding: 16px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #8a8083; padding: 0 12px 6px">MENU UTAMA</span>
+<a href="#" class="nv">Dashboard</a>
+<a href="#" class="nv">Employee Management</a>
+<a href="#" class="nv" style="background: #f2f0ef; color: #111111; font-weight: 600">Recruitment</a>
+<div style="margin: 2px 0 8px 18px; padding-left: 10px; border-left: 1px solid #ece7e4; display: flex; flex-direction: column; gap: 1px">
+<a href="#" class="nvs">Overview</a>
+<a href="Lowongan.dc.html" class="nvs" style="background: #f2f0ef; color: #111111; font-weight: 600">Lowongan</a>
+<a href="Pelamar.dc.html" class="nvs">Kandidat</a>
+<a href="#" class="nvs">Pipeline</a>
+<a href="#" class="nvs">Jadwal &amp; Evaluasi</a>
+<a href="#" class="nvs">Onboarding</a>
+</div>
+<a href="#" class="nv">Attendance &amp; Leave</a>
+<a href="#" class="nv">Payroll</a>
+<a href="#" class="nv">Knowledge Hub</a>
+</nav>
+</aside>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header style="height: 64px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 32px; background: #ffffff; border-bottom: 1px solid #ece7e4; flex-wrap: wrap">
+<span style="font-size: 14px; color: #6f6669">Recruitment / Lowongan / <span style="color: #1f1a1c; font-weight: 600">Staf Admin</span></span>
+<span style="font-size: 14px; font-weight: 600">Administrator SAMAQU</span>
+</header>
+
+<main style="padding: 28px 32px 32px; max-width: 1320px; box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="Lowongan.dc.html" aria-label="Kembali ke daftar lowongan" style="width: 42px; height: 42px; border-radius: 12px; border: 1px solid #ddd5d1; background: #ffffff; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Pelamar · Staf Admin</h1><span style="background: #e8f5ee; color: #276749; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px">Aktif</span></div>
+<p style="margin: 0; font-size: 14px; color: #6f6669">12 pelamar · 5 belum dicek</p>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; height: 44px; width: 280px; max-width: 100%; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; background: #ffffff; padding: 0 12px">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f6669" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<input aria-label="Cari pelamar" type="search" placeholder="Cari nama atau domisili" style="flex: 1; min-width: 0; border: 0; font-family: inherit; font-size: 14px; color: #1f1a1c; background: transparent">
+</div>
+</div>
+
+<div role="tablist" aria-label="Tahap" style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" role="tab" aria-selected="true" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #111111; background: #111111; color: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600">Semua · 12</button>
+<button type="button" role="tab" aria-selected="false" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; color: #1f1a1c; font-family: inherit; font-size: 13.5px; font-weight: 600">Lamaran Masuk · 5</button>
+<button type="button" role="tab" aria-selected="false" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; color: #1f1a1c; font-family: inherit; font-size: 13.5px; font-weight: 600">Screening · 4</button>
+<button type="button" role="tab" aria-selected="false" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; color: #1f1a1c; font-family: inherit; font-size: 13.5px; font-weight: 600">Wawancara · 2</button>
+<button type="button" role="tab" aria-selected="false" style="height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; color: #1f1a1c; font-family: inherit; font-size: 13.5px; font-weight: 600">Ditolak · 1</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+
+<section aria-label="Daftar pelamar" style="flex: 999 1 460px; min-width: 0; background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; overflow: hidden">
+<div style="overflow-x: auto">
+<div style="min-width: 560px">
+<div style="display: grid; grid-template-columns: 2.2fr 1.3fr 1.2fr 1fr 1.2fr; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #ece7e4; font-size: 12px; font-weight: 700; color: #6f6669; letter-spacing: 0.02em">
+<span>PELAMAR</span><span>PENGALAMAN</span><span>EKSPEKTASI</span><span>MELAMAR</span><span>TAHAP</span>
+</div>
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="6">
+<button type="button" onClick="{{row.pick}}" aria-pressed="{{row.selected}}" style="display: grid; grid-template-columns: 2.2fr 1.3fr 1.2fr 1fr 1.2fr; gap: 12px; align-items: center; width: 100%; padding: 13px 18px; border: 0; border-bottom: 1px solid #f2eeec; background: {{row.bg}}; font-family: inherit; text-align: left; color: #1f1a1c; cursor: pointer">
+<span style="display: flex; align-items: center; gap: 10px; min-width: 0">
+<span style="flex: none; width: 36px; height: 36px; border-radius: 999px; background: #f2f0ef; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{row.ini}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{row.name}}</span><span style="font-size: 12.5px; color: #6f6669">{{row.city}}</span></span>
+</span>
+<span style="font-size: 13px">{{row.expShort}}</span>
+<span style="font-size: 13px">{{row.salary}}</span>
+<span style="font-size: 13px; color: #6f6669">{{row.applied}}</span>
+<span><span style="display: inline-block; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: {{row.stageBg}}; color: {{row.stageFg}}">{{row.stage}}</span></span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; font-size: 13px; color: #6f6669; flex-wrap: wrap; gap: 8px">
+<span>Menampilkan 6 dari 12</span>
+<div style="display: flex; gap: 6px">
+<button type="button" style="height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13px; font-weight: 600; color: #1f1a1c">Sebelumnya</button>
+<button type="button" style="height: 34px; padding: 0 12px; border-radius: 9px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13px; font-weight: 600; color: #1f1a1c">Berikutnya</button>
+</div>
+</div>
+</section>
+
+<section aria-label="Detail pelamar" style="flex: 1 1 360px; min-width: 0; background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; width: 52px; height: 52px; border-radius: 999px; background: #f2f0ef; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center">{{cur.ini}}</span>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 18px; font-weight: 800">{{cur.name}}</span>
+<span style="font-size: 13px; color: #6f6669">Melamar {{cur.applied}}</span>
+</div>
+<span style="flex: none; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: {{cur.stageBg}}; color: {{cur.stageFg}}">{{cur.stage}}</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="display: flex; align-items: center; justify-content: center; gap: 7px; height: 42px; border-radius: 11px; border: 0; background: #e8f5ee; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #276749">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#276749" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.4A9 9 0 1 1 21 12z"></path></svg>Chat WhatsApp</button>
+<button type="button" style="display: flex; align-items: center; justify-content: center; gap: 7px; height: 42px; border-radius: 11px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #1f1a1c">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg>Buka CV</button>
+</div>
+
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px">
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Domisili</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.city}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Usia</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.age}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Pendidikan</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.edu}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Pengalaman admin</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.exp}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px; grid-column: 1 / -1"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Pekerjaan terakhir</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.lastJob}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px; grid-column: 1 / -1"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Aplikasi dikuasai</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.apps}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Ekspektasi gaji</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.salary}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Bisa mulai</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.start}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">Tahu dari</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">{{cur.source}}</dd></div>
+<div style="display: flex; flex-direction: column; gap: 3px"><dt style="font-size: 12px; color: #6f6669; font-weight: 600">WhatsApp</dt><dd style="margin: 0; font-size: 14px; font-weight: 600">+62 8xx-xxxx-xxxx</dd></div>
+</dl>
+
+<div style="background: #faf8f6; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #6f6669; font-weight: 600">Kenapa cocok di posisi ini</span>
+<span style="font-size: 13.5px; line-height: 1.55">{{cur.reason}}</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="catatan" style="font-size: 12.5px; font-weight: 600; color: #6f6669">Catatan internal (tidak terlihat pelamar)</label>
+<textarea id="catatan" rows="2" placeholder="Contoh: Komunikasi bagus, cek ulang pengalaman Shopee" style="box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 10px 12px; font-family: inherit; font-size: 14px; line-height: 1.5; color: #1f1a1c; background: #ffffff; resize: vertical"></textarea>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+<button type="button" style="height: 46px; border-radius: 12px; border: 1px solid #f0c4c4; background: #ffffff; font-family: inherit; font-size: 14px; font-weight: 700; color: #b02a2a">Tolak</button>
+<button type="button" style="height: 46px; border-radius: 12px; border: 0; background: #111111; font-family: inherit; font-size: 14px; font-weight: 700; color: #ffffff">{{cur.nextLabel}}</button>
+</div>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { picked: 0 };
+}
+renderVals() {
+var tones = {
+'Lamaran Masuk': ['#eaf2fb', '#1f5a94'],
+'Screening': ['#fdf5e6', '#8a5a12'],
+'Wawancara': ['#efeafb', '#5b3fa0'],
+'Ditolak': ['#fdecec', '#9b2c2c']
+};
+var next = {
+'Lamaran Masuk': 'Lanjut ke Screening',
+'Screening': 'Undang Wawancara',
+'Wawancara': 'Lanjut ke Tes',
+'Ditolak': 'Pulihkan Lamaran'
+};
+var data = [
+{ name: 'Rina Lestari', ini: 'RL', city: 'Sumedang', applied: '2 jam lalu', stage: 'Lamaran Masuk', expShort: 'Ya, 1–2 thn', exp: 'Ya, 1–2 tahun', salary: 'Rp2,8 jt', age: '23 tahun', edu: 'SMA/SMK', lastJob: 'Admin Online Shop · Toko fashion lokal', apps: 'Excel / Google Sheets, Shopee / TikTok Seller', start: 'Segera', source: 'Instagram', reason: 'Dua tahun pegang admin toko online, terbiasa rekap pesanan harian dan cek resi.' },
+{ name: 'Bayu Pratama', ini: 'BP', city: 'Bandung', applied: '5 jam lalu', stage: 'Lamaran Masuk', expShort: 'Belum', exp: 'Belum', salary: 'Rp2,5 jt', age: '20 tahun', edu: 'SMA/SMK', lastJob: 'Belum ada', apps: 'Excel / Google Sheets, Canva', start: 'Segera', source: 'Teman', reason: 'Baru lulus, cepat belajar dan rapi soal data.' },
+{ name: 'Dewi Anggraini', ini: 'DA', city: 'Sumedang', applied: 'Kemarin', stage: 'Screening', expShort: 'Ya, > 2 thn', exp: 'Ya, lebih dari 2 tahun', salary: 'Rp3,2 jt', age: '27 tahun', edu: 'D3', lastJob: 'Staf Admin · Distributor sembako', apps: 'Excel / Google Sheets, WhatsApp Business', start: '2 minggu', source: 'WhatsApp', reason: 'Terbiasa pegang stok dan faktur, ingin pindah ke bisnis fashion.' },
+{ name: 'Rizky Maulana', ini: 'RM', city: 'Majalengka', applied: '2 hari lalu', stage: 'Screening', expShort: 'Ya, < 1 thn', exp: 'Ya, kurang dari 1 tahun', salary: 'Rp2,7 jt', age: '22 tahun', edu: 'SMA/SMK', lastJob: 'Admin Gudang · Toko elektronik', apps: 'Excel / Google Sheets, Shopee / TikTok Seller', start: '1 bulan', source: 'Instagram', reason: 'Pernah urus resi dan packing, ingin naik ke admin penjualan.' },
+{ name: 'Nanda Putri', ini: 'NP', city: 'Sumedang', applied: '3 hari lalu', stage: 'Wawancara', expShort: 'Ya, 1–2 thn', exp: 'Ya, 1–2 tahun', salary: 'Rp3 jt', age: '24 tahun', edu: 'S1', lastJob: 'Customer Service · Brand hijab', apps: 'Excel / Google Sheets, Shopee / TikTok Seller, WhatsApp Business', start: 'Segera', source: 'Instagram', reason: 'Paham alur chat pelanggan sampai pesanan dikirim.' },
+{ name: 'Agus Setiawan', ini: 'AS', city: 'Cirebon', applied: '4 hari lalu', stage: 'Ditolak', expShort: 'Belum', exp: 'Belum', salary: 'Rp4,5 jt', age: '30 tahun', edu: 'SMA/SMK', lastJob: 'Sopir ekspedisi', apps: 'WhatsApp Business', start: '1 bulan', source: 'Lainnya', reason: '-' }
+];
+var self = this;
+var picked = this.state.picked;
+var rows = data.map(function (d, i) {
+var t = tones[d.stage];
+return Object.assign({}, d, {
+stageBg: t[0], stageFg: t[1],
+nextLabel: next[d.stage],
+selected: i === picked ? 'true' : 'false',
+bg: i === picked ? '#f2f0ef' : '#ffffff',
+pick: function () { self.setState({ picked: i }); }
+});
+});
+return { rows: rows, cur: rows[picked] };
+}
+}
+</script>
+</body>
+</html>

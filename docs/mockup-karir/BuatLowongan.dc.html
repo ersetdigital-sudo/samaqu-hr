@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Recruitment — Buat Lowongan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f1a1c}a:hover{color:#000}
+input::placeholder,textarea::placeholder{color:#8a8083}
+.nv{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#6f6669;font-weight:500;font-size:14px;text-decoration:none}
+.nvs{display:block;padding:7px 10px;border-radius:8px;font-size:12.5px;font-weight:500;color:#6f6669;text-decoration:none}
+</style>
+</helmet>
+<div style="min-height: 1480px; box-sizing: border-box; background: #faf8f6; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1f1a1c; display: flex; flex-wrap: wrap; align-items: stretch">
+
+<aside style="flex: 1 1 252px; max-width: 100%; background: #ffffff; border-right: 1px solid #ece7e4; box-sizing: border-box">
+<div style="height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 24px; border-bottom: 1px solid #ece7e4">
+<div style="width: 32px; height: 32px; border-radius: 8px; background: #111111; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 800">S</div>
+<div style="display: flex; flex-direction: column; line-height: 1"><span style="font-weight: 800; font-size: 17px">SAMAQU</span><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: #8a8083; margin-top: 3px">HRIS</span></div>
+</div>
+<nav aria-label="Menu utama" style="padding: 16px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #8a8083; padding: 0 12px 6px">MENU UTAMA</span>
+<a href="#" class="nv">Dashboard</a>
+<a href="#" class="nv">Employee Management</a>
+<a href="#" class="nv" style="background: #f2f0ef; color: #111111; font-weight: 600">Recruitment</a>
+<div style="margin: 2px 0 8px 18px; padding-left: 10px; border-left: 1px solid #ece7e4; display: flex; flex-direction: column; gap: 1px">
+<a href="#" class="nvs">Overview</a>
+<a href="Lowongan.dc.html" class="nvs" style="background: #f2f0ef; color: #111111; font-weight: 600">Lowongan</a>
+<a href="Pelamar.dc.html" class="nvs">Kandidat</a>
+<a href="#" class="nvs">Pipeline</a>
+<a href="#" class="nvs">Jadwal &amp; Evaluasi</a>
+<a href="#" class="nvs">Onboarding</a>
+</div>
+<a href="#" class="nv">Attendance &amp; Leave</a>
+<a href="#" class="nv">Payroll</a>
+<a href="#" class="nv">Knowledge Hub</a>
+</nav>
+</aside>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header style="height: 64px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 32px; background: #ffffff; border-bottom: 1px solid #ece7e4; flex-wrap: wrap">
+<span style="font-size: 14px; color: #6f6669">Recruitment / Lowongan / <span style="color: #1f1a1c; font-weight: 600">Buat Lowongan</span></span>
+<span style="font-size: 14px; font-weight: 600">Administrator SAMAQU</span>
+</header>
+
+<main style="padding: 32px; max-width: 1320px; box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="Lowongan.dc.html" aria-label="Kembali ke daftar lowongan" style="width: 42px; height: 42px; border-radius: 12px; border: 1px solid #ddd5d1; background: #ffffff; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800">Buat Lowongan</h1>
+<p style="margin: 0; font-size: 14px; color: #6f6669">Isi detail posisi. Simpan sebagai draf dulu kalau belum siap dibagikan.</p>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">
+<form style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700">Info dasar</h2>
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="pos" style="font-size: 13.5px; font-weight: 600">Nama posisi <span style="color: #c53030">*</span></label>
+<input id="pos" type="text" placeholder="Contoh: Staf Admin" style="height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="div" style="font-size: 13.5px; font-weight: 600">Divisi <span style="color: #c53030">*</span></label>
+<select id="div" style="height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 12px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+<option>Operasional</option><option>Produksi</option><option>Konten</option><option>Sales</option>
+</select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="lok" style="font-size: 13.5px; font-weight: 600">Lokasi kerja <span style="color: #c53030">*</span></label>
+<input id="lok" type="text" placeholder="Kota atau alamat kantor" style="height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+</div>
+</div>
+<fieldset style="border: 0; padding: 0; margin: 0">
+<legend style="font-size: 13.5px; font-weight: 600; padding: 0; margin-bottom: 9px">Tipe kerja <span style="color: #c53030">*</span></legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" aria-pressed="true" style="height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid #111111; background: #111111; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #ffffff">Full-time</button>
+<button type="button" aria-pressed="false" style="height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Kontrak</button>
+<button type="button" aria-pressed="false" style="height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Magang</button>
+<button type="button" aria-pressed="false" style="height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid #ddd5d1; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 600; color: #1f1a1c">Harian</button>
+</div>
+</fieldset>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="jml" style="font-size: 13.5px; font-weight: 600">Jumlah dibutuhkan <span style="color: #c53030">*</span></label>
+<input id="jml" type="number" placeholder="1" style="height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+</div>
+<div style="display: flex; flex-direction: column; gap: 7px">
+<label for="tutup" style="font-size: 13.5px; font-weight: 600">Tanggal tutup</label>
+<input id="tutup" type="text" placeholder="DD/MM/YYYY" style="height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+<span style="font-size: 12.5px; color: #6f6669">Kosongkan kalau mau ditutup manual</span>
+</div>
+</div>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+<label for="desk" style="font-size: 16px; font-weight: 700">Deskripsi singkat <span style="color: #c53030">*</span></label>
+<textarea id="desk" rows="3" placeholder="1–2 kalimat tentang peran ini" style="box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 12px 14px; font-family: inherit; font-size: 15px; line-height: 1.5; color: #1f1a1c; background: #ffffff; resize: vertical"></textarea>
+<span style="align-self: flex-end; font-size: 12px; color: #6f6669">0 / 200</span>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700">Yang dikerjakan</h2>
+<span style="font-size: 13px; color: #6f6669">Satu tugas per baris, maksimal 8 poin</span>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<input aria-label="Tugas 1" type="text" placeholder="Contoh: Input dan cek pesanan masuk setiap hari" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+<button type="button" aria-label="Hapus tugas 1" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #ece7e4; background: #ffffff; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f6669" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<input aria-label="Tugas 2" type="text" placeholder="Tugas berikutnya" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+<button type="button" aria-label="Hapus tugas 2" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #ece7e4; background: #ffffff; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f6669" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<button type="button" style="align-self: flex-start; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 10px; border: 1px dashed #c9bfbb; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #1f1a1c">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Tambah poin</button>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700">Kualifikasi</h2>
+<span style="font-size: 13px; color: #6f6669">Satu syarat per baris, maksimal 8 poin</span>
+</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<input aria-label="Kualifikasi 1" type="text" placeholder="Contoh: Minimal lulusan SMA/SMK sederajat" style="flex: 1; min-width: 0; height: 44px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: #ffffff">
+<button type="button" aria-label="Hapus kualifikasi 1" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #ece7e4; background: #ffffff; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f6669" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<button type="button" style="align-self: flex-start; display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 10px; border: 1px dashed #c9bfbb; background: #ffffff; font-family: inherit; font-size: 13.5px; font-weight: 700; color: #1f1a1c">
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Tambah poin</button>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+<label for="slug" style="font-size: 16px; font-weight: 700">Link lowongan</label>
+<div style="display: flex; height: 46px; box-sizing: border-box; border: 1px solid #ddd5d1; border-radius: 12px; background: #ffffff; overflow: hidden">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #f2f0ef; border-right: 1px solid #ddd5d1; font-size: 14px; color: #4a4245; white-space: nowrap">[domain]/karir/</span>
+<input id="slug" type="text" placeholder="staf-admin" style="flex: 1; min-width: 0; border: 0; padding: 0 14px; font-family: inherit; font-size: 15px; color: #1f1a1c; background: transparent">
+</div>
+<span style="font-size: 12.5px; color: #6f6669">Dibuat otomatis dari nama posisi. Boleh diubah selama masih draf.</span>
+</section>
+
+<div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 4px">
+<a href="Lowongan.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; padding: 0 20px; border-radius: 12px; font-size: 14.5px; font-weight: 700; text-decoration: none; color: #6f6669">Batal</a>
+<a href="Lowongan.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid #ddd5d1; background: #ffffff; font-size: 14.5px; font-weight: 700; text-decoration: none">Simpan Draf</a>
+<a href="Lowongan.dc.html" style="display: flex; align-items: center; justify-content: center; height: 48px; padding: 0 22px; border-radius: 12px; background: #111111; color: #ffffff; font-size: 14.5px; font-weight: 700; text-decoration: none">Publikasikan</a>
+</div>
+</form>
+
+<aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700">Form lamaran</h2>
+<p style="margin: 0; font-size: 13px; color: #6f6669; line-height: 1.5">Pertanyaan sama untuk semua lowongan. Pelamar mengisi 3 langkah:</p>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 10px"><span style="flex: none; width: 22px; height: 22px; border-radius: 999px; background: #f2f0ef; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 700">Data diri</span><span style="font-size: 12.5px; color: #6f6669">Nama, WA, email, tgl lahir, domisili, pendidikan</span></div></div>
+<div style="display: flex; gap: 10px"><span style="flex: none; width: 22px; height: 22px; border-radius: 999px; background: #f2f0ef; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 700">Pengalaman</span><span style="font-size: 12.5px; color: #6f6669">Kerja terakhir, aplikasi, ekspektasi gaji, mulai kerja, sumber info</span></div></div>
+<div style="display: flex; gap: 10px"><span style="flex: none; width: 22px; height: 22px; border-radius: 999px; background: #f2f0ef; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 700">CV &amp; kirim</span><span style="font-size: 12.5px; color: #6f6669">CV PDF, portofolio, alasan, persetujuan data</span></div></div>
+</div>
+</section>
+
+<section style="background: #ffffff; border: 1px solid #ece7e4; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700">Pratinjau</h2>
+<p style="margin: 0; font-size: 13px; color: #6f6669; line-height: 1.5">Lihat halaman lowongan persis seperti yang dibuka pelamar di HP.</p>
+<a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 42px; border-radius: 12px; border: 1px solid #ddd5d1; background: #ffffff; font-size: 13.5px; font-weight: 700; text-decoration: none">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f1a1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg>Lihat sebagai pelamar</a>
+</section>
+
+<section style="background: #fdf5e6; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13.5px; font-weight: 700; color: #6b4410">Setelah dipublikasikan</span>
+<span style="font-size: 13px; color: #6b4410; line-height: 1.5">Link langsung aktif dan lowongan muncul di halaman karir. Link tidak bisa diubah lagi supaya yang sudah disebar tetap jalan.</span>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1480}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
