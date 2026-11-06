@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAMAQU · Recruitment (Mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--pink:#111111;--pink-50:#F2F0EF;--pink-100:#E4E0DE;--ink:#1F1A1C;--mute:#6F6669;--line:#ECE7E4;--bg:#FAF8F6;--ok:#2F855A;--okb:#E8F5EE;--warn:#B7791F;--warnb:#FDF5E6;--bad:#C53030;--badb:#FDECEC;--info:#2B6CB0;--infob:#EAF2FB}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--mute);font-weight:500;cursor:pointer}
+.nav a:hover{background:#F4F0EE;color:var(--ink)}
+.nav a.on{background:var(--pink-50);color:var(--pink);font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;font-weight:600;cursor:pointer;transition:.15s;border:1px solid transparent;font-size:13px}
+.btn-p{background:var(--pink);color:#fff}.btn-p:hover{background:#333}
+.btn-g{background:#fff;border-color:var(--line);color:var(--ink)}.btn-g:hover{border-color:#D8D0CC}
+.btn-d{background:#fff;border-color:#F3CACA;color:var(--bad)}
+.btn:active{transform:scale(.97)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.t-ok{background:var(--okb);color:var(--ok)}.t-warn{background:var(--warnb);color:var(--warn)}.t-bad{background:var(--badb);color:var(--bad)}.t-info{background:var(--infob);color:var(--info)}.t-mute{background:#F2EEEC;color:var(--mute)}.t-pink{background:var(--pink-50);color:var(--pink)}
+table{width:100%;border-collapse:collapse}th{font-size:12px;color:var(--mute);font-weight:600;text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);background:#FCFBFA}
+td{padding:14px 16px;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}tbody tr:hover{background:#FCFAF9}
+.av{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;font-weight:700;font-size:12px;background:var(--pink-100);color:var(--pink);flex:none}
+.inp{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;width:100%;outline:none;font:inherit}.inp:focus{border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-50)}
+.lbl{font-size:12px;font-weight:600;color:var(--mute);margin-bottom:6px;display:block}
+.kcol{min-width:236px;background:#F4F1EF;border-radius:14px;padding:10px}
+.kc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:.15s}.kc:hover{border-color:var(--pink);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.tab{padding:8px 14px;border-radius:9px;font-weight:600;color:var(--mute);cursor:pointer;font-size:13px}.tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.bar{height:6px;background:#F0EBE8;border-radius:9px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--pink);border-radius:9px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-weight:500;transition:.25s;z-index:99;pointer-events:none}.toast.show{opacity:1;transform:translateX(-50%)}
+.modal{position:fixed;inset:0;background:rgba(31,26,28,.35);display:none;align-items:flex-start;justify-content:center;padding:48px 16px;z-index:50;overflow:auto}.modal.show{display:flex}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,100%);background:#fff;box-shadow:-10px 0 40px rgba(0,0,0,.08);transform:translateX(100%);transition:.25s;z-index:60;overflow:auto;visibility:hidden}.drawer.show{transform:none;visibility:visible}html,body{overflow-x:hidden}
+.star{cursor:pointer;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;font-weight:600;font-size:12px;color:var(--mute)}.star.on{background:var(--pink);color:#fff;border-color:var(--pink)}
+.chk{width:18px;height:18px;border-radius:5px;border:1.5px solid #CFC6C2;display:grid;place-items:center;flex:none;cursor:pointer}.chk.on{background:var(--pink);border-color:var(--pink)}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.h1{font-size:24px;font-weight:700;letter-spacing:-.02em}.sub{color:var(--mute)}
+</style><script src="https://cdn.moda.app/runtime-libs/tailwind-browser-4.1.13-index.global.min.js"></script><style data-moda-export-fonts="true">@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-extralight.ttf") format("truetype"); font-style: normal; font-weight: 200; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-extralightitalic.ttf") format("truetype"); font-style: italic; font-weight: 200; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-light.ttf") format("truetype"); font-style: normal; font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-lightitalic.ttf") format("truetype"); font-style: italic; font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-italic.ttf") format("truetype"); font-style: italic; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-medium.ttf") format("truetype"); font-style: normal; font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-mediumitalic.ttf") format("truetype"); font-style: italic; font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-semibold.ttf") format("truetype"); font-style: normal; font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-semibolditalic.ttf") format("truetype"); font-style: italic; font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-bold.ttf") format("truetype"); font-style: normal; font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-bolditalic.ttf") format("truetype"); font-style: italic; font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-extrabold.ttf") format("truetype"); font-style: normal; font-weight: 800; font-display: swap; }
+@font-face { font-family: 'Plus Jakarta Sans'; src: url("../fonts/plusjakartasans-extrabolditalic.ttf") format("truetype"); font-style: italic; font-weight: 800; font-display: swap; }</style></head>
+<body>
+<div class="flex min-h-screen">
+<aside id="side" class="hidden lg:flex flex-col w-[248px] shrink-0 bg-white border-r" style="border-color:var(--line)">
+  <div class="px-6 h-16 flex items-center gap-2 border-b" style="border-color:var(--line)"><div class="w-8 h-8 rounded-lg grid place-items-center text-white font-extrabold" style="background:var(--pink)">S</div><div class="font-extrabold tracking-tight text-[17px]">SAMAQU</div></div>
+  <div class="p-4 flex-1 overflow-auto">
+    <div class="text-[11px] font-bold tracking-wider px-3 mb-2" style="color:#A59B97">MODUL LAIN</div>
+    <nav class="nav mb-5"><a onclick="toast('Dashboard operasional tidak diubah dalam mockup ini')"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>Dashboard</a>
+    <a id="khLink" onclick="go('knowledge')"><svg class="i" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg>Knowledge Hub</a></nav>
+    <div class="text-[11px] font-bold tracking-wider px-3 mb-2" style="color:#A59B97">RECRUITMENT</div>
+    <nav class="nav" id="nav"></nav>
+  </div>
+  <div class="p-4 border-t flex items-center gap-3" style="border-color:var(--line)"><div class="av">AR</div><div><div class="font-semibold text-[13px]">Ardo</div><div class="text-[12px] sub">HR Manager</div></div></div>
+</aside>
+<div class="flex-1 min-w-0 flex flex-col">
+  <header class="h-16 bg-white border-b flex items-center gap-4 px-5 lg:px-8 sticky top-0 z-30" style="border-color:var(--line)">
+    <div class="lg:hidden font-extrabold" style="color:var(--pink)">SAMAQU</div>
+    <div class="text-[13px] sub hidden md:block"><span id="mod">Recruitment</span> <span class="mx-1">/</span> <b id="crumb" style="color:var(--ink)">Overview</b></div>
+    <div class="flex-1"></div>
+    <div class="relative hidden md:block w-72"><input class="inp pl-9" placeholder="Cari kandidat, lowongan…" oninput="globalSearch(this.value)"><svg class="i absolute left-3 top-[11px]" style="color:#A59B97;width:16px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></div>
+    <span class="tag t-warn">Mode Mockup · Data Dummy</span>
+  </header>
+  <div class="lg:hidden flex gap-1 overflow-auto px-3 py-2 bg-white border-b" id="mnav" style="border-color:var(--line)"></div>
+  <main id="view" class="min-w-0 p-5 lg:p-8 max-w-[1320px] w-full"></main>
+</div></div>
+
+<div class="modal" id="jobModal"><div class="card w-full max-w-[720px] shadow-xl">
+  <div class="flex items-center justify-between px-6 py-5 border-b" style="border-color:var(--line)"><div><div class="font-bold text-[17px]">Buat Lowongan Baru</div><div class="sub text-[13px]">Isi detail posisi. Lowongan disimpan sebagai draf sebelum dipublikasikan.</div></div><button class="btn btn-g" onclick="closeM()">✕</button></div>
+  <div class="p-6 grid md:grid-cols-2 gap-4">
+    <div class="md:col-span-2"><label class="lbl">Nama Posisi</label><input class="inp" placeholder="cth. Customer Service Specialist"></div>
+    <div><label class="lbl">Departemen</label><select class="inp"><option>Customer Service</option><option>Marketing</option><option>Operasional</option><option>Keuangan</option><option>Teknologi</option></select></div>
+    <div><label class="lbl">Tipe Kerja</label><select class="inp"><option>Full-time</option><option>Kontrak</option><option>Magang</option></select></div>
+    <div><label class="lbl">Lokasi</label><input class="inp" value="Bandung (On-site)"></div>
+    <div><label class="lbl">Jumlah Kebutuhan</label><input class="inp" type="number" value="2"></div>
+    <div><label class="lbl">Tanggal Publikasi</label><input class="inp" type="date" value="2026-10-20"></div>
+    <div><label class="lbl">Tenggat Lamaran</label><input class="inp" type="date" value="2026-11-15"></div>
+    <div class="md:col-span-2"><label class="lbl">Deskripsi &amp; Kualifikasi</label><textarea class="inp" rows="4" placeholder="Tanggung jawab utama, kualifikasi minimum, dan nilai tambah…"></textarea></div>
+    <div class="md:col-span-2"><label class="lbl">Tahapan Seleksi</label><div class="flex flex-wrap gap-2" id="stagePick"></div></div>
+    <div class="md:col-span-2"><label class="lbl">Kriteria Penilaian Wawancara</label><div class="flex flex-wrap gap-2"><span class="tag t-mute">Komunikasi</span><span class="tag t-mute">Kompetensi Teknis</span><span class="tag t-mute">Problem Solving</span><span class="tag t-mute">Kesesuaian Budaya</span><span class="tag t-pink">+ Tambah</span></div></div>
+  </div>
+  <div class="flex justify-end gap-2 px-6 py-4 border-t" style="border-color:var(--line);background:#FCFBFA;border-radius:0 0 14px 14px"><button class="btn btn-g" onclick="closeM();toast('Draf lowongan disimpan (dummy)')">Simpan Draf</button><button class="btn btn-p" onclick="closeM();toast('Lowongan dipublikasikan (simulasi, tidak ada data tersimpan)')">Publikasikan</button></div>
+</div></div>
+<div class="modal" id="closeModal"><div class="card w-full max-w-[420px] p-6 mt-20"><div class="font-bold text-[17px] mb-1">Tutup lowongan?</div><div class="sub mb-5" id="closeTxt"></div><div class="flex justify-end gap-2"><button class="btn btn-g" onclick="closeM()">Batal</button><button class="btn btn-p" onclick="doClose()">Tutup Lowongan</button></div></div></div>
+<div class="drawer" id="drawer"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const I={home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',job:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',pipe:'<rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',onb:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',rep:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',plus:'<path d="M12 5v14M5 12h14"/>',file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',vid:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/>'};
+const ic=(n,s='')=>`<svg class="i" style="${s}" viewBox="0 0 24 24">${I[n]}</svg>`;
+const MENU=[['overview','Overview','home'],['lowongan','Lowongan','job'],['kandidat','Kandidat','users'],['pipeline','Pipeline','pipe'],['jadwal','Jadwal & Evaluasi','cal'],['onboarding','Onboarding','onb'],['laporan','Laporan','rep']];
+const STAGES=['Lamaran Masuk','Screening','Wawancara','Tes','Offering','Diterima','Ditolak'];
+let JOBS=[
+{id:1,pos:'Customer Service Specialist',dep:'Customer Service',st:'Aktif',n:48,pub:'02 Okt 2026',dl:'31 Okt 2026'},
+{id:2,pos:'Digital Marketing Executive',dep:'Marketing',st:'Aktif',n:36,pub:'05 Okt 2026',dl:'05 Nov 2026'},
+{id:3,pos:'Admin Gudang',dep:'Operasional',st:'Aktif',n:29,pub:'08 Okt 2026',dl:'08 Nov 2026'},
+{id:4,pos:'Staff Keuangan',dep:'Keuangan',st:'Aktif',n:22,pub:'10 Okt 2026',dl:'10 Nov 2026'},
+{id:5,pos:'Frontend Developer',dep:'Teknologi',st:'Aktif',n:31,pub:'12 Okt 2026',dl:'12 Nov 2026'},
+{id:6,pos:'Content Creator',dep:'Marketing',st:'Draf',n:0,pub:'—',dl:'—'},
+{id:7,pos:'Supervisor Produksi',dep:'Operasional',st:'Ditutup',n:20,pub:'01 Sep 2026',dl:'30 Sep 2026'}];
+const C=[
+['Ayu Lestari','Customer Service Specialist','Lamaran Masuk','2 jam lalu',null],
+['Bima Pratama','Frontend Developer','Lamaran Masuk','5 jam lalu',null],
+['Citra Dewi','Digital Marketing Executive','Lamaran Masuk','Kemarin',null],
+['Dimas Saputra','Admin Gudang','Screening','Kemarin',78],
+['Eka Putri','Staff Keuangan','Screening','2 hari lalu',82],
+['Fajar Nugroho','Customer Service Specialist','Screening','2 hari lalu',71],
+['Gita Maharani','Digital Marketing Executive','Wawancara','Besok 10:00',85],
+['Hendra Wijaya','Frontend Developer','Wawancara','Besok 13:30',88],
+['Intan Permata','Customer Service Specialist','Wawancara','20 Okt 09:00',80],
+['Joko Susanto','Frontend Developer','Tes','Tes teknis 21 Okt',86],
+['Kirana Salsabila','Staff Keuangan','Tes','Tes 22 Okt',79],
+['Lukman Hakim','Admin Gudang','Offering','Menunggu respons',84],
+['Maya Anjani','Customer Service Specialist','Diterima','Mulai 1 Nov',90],
+['Nanda Rizky','Digital Marketing Executive','Diterima','Mulai 3 Nov',87],
+['Oki Ramadhan','Admin Gudang','Ditolak','Tidak lolos tes',62]].map((c,i)=>({id:i,name:c[0],pos:c[1],stage:c[2],note:c[3],score:c[4],src:['JobStreet','LinkedIn','Website','Referral','Glints'][i%5]}));
+const ini=n=>{const w=n.split(' ');return (w.length>1?w[0][0]+w[1][0]:n.slice(0,2)).toUpperCase()};
+const stTag=s=>({'Aktif':'t-ok','Draf':'t-mute','Ditutup':'t-bad','Lamaran Masuk':'t-mute','Screening':'t-info','Wawancara':'t-pink','Tes':'t-warn','Offering':'t-warn','Diterima':'t-ok','Ditolak':'t-bad','Terkonfirmasi':'t-ok','Menunggu':'t-warn','Selesai':'t-mute','Dijadwalkan Ulang':'t-info'}[s]||'t-mute');
+const tag=s=>`<span class="tag ${stTag(s)}">${s}</span>`;
+let cur='overview',pipeFilter='Semua',candQ='',candStage='Semua',closeId=null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400)}
+function go(v){cur=v;location.hash=v;render()}
+function head(t,s,btn=''){return `<div class="flex flex-wrap items-end justify-between gap-4 mb-6"><div><div class="h1">${t}</div><div class="sub mt-1">${s}</div></div><div class="flex gap-2">${btn}</div></div>`}
+const newBtn=`<button class="btn btn-p" onclick="openM('jobModal')">${ic('plus','width:16px')}Buat Lowongan</button>`;
+function openM(id){document.getElementById(id).classList.add('show')}
+function closeM(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show'))}
+
+const V={};
+V.overview=()=>{const cnt=s=>C.filter(c=>c.stage===s).length;
+const stats=[['Lowongan Aktif','5','+1 minggu ini'],['Total Kandidat','186','+24 minggu ini'],['Menunggu Screening','23','7 lewat 3 hari'],['Wawancara Terjadwal','9','4 minggu ini'],['Kandidat Diterima','6','Bulan Oktober']];
+const pipe=[['Lamaran Masuk',72],['Screening',41],['Wawancara',28],['Tes',17],['Offering',8],['Diterima',6]];
+return head('Selamat pagi, Ardo','Ada 23 lamaran yang menunggu screening dan 3 wawancara hari ini.',newBtn)+
+`<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">${stats.map((s,i)=>`<div class="card p-5 ${i==2?'ring-1':''}" style="${i==2?'--tw-ring-color:var(--pink-100)':''}"><div class="text-[13px] sub font-medium">${s[0]}</div><div class="text-[30px] font-bold tracking-tight mt-2" style="${i==2?'color:var(--pink)':''}">${s[1]}</div><div class="text-[12px] sub mt-1">${s[2]}</div></div>`).join('')}</div>
+<div class="card p-6 mb-6"><div class="flex justify-between items-center mb-5"><div><div class="font-bold text-[16px]">Pipeline Rekrutmen</div><div class="sub text-[13px]">Semua lowongan aktif · konversi antar tahap</div></div><button class="btn btn-g" onclick="go('pipeline')">Buka Pipeline</button></div>
+<div class="grid grid-cols-2 md:grid-cols-6 gap-3">${pipe.map((p,i)=>`<div onclick="pipeFilter='Semua';go('pipeline')" class="cursor-pointer"><div class="flex justify-between text-[12px] mb-2"><span class="font-semibold">${p[0]}</span>${i?`<span class="sub">${Math.round(p[1]/pipe[i-1][1]*100)}%</span>`:''}</div><div class="rounded-xl flex items-end" style="height:96px;background:#F6F2F0"><div class="w-full rounded-xl" style="height:${p[1]/72*100}%;background:${i==5?'var(--pink)':'rgba(17,17,17,'+(0.12+i*0.12)+')'}"></div></div><div class="text-[22px] font-bold mt-2">${p[1]}</div></div>`).join('')}</div></div>
+<div class="grid lg:grid-cols-5 gap-6"><div class="card lg:col-span-3 min-w-0"><div class="px-6 pt-5 pb-3 font-bold text-[16px]">Aktivitas Terbaru</div>${[
+['Ayu Lestari','melamar sebagai <b>Customer Service Specialist</b>','2 jam lalu'],['Ardo','memindahkan <b>Hendra Wijaya</b> ke Wawancara','3 jam lalu'],['Budi S.','mengirim evaluasi untuk <b>Gita Maharani</b> · Skor 4,3','5 jam lalu'],['Ardo','mengirim offering ke <b>Lukman Hakim</b>','Kemarin'],['Sistem','lowongan <b>Supervisor Produksi</b> ditutup otomatis','2 hari lalu']].map(a=>`<div class="flex gap-3 px-6 py-3 border-t" style="border-color:var(--line)"><div class="av" style="width:30px;height:30px;font-size:11px">${ini(a[0])}</div><div class="flex-1 text-[13px]"><b>${a[0]}</b> ${a[1]}</div><div class="text-[12px] sub whitespace-nowrap">${a[2]}</div></div>`).join('')}</div>
+<div class="card lg:col-span-2 min-w-0"><div class="px-6 pt-5 pb-3 flex justify-between items-center"><span class="font-bold text-[16px]">Wawancara Terdekat</span><a class="text-[13px] font-semibold cursor-pointer" style="color:var(--pink)" onclick="go('jadwal')">Lihat semua</a></div>${SCH.slice(0,4).map(s=>`<div class="flex gap-4 px-6 py-3 border-t items-center" style="border-color:var(--line)"><div class="text-center w-12 shrink-0"><div class="text-[11px] sub font-semibold">${s.d}</div><div class="font-bold">${s.t}</div></div><div class="flex-1 min-w-0"><div class="font-semibold text-[13px] truncate">${s.c}</div><div class="text-[12px] sub truncate">${s.p} · ${s.m}</div></div>${tag(s.st)}</div>`).join('')}</div></div>`};
+
+V.lowongan=()=>head('Manajemen Lowongan','Kelola posisi yang dibuka, status publikasi, dan tenggat lamaran.',newBtn)+
+`<div class="flex flex-wrap gap-2 mb-4"><div class="flex bg-[#F1EDEB] p-1 rounded-xl">${['Semua','Aktif','Draf','Ditutup'].map(s=>`<div class="tab ${jobF==s?'on':''}" onclick="jobF='${s}';render()">${s} <span class="sub font-medium">${s=='Semua'?JOBS.length:JOBS.filter(j=>j.st==s).length}</span></div>`).join('')}</div></div>
+<div class="card overflow-x-auto"><table><thead><tr><th>Posisi</th><th>Status</th><th>Kandidat</th><th>Publikasi</th><th>Tenggat</th><th class="text-right">Aksi</th></tr></thead><tbody>${JOBS.filter(j=>jobF=='Semua'||j.st==jobF).map(j=>`<tr><td><div class="font-semibold">${j.pos}</div><div class="text-[12px] sub">${j.dep}</div></td><td>${tag(j.st)}</td><td><b>${j.n}</b> <span class="sub text-[12px]">pelamar</span></td><td class="sub">${j.pub}</td><td class="sub">${j.dl}</td><td class="text-right whitespace-nowrap"><button class="btn btn-g !px-3 !py-1.5" onclick="pipeFilter='${j.pos}';go('pipeline')">Detail</button> <button class="btn btn-g !px-3 !py-1.5" onclick="openM('jobModal')">Edit</button> ${j.st=='Aktif'?`<button class="btn btn-d !px-3 !py-1.5" onclick="askClose(${j.id})">Tutup</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+let jobF='Semua';
+function askClose(id){closeId=id;document.getElementById('closeTxt').textContent=`Lowongan "${JOBS.find(j=>j.id==id).pos}" tidak akan menerima lamaran baru. Kandidat yang sudah ada tetap dapat diproses.`;openM('closeModal')}
+function doClose(){JOBS.find(j=>j.id==closeId).st='Ditutup';closeM();render();toast('Lowongan ditutup (simulasi)')}
+
+V.kandidat=()=>{const list=C.filter(c=>(candStage=='Semua'||c.stage==candStage)&&(c.name+c.pos).toLowerCase().includes(candQ.toLowerCase()));
+return head('Kandidat','Seluruh pelamar lintas lowongan. Klik baris untuk melihat detail.','<button class="btn btn-g" onclick="toast(\'Ekspor dinonaktifkan di mockup\')">Ekspor</button>')+
+`<div class="flex flex-wrap gap-3 mb-4"><div class="relative w-full md:w-80"><input id="cq" class="inp pl-9" placeholder="Cari nama atau posisi…" value="${candQ}" oninput="candQ=this.value;render();const e=document.getElementById('cq');e.focus();e.setSelectionRange(99,99)"><svg class="i absolute left-3 top-[11px]" style="color:#A59B97;width:16px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><select class="inp !w-auto" onchange="candStage=this.value;render()">${['Semua',...STAGES].map(s=>`<option ${s==candStage?'selected':''}>${s}</option>`).join('')}</select><select class="inp !w-auto" onchange="toast('Filter posisi (dummy)')"><option>Semua posisi</option>${JOBS.map(j=>`<option>${j.pos}</option>`).join('')}</select></div>
+<div class="card overflow-x-auto"><table><thead><tr><th>Kandidat</th><th>Posisi</th><th>Tahap</th><th>Skor Screening</th><th>Sumber</th><th>Update</th></tr></thead><tbody>${list.map(c=>`<tr class="cursor-pointer" onclick="openCand(${c.id})"><td><div class="flex items-center gap-3"><div class="av">${ini(c.name)}</div><b>${c.name}</b></div></td><td class="sub">${c.pos}</td><td>${tag(c.stage)}</td><td>${c.score?`<b>${c.score}</b><span class="sub">/100</span>`:'<span class="sub">—</span>'}</td><td class="sub">${c.src}</td><td class="sub text-[13px]">${c.note}</td></tr>`).join('')||'<tr><td colspan=6 class="text-center sub py-10">Tidak ada kandidat yang cocok.</td></tr>'}</tbody></table></div>`};
+
+V.pipeline=()=>{const cs=C.filter(c=>pipeFilter=='Semua'||c.pos==pipeFilter);
+return head('Pipeline Kandidat','Pantau progres kandidat per tahap seleksi. Klik kartu untuk detail.',newBtn)+
+`<div class="flex flex-wrap items-center gap-3 mb-5"><select class="inp !w-auto" onchange="pipeFilter=this.value;render()"><option ${pipeFilter=='Semua'?'selected':''}>Semua</option>${JOBS.filter(j=>j.n).map(j=>`<option ${pipeFilter==j.pos?'selected':''}>${j.pos}</option>`).join('')}</select><span class="sub text-[13px]">${cs.length} kandidat ditampilkan</span></div>
+<div class="flex gap-4 overflow-x-auto pb-4">${STAGES.map(s=>{const l=cs.filter(c=>c.stage==s);return `<div class="kcol"><div class="flex items-center justify-between px-1 pb-3 pt-1"><span class="font-bold text-[13px]">${s}</span><span class="tag t-mute">${l.length}</span></div><div class="flex flex-col gap-2">${l.map(c=>`<div class="kc" onclick="openCand(${c.id})"><div class="flex items-center gap-2 mb-2"><div class="av" style="width:28px;height:28px;font-size:11px">${ini(c.name)}</div><div class="font-semibold text-[13px] leading-tight">${c.name}</div></div><div class="text-[12px] sub mb-3">${c.pos}</div><div class="flex justify-between items-center text-[12px]"><span class="sub flex items-center gap-1">${ic('clock','width:13px')}${c.note}</span>${c.score?`<b style="color:var(--pink)">${c.score}</b>`:''}</div></div>`).join('')||'<div class="text-[12px] sub text-center py-6 border border-dashed rounded-xl" style="border-color:#DDD5D1">Kosong</div>'}</div></div>`}).join('')}</div>`};
+
+function openCand(id){const c=C[id],idx=STAGES.indexOf(c.stage);const hist=STAGES.slice(0,6);
+document.getElementById('drawer').innerHTML=`<div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10" style="border-color:var(--line)"><span class="font-bold">Detail Kandidat</span><button class="btn btn-g !px-3" onclick="closeD()">✕</button></div>
+<div class="p-6"><div class="flex items-center gap-4 mb-5"><div class="av" style="width:56px;height:56px;font-size:18px">${ini(c.name)}</div><div class="flex-1"><div class="font-bold text-[19px]">${c.name}</div><div class="sub">${c.pos}</div><div class="mt-2 flex gap-2">${tag(c.stage)}<span class="tag t-mute">${c.src}</span></div></div></div>
+<div class="grid grid-cols-2 gap-3 text-[13px] mb-6">${[['Email','kandidat.dummy@mail.com'],['Domisili','Bandung'],['Pendidikan','S1 Manajemen'],['Pengalaman','3 tahun']].map(x=>`<div class="p-3 rounded-xl" style="background:#FAF7F5"><div class="sub text-[12px]">${x[0]}</div><div class="font-semibold">${x[1]}</div></div>`).join('')}</div>
+<div class="font-bold mb-3">Dokumen</div><div class="flex flex-col gap-2 mb-6">${['CV_Kandidat.pdf · 240 KB','Portofolio.pdf · 1,2 MB'].map(d=>`<div class="flex items-center gap-3 p-3 rounded-xl border" style="border-color:var(--line)">${ic('file','color:var(--pink)')}<span class="flex-1 text-[13px] font-medium">${d}</span><button class="btn btn-g !py-1 !px-3" onclick="toast('Pratinjau dokumen dummy')">Lihat</button></div>`).join('')}</div>
+<div class="font-bold mb-3">Riwayat Tahapan</div><div class="mb-6">${hist.map((s,i)=>{const done=c.stage=='Ditolak'?i<4:i<=idx;return `<div class="flex gap-3"><div class="flex flex-col items-center"><div class="w-3 h-3 rounded-full mt-1" style="background:${done?'var(--pink)':'#E2DBD8'}"></div>${i<5?`<div class="w-px flex-1" style="background:#E8E1DE;min-height:22px"></div>`:''}</div><div class="pb-3 text-[13px]"><span class="${done?'font-semibold':'sub'}">${s}</span>${done?`<span class="sub"> · ${['10 Okt','12 Okt','15 Okt','18 Okt','20 Okt','24 Okt'][i]}</span>`:''}</div></div>`}).join('')}</div>
+<div class="font-bold mb-3">Jadwal Wawancara</div><div class="p-4 rounded-xl border mb-6 flex items-center gap-3" style="border-color:var(--line)">${ic('vid','color:var(--pink)')}<div class="flex-1 text-[13px]"><b>Wawancara User</b><div class="sub">Sen, 20 Okt 2026 · 10:00–11:00 · Google Meet</div><div class="sub">Interviewer: Budi Santoso, Ardo</div></div></div>
+<div class="font-bold mb-3">Catatan & Evaluasi Interviewer</div><div class="p-4 rounded-xl mb-3 text-[13px]" style="background:#FAF7F5"><div class="flex justify-between mb-1"><b>Budi Santoso</b><span class="tag t-ok">Skor 4,3 / 5</span></div><div class="sub">Komunikasi jelas dan terstruktur. Pengalaman relevan dengan kebutuhan tim. Perlu digali lagi kemampuan mengelola target.</div></div>
+<textarea class="inp mb-6" rows="2" placeholder="Tambah catatan internal…"></textarea>
+<div class="font-bold mb-3">Ubah Status</div><div class="flex flex-wrap gap-2">${STAGES.map(s=>`<button class="btn ${s==c.stage?'btn-p':'btn-g'} !py-1.5 !px-3" onclick="moveC(${c.id},'${s}')">${s}</button>`).join('')}</div>
+<div class="text-[12px] sub mt-4">Mockup: perubahan status hanya tersimpan di sesi browser, tidak ada notifikasi yang dikirim ke kandidat.</div></div>`;
+document.getElementById('drawer').classList.add('show')}
+function closeD(){document.getElementById('drawer').classList.remove('show')}
+function moveC(id,s){C[id].stage=s;openCand(id);render();toast(`${C[id].name} dipindahkan ke ${s}`)}
+
+const SCH=[{d:'HARI INI',t:'10:00',c:'Gita Maharani',p:'Digital Marketing Executive',i:'Budi Santoso',m:'Google Meet',st:'Terkonfirmasi'},{d:'HARI INI',t:'13:30',c:'Hendra Wijaya',p:'Frontend Developer',i:'Arif Rahman',m:'Kantor Pusat',st:'Terkonfirmasi'},{d:'HARI INI',t:'15:00',c:'Intan Permata',p:'Customer Service Specialist',i:'Ardo',m:'Google Meet',st:'Menunggu'},{d:'SEN 20',t:'09:00',c:'Joko Susanto',p:'Frontend Developer',i:'Arif Rahman',m:'Tes Teknis',st:'Terkonfirmasi'},{d:'SEL 21',t:'11:00',c:'Kirana Salsabila',p:'Staff Keuangan',i:'Dewi Kurnia',m:'Kantor Pusat',st:'Dijadwalkan Ulang'},{d:'KAM 16',t:'14:00',c:'Lukman Hakim',p:'Admin Gudang',i:'Ardo',m:'Kantor Pusat',st:'Selesai'}];
+let rating={Komunikasi:4,'Kompetensi Teknis':4,'Problem Solving':3,'Kesesuaian Budaya':5,'Inisiatif':4},rec='Lanjut';
+V.jadwal=()=>{const avg=(Object.values(rating).reduce((a,b)=>a+b,0)/5).toFixed(1).replace('.',',');
+return head('Jadwal & Evaluasi','Jadwal wawancara dan tes, serta form penilaian kandidat.','<button class="btn btn-p" onclick="toast(\'Form jadwal (dummy)\')">'+ic('plus','width:16px')+'Jadwalkan</button>')+
+`<div class="grid xl:grid-cols-5 gap-6"><div class="xl:col-span-3"><div class="card"><div class="flex justify-between items-center px-6 py-4 border-b" style="border-color:var(--line)"><div class="font-bold">Oktober 2026 · Minggu ke-3</div><div class="flex bg-[#F1EDEB] p-1 rounded-xl"><div class="tab on">Daftar</div><div class="tab" onclick="toast('Tampilan kalender (dummy)')">Kalender</div></div></div>
+<div class="overflow-x-auto"><table><thead><tr><th>Waktu</th><th>Kandidat</th><th>Interviewer</th><th>Status</th></tr></thead><tbody>${SCH.map((s,k)=>`<tr class="cursor-pointer" onclick="selSch=${k};render()" style="${selSch==k?'background:var(--pink-50)':''}"><td class="whitespace-nowrap"><div class="text-[11px] sub font-bold">${s.d}</div><b>${s.t}</b></td><td><div class="font-semibold">${s.c}</div><div class="text-[12px] sub">${s.p} · ${s.m}</div></td><td class="sub">${s.i}</td><td>${tag(s.st)}</td></tr>`).join('')}</tbody></table></div></div></div>
+<div class="xl:col-span-2 card p-6"><div class="text-[12px] sub font-semibold">FORM PENILAIAN</div><div class="font-bold text-[17px]">${SCH[selSch].c}</div><div class="sub text-[13px] mb-5">${SCH[selSch].p} · Kriteria posisi</div>
+${Object.keys(rating).map(k=>`<div class="flex items-center justify-between mb-3"><span class="text-[13px] font-medium">${k}</span><div class="flex gap-1">${[1,2,3,4,5].map(n=>`<div class="star ${rating[k]>=n?'on':''}" onclick="rating['${k}']=${n};render()">${n}</div>`).join('')}</div></div>`).join('')}
+<div class="flex justify-between items-center p-3 rounded-xl my-4" style="background:var(--pink-50)"><span class="font-semibold text-[13px]">Skor rata-rata</span><b class="text-[20px]" style="color:var(--pink)">${avg} / 5</b></div>
+<label class="lbl">Catatan</label><textarea class="inp mb-4" rows="3" placeholder="Kekuatan, area pengembangan, dan observasi…"></textarea>
+<label class="lbl">Rekomendasi Keputusan</label><div class="grid grid-cols-3 gap-2 mb-5">${['Lanjut','Pertimbangkan','Tidak Lanjut'].map(r=>`<button class="btn ${rec==r?'btn-p':'btn-g'} justify-center !px-2" onclick="rec='${r}';render()">${r}</button>`).join('')}</div>
+<button class="btn btn-p w-full justify-center" onclick="toast('Evaluasi terkirim (simulasi)')">Kirim Evaluasi</button></div></div>`};
+let selSch=0;
+
+const ONB=[{n:'Maya Anjani',p:'Customer Service Specialist',start:'1 Nov 2026',pic:'Ardo',pr:72},{n:'Nanda Rizky',p:'Digital Marketing Executive',start:'3 Nov 2026',pic:'Sari Wulandari',pr:45},{n:'Putra Aditya',p:'Supervisor Produksi',start:'14 Okt 2026',pic:'Dewi Kurnia',pr:90},{n:'Rahma Fitri',p:'Admin Gudang',start:'7 Okt 2026',pic:'Ardo',pr:100}];
+let selO=0,todo=[['Dokumen','KTP & NPWP',1],['Dokumen','Ijazah & transkrip',1],['Dokumen','Rekening bank',1],['Dokumen','Kontrak kerja ditandatangani',0],['Tugas','Akun email & sistem internal',1],['Tugas','Perkenalan tim & buddy',0],['Tugas','Briefing SOP divisi',0]];
+V.onboarding=()=>{const o=ONB[selO];return head('Onboarding','Pantau kesiapan karyawan baru, dari dokumen hingga materi training.','')+
+`<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">${ONB.map((e,k)=>`<div class="card p-5 cursor-pointer" onclick="selO=${k};render()" style="${selO==k?'border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-50)':''}"><div class="flex items-center gap-3 mb-4"><div class="av">${ini(e.n)}</div><div class="min-w-0"><div class="font-semibold truncate">${e.n}</div><div class="text-[12px] sub truncate">${e.p}</div></div></div><div class="flex justify-between text-[12px] mb-2"><span class="sub">Mulai ${e.start}</span><b>${e.pr}%</b></div><div class="bar"><i style="width:${e.pr}%"></i></div><div class="text-[12px] sub mt-3">PIC: <span style="color:var(--ink)">${e.pic}</span></div></div>`).join('')}</div>
+<div class="grid lg:grid-cols-2 gap-6"><div class="card p-6"><div class="flex justify-between mb-4"><div class="font-bold text-[16px]">Checklist · ${o.n}</div><span class="sub text-[13px]">${todo.filter(t=>t[2]).length}/${todo.length} selesai</span></div>${['Dokumen','Tugas'].map(g=>`<div class="text-[12px] sub font-bold mt-3 mb-2">${g.toUpperCase()}</div>${todo.map((t,k)=>t[0]==g?`<div class="flex items-center gap-3 py-2"><div class="chk ${t[2]?'on':''}" onclick="todo[${k}][2]=!todo[${k}][2];render()">${t[2]?'<svg viewBox="0 0 24 24" style="width:12px;stroke:#fff;fill:none;stroke-width:3"><path d="M5 12l5 5 9-10"/></svg>':''}</div><span class="text-[13px] ${t[2]?'sub line-through':''}">${t[1]}</span></div>`:'').join('')}`).join('')}</div>
+<div class="card p-6"><div class="flex justify-between items-start mb-1"><div class="font-bold text-[16px]">Materi Training</div><span class="tag t-info">${ic('book','width:13px')}dari Knowledge Hub</span></div><div class="sub text-[13px] mb-4">Materi dikelola di Knowledge Hub. Recruitment hanya menugaskan dan memantau progres.</div>
+${[['Pengenalan Perusahaan SAMAQU','Wajib · 30 mnt',100],['SOP Pelayanan Pelanggan','Wajib · 45 mnt',60],['Katalog & Pengetahuan Produk','Wajib · 60 mnt',20],['Keamanan Data & Kerahasiaan','Wajib · 20 mnt',0]].map(m=>`<div class="flex items-center gap-3 py-3 border-t" style="border-color:var(--line)"><div class="w-9 h-9 rounded-lg grid place-items-center" style="background:var(--pink-50);color:var(--pink)">${ic('book','width:16px')}</div><div class="flex-1"><div class="font-semibold text-[13px]">${m[0]}</div><div class="text-[12px] sub">${m[1]}</div></div><div class="w-24"><div class="bar"><i style="width:${m[2]}%"></i></div><div class="text-[11px] sub text-right mt-1">${m[2]}%</div></div></div>`).join('')}
+<button class="btn btn-g w-full justify-center mt-4" onclick="toast('Membuka pemilih materi Knowledge Hub (dummy)')">${ic('plus','width:16px')}Tugaskan Materi</button></div></div>`};
+
+V.laporan=()=>head('Laporan','Ringkasan performa rekrutmen periode Oktober 2026.','<button class="btn btn-g" onclick="toast(\'Ekspor dinonaktifkan di mockup\')">Ekspor PDF</button>')+
+`<div class="grid md:grid-cols-4 gap-4 mb-6">${[['Time to Hire','18 hari'],['Konversi Lamaran → Diterima','3,2%'],['Offer Acceptance','86%'],['Sumber Teratas','JobStreet']].map(s=>`<div class="card p-5"><div class="text-[13px] sub">${s[0]}</div><div class="text-[26px] font-bold mt-2">${s[1]}</div></div>`).join('')}</div>
+<div class="card p-6"><div class="font-bold mb-4">Kandidat per Sumber</div>${[['JobStreet',62],['LinkedIn',48],['Website SAMAQU',37],['Referral',22],['Glints',17]].map(r=>`<div class="flex items-center gap-4 mb-3"><span class="w-36 text-[13px]">${r[0]}</span><div class="bar flex-1" style="height:10px"><i style="width:${r[1]/62*100}%"></i></div><b class="w-8 text-right">${r[1]}</b></div>`).join('')}</div>`;
+
+
+let khCat='Semua',khQ='';
+const KH=[['Panduan Produk SAMAQU 2026','Produk','Ardo','2 hari lalu','12 mnt',1240],['SOP Pelayanan Pelanggan','SOP','Sari Wulandari','3 hari lalu','8 mnt',980],['Alur Retur & Komplain','SOP','Dewi Kurnia','1 minggu lalu','6 mnt',642],['Katalog Varian & Harga','Produk','Ardo','1 minggu lalu','10 mnt',1530],['Kebijakan Cuti & Kehadiran','Kebijakan','Ardo','2 minggu lalu','5 mnt',410],['Keamanan Data & Kerahasiaan','Kebijakan','Arif Rahman','3 minggu lalu','7 mnt',388],['Pengenalan Perusahaan','Onboarding','Ardo','1 bulan lalu','15 mnt',876],['Standar Konten Media Sosial','Marketing','Sari Wulandari','1 bulan lalu','9 mnt',512]];
+const KHC=[['Produk','Spesifikasi, katalog, dan FAQ produk',24],['SOP','Prosedur kerja tiap divisi',38],['Onboarding','Materi wajib karyawan baru',12],['Kebijakan','Aturan dan kebijakan perusahaan',16],['Marketing','Brand, konten, dan kampanye',19]];
+V.knowledge=()=>{const list=KH.filter(a=>(khCat=='Semua'||a[1]==khCat)&&a[0].toLowerCase().includes(khQ.toLowerCase()));
+return `<div class="rounded-2xl p-8 lg:p-10 mb-6 text-white relative overflow-hidden" style="background:#111"><div class="absolute -right-16 -top-16 w-72 h-72 rounded-full" style="background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%)"></div><div class="absolute right-24 bottom-[-80px] w-56 h-56 rounded-full border" style="border-color:rgba(255,255,255,.08)"></div>
+<div class="relative max-w-[640px]"><div class="text-[12px] font-semibold tracking-wider mb-3" style="color:#A8A29E">KNOWLEDGE HUB</div><div class="text-[30px] lg:text-[34px] font-bold tracking-tight leading-tight">Semua pengetahuan SAMAQU,<br>dalam satu tempat.</div><div class="mt-2 mb-6" style="color:#BDB6B2">Produk, SOP, kebijakan, dan materi training untuk seluruh tim.</div>
+<div class="relative"><input id="khq" class="w-full rounded-xl py-3.5 pl-12 pr-28 text-[15px] outline-none" style="background:#fff;color:#111" placeholder="Cari artikel, SOP, atau produk…" value="${khQ}" oninput="khQ=this.value;render();const e=document.getElementById('khq');e.focus();e.setSelectionRange(99,99)"><svg class="i absolute left-4 top-[15px]" style="color:#8A8380" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="absolute right-3 top-[10px] text-[12px] px-2 py-1 rounded-md" style="background:#F2F0EF;color:#6F6669">Ctrl K</span></div></div></div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">${KHC.map(c=>`<div class="card p-5 cursor-pointer transition hover:-translate-y-0.5" style="${khCat==c[0]?'border-color:#111;box-shadow:0 0 0 1px #111':''}" onclick="khCat=khCat=='${c[0]}'?'Semua':'${c[0]}';render()"><div class="w-9 h-9 rounded-lg grid place-items-center mb-4" style="background:#F2F0EF">${ic(c[0]=='SOP'?'file':c[0]=='Onboarding'?'onb':c[0]=='Kebijakan'?'clock':c[0]=='Marketing'?'rep':'book','width:17px')}</div><div class="font-bold">${c[0]}</div><div class="text-[12px] sub mt-1 leading-snug">${c[1]}</div><div class="text-[12px] font-semibold mt-3">${c[2]} artikel</div></div>`).join('')}</div>
+<div class="grid lg:grid-cols-3 gap-6"><div class="lg:col-span-2 min-w-0"><div class="flex flex-wrap gap-3 items-center justify-between mb-4"><div class="font-bold text-[17px]">${khCat=='Semua'?'Artikel Terbaru':khCat}</div><div class="flex bg-[#F1EDEB] p-1 rounded-xl">${['Semua','Produk','SOP','Kebijakan'].map(t=>`<div class="tab ${khCat==t?'on':''}" onclick="khCat='${t}';render()">${t}</div>`).join('')}</div></div>
+<div class="card">${list.map((a,k)=>`<div class="flex items-center gap-4 px-5 py-4 ${k?'border-t':''} cursor-pointer hover:bg-[#FCFAF9]" style="border-color:var(--line)" onclick="toast('Membuka artikel (dummy)')"><div class="w-11 h-11 rounded-xl grid place-items-center shrink-0" style="background:#F2F0EF">${ic('file','width:18px')}</div><div class="flex-1 min-w-0"><div class="font-semibold truncate">${a[0]}</div><div class="text-[12px] sub mt-0.5">${a[2]} · diperbarui ${a[3]} · ${a[4]} baca</div></div><span class="tag t-mute hidden sm:inline-flex">${a[1]}</span><span class="text-[12px] sub w-16 text-right hidden md:block">${a[5].toLocaleString('id-ID')} view</span></div>`).join('')||'<div class="p-10 text-center sub">Tidak ada artikel yang cocok.</div>'}</div></div>
+<div class="flex flex-col gap-6 min-w-0"><div class="card p-6"><div class="font-bold mb-1">Lanjutkan Belajar</div><div class="text-[13px] sub mb-4">Materi yang sedang Anda pelajari</div>${[['SOP Pelayanan Pelanggan',60],['Katalog Varian & Harga',35]].map(m=>`<div class="mb-4"><div class="flex justify-between text-[13px] mb-2"><span class="font-medium">${m[0]}</span><b>${m[1]}%</b></div><div class="bar"><i style="width:${m[1]}%"></i></div></div>`).join('')}<button class="btn btn-p w-full justify-center mt-1" onclick="toast('Melanjutkan materi (dummy)')">Lanjutkan</button></div>
+<div class="card p-6"><div class="font-bold mb-4">Paling Banyak Dibaca</div>${[...KH].sort((a,b)=>b[5]-a[5]).slice(0,4).map((a,k)=>`<div class="flex gap-3 items-start mb-3"><span class="text-[20px] font-bold w-6" style="color:#CFC8C4">${k+1}</span><div class="min-w-0"><div class="text-[13px] font-semibold truncate">${a[0]}</div><div class="text-[12px] sub">${a[1]}</div></div></div>`).join('')}</div>
+<div class="rounded-xl p-4 text-[12px] sub" style="background:#F2F0EF">Knowledge Hub terpisah dari Recruitment. Data kandidat, CV, dan evaluasi tidak disimpan di sini.</div></div></div>`};
+
+function globalSearch(q){candQ=q;go('kandidat')}
+function render(){if(!V[cur])cur='overview';
+document.getElementById('nav').innerHTML=MENU.map(m=>`<a class="${cur==m[0]?'on':''}" onclick="go('${m[0]}')">${ic(m[2])}${m[1]}</a>`).join('');
+document.getElementById('mnav').innerHTML=MENU.map(m=>`<div class="tab ${cur==m[0]?'on':''} whitespace-nowrap" onclick="go('${m[0]}')">${m[1]}</div>`).join('')+`<div class="tab ${cur=='knowledge'?'on':''} whitespace-nowrap" onclick="go('knowledge')">Knowledge Hub</div>`;
+const kh=cur=='knowledge';document.getElementById('mod').textContent=kh?'Knowledge Hub':'Recruitment';document.getElementById('crumb').textContent=kh?'Beranda':MENU.find(m=>m[0]==cur)[1];document.getElementById('khLink').className=kh?'on':'';
+document.getElementById('view').innerHTML=V[cur]()}
+document.getElementById('stagePick').innerHTML=STAGES.slice(0,5).map((s,i)=>`<span class="tag ${i==3?'t-mute':'t-pink'} cursor-pointer" onclick="this.classList.toggle('t-pink');this.classList.toggle('t-mute')">${s}${i==3?' (opsional)':''}</span>`).join('');
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeM()}));
+cur=(location.hash||'#overview').slice(1);render();
+</script></body></html>
