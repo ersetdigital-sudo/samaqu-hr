@@ -9,8 +9,9 @@
 --    agar memakai current_has_role().
 --  * Riwayat tetap read-only untuk authenticated/admin:
 --    contract_history / employee_status_history / user_access_history hanya
---    boleh SELECT. INSERT langsung (termasuk policy admin lama) dicabut;
---    penulisan tetap lewat trigger SECURITY DEFINER / service_role.
+--    boleh SELECT. Seluruh privilege tulis (termasuk TRUNCATE/REFERENCES/
+--    TRIGGER) dicabut dari role aplikasi; penulisan tetap lewat trigger
+--    SECURITY DEFINER / service_role.
 --
 -- Tidak mengubah data karyawan/kontrak/histori existing.
 -- =============================================================================
@@ -317,17 +318,12 @@ grant execute on function public.renew_contract(uuid, date, date, text, text)
 
 -- ---------------------------------------------------------------------------
 -- 3. Riwayat tetap read-only untuk admin
+--    Cabut seluruh privilege tabel (termasuk TRUNCATE/REFERENCES/TRIGGER)
+--    dari role aplikasi; authenticated hanya boleh SELECT.
 -- ---------------------------------------------------------------------------
-revoke insert, update, delete on table public.contract_history
-  from anon, authenticated;
-revoke insert, update, delete on table public.employee_status_history
-  from anon, authenticated;
-revoke insert, update, delete on table public.user_access_history
-  from anon, authenticated;
-
-revoke all on table public.contract_history from anon;
-revoke all on table public.employee_status_history from anon;
-revoke all on table public.user_access_history from anon;
+revoke all on table public.contract_history from anon, authenticated;
+revoke all on table public.employee_status_history from anon, authenticated;
+revoke all on table public.user_access_history from anon, authenticated;
 
 grant select on table public.contract_history to authenticated;
 grant select on table public.employee_status_history to authenticated;
