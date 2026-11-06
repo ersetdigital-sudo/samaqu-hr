@@ -85,6 +85,8 @@ export type JobApplication = Omit<ApplicationInput, "consent"> & {
   stage: string;
   internal_note: string;
   reviewed_at: string | null;
+  rejected_at: string | null;
+  cv_deleted_at: string | null;
   created_at: string;
   updated_at: string;
 };

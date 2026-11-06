@@ -24,7 +24,7 @@ import {
 } from "@/lib/recruitment/live/http";
 
 const APPLICATION_COLUMNS =
-  "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,created_at,updated_at";
+  "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,rejected_at,cv_deleted_at,created_at,updated_at";
 const effective = (job: JobPosting): JobPosting => ({
   ...job,
   status: effectiveStatus(job.status, job.closes_at),
@@ -147,8 +147,7 @@ export async function saveJob(
     dbFailure(error);
   }
   const saved = data as JobPosting;
-  if (saved.published_at)
-    revalidateTag(PUBLIC_JOBS_TAG, { expire: 0 });
+  if (saved.published_at) revalidateTag(PUBLIC_JOBS_TAG, { expire: 0 });
   return effective(saved);
 }
 export async function changeJobStatus(
@@ -277,11 +276,16 @@ export async function getApplicationCv(id: string): Promise<string> {
   const db = await getServerSupabase();
   const { data, error } = await db
     .from("job_applications")
-    .select("cv_path")
+    .select("cv_path,cv_deleted_at")
     .eq("id", id)
     .maybeSingle();
   if (error) dbFailure(error);
   if (!data) throw new RecruitmentError("CV tidak ditemukan", 404);
+  if (data.cv_deleted_at)
+    throw new RecruitmentError(
+      "CV sudah dihapus otomatis sesuai kebijakan retensi.",
+      410,
+    );
   const signed = await db.storage.from("cvs").createSignedUrl(data.cv_path, 60);
   if (signed.error) throw new RecruitmentError("Gagal membuka CV", 500);
   return signed.data.signedUrl;

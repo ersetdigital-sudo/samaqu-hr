@@ -21,6 +21,10 @@ import {
   relativeTime,
   whatsappDigits,
 } from "./ui";
+import {
+  cvRetentionWarningAt,
+  formatRetentionDate,
+} from "@/lib/recruitment/live/retention";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
@@ -257,7 +261,11 @@ export function Applicants({
         { method: "PATCH", body: JSON.stringify({ stage }) },
       );
       if (!mounted.current) return;
-      mergeApplication(application, { stage: result.application.stage });
+      mergeApplication(application, {
+        stage: result.application.stage,
+        rejected_at: result.application.rejected_at,
+        cv_deleted_at: result.application.cv_deleted_at,
+      });
       setReject(null);
       await load(filterRef.current);
       router.refresh();
@@ -292,6 +300,9 @@ export function Applicants({
       : selected && selected.stage !== "Diterima"
         ? STAGES[STAGES.indexOf(selected.stage) + 1]
         : undefined;
+  const retentionWarning = selected
+    ? cvRetentionWarningAt(selected, job)
+    : null;
   const detail = selected
     ? [
         ["Domisili", selected.city],
@@ -551,25 +562,40 @@ export function Applicants({
                   retry={() => void markReviewed(selected)}
                 />
               )}
-              <div className="rl-two">
-                <a
-                  href={`https://wa.me/${whatsappDigits(selected.whatsapp)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rl-btn rl-green"
-                >
-                  <Icon name="chat" />
-                  Chat WhatsApp
-                </a>
-                <a
-                  href={`/api/recruitment/applications/${selected.id}/cv`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rl-btn"
-                >
-                  <Icon name="file" />
-                  Buka CV
-                </a>
+              <div className="rl-stack" style={{ gap: 6 }}>
+                <div className="rl-two">
+                  <a
+                    href={`https://wa.me/${whatsappDigits(selected.whatsapp)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rl-btn rl-green"
+                  >
+                    <Icon name="chat" />
+                    Chat WhatsApp
+                  </a>
+                  {selected.cv_deleted_at ? (
+                    <div className="rl-cv-deleted">
+                      CV dihapus otomatis pada{" "}
+                      {formatRetentionDate(selected.cv_deleted_at)}
+                    </div>
+                  ) : (
+                    <a
+                      href={`/api/recruitment/applications/${selected.id}/cv`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rl-btn"
+                    >
+                      <Icon name="file" />
+                      Buka CV
+                    </a>
+                  )}
+                </div>
+                {retentionWarning && (
+                  <p className="rl-retention">
+                    CV akan dihapus otomatis pada{" "}
+                    {formatRetentionDate(retentionWarning)}
+                  </p>
+                )}
               </div>
               <dl className="rl-details-grid">
                 {detail.map(([label, value, wide]) => (

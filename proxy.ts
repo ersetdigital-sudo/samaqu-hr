@@ -17,13 +17,14 @@ const PUBLIC_PATHS = [
   "/auth/confirm",
   "/karir",
   "/api/karir/lamaran",
+  "/api/cron/cv-retention",
 ];
 
 const isPublic = (pathname: string) =>
   PUBLIC_PATHS.some(
     (path) =>
       pathname === path ||
-      (path !== "/api/karir/lamaran" && pathname.startsWith(`${path}/`)),
+      (!path.startsWith("/api/") && pathname.startsWith(`${path}/`)),
   );
 
 const CONFIG_ERROR_MESSAGE =
