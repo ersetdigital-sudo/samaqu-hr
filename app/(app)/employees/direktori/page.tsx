@@ -27,43 +27,50 @@ export default async function EmployeeDirectoryPage({
     typeof params.employee === "string" ? params.employee : null;
   const converted = params.converted === "1";
 
-  const [employees, nextId] = await Promise.all([
+  const loadDirectory = Promise.all([
     listEmployeeSummaries(),
     getNextEmployeeId(),
   ]);
+  const loadConversion = (async () => {
+    if (!convertId) return { conversion: null, conversionError: null };
 
-  let conversion: {
-    applicationId: string;
-    prefill: ReturnType<typeof buildEmployeePrefill>;
-    warning: string | null;
-  } | null = null;
-  let conversionError: string | null = null;
-
-  if (convertId) {
     try {
       const source = await getApplicationEmployeeSource(convertId);
-      conversion = {
-        applicationId: source.applicationId,
-        prefill: buildEmployeePrefill(source),
-        warning: null,
-      };
+      let warning: string | null = null;
       try {
         const duplicate = await findEmployeeByNameAndBirthDate(
           source.fullName,
           source.birthDate
         );
         if (duplicate)
-          conversion.warning = `Sudah ada karyawan dengan nama dan tanggal lahir yang sama (${duplicate.id} · ${duplicate.fullName}). Pastikan bukan orang yang sama.`;
+          warning = `Sudah ada karyawan dengan nama dan tanggal lahir yang sama (${duplicate.id} · ${duplicate.fullName}). Pastikan bukan orang yang sama.`;
       } catch {
         // Peringatan lembut bersifat opsional; kegagalan cek tidak memblokir form.
       }
+      return {
+        conversion: {
+          applicationId: source.applicationId,
+          prefill: buildEmployeePrefill(source),
+          warning,
+        },
+        conversionError: null,
+      };
     } catch (error) {
-      conversionError =
-        error instanceof Error
-          ? error.message
-          : "Data lamaran tidak dapat dimuat untuk konversi.";
+      return {
+        conversion: null,
+        conversionError:
+          error instanceof Error
+            ? error.message
+            : "Data lamaran tidak dapat dimuat untuk konversi.",
+      };
     }
-  }
+  })();
+
+  const [[employees, nextId], conversionState] = await Promise.all([
+    loadDirectory,
+    loadConversion,
+  ]);
+  const { conversion, conversionError } = conversionState;
 
   return (
     <DirectoryView

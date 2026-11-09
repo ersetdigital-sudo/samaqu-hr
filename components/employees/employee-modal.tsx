@@ -94,7 +94,7 @@ export function EmployeeModal({
   nextId: string;
   managers: EmployeeSummary[];
   onClose: () => void;
-  onSaved: (message: string, employeeId?: string) => void;
+  onSaved: (message: string, employee?: EmployeeSummary) => void;
 }) {
   const [form, setForm] = useState<EmployeeInput>(emptyForm);
   const [errors, setErrors] = useState<EmployeeErrors>({});
@@ -154,7 +154,7 @@ export function EmployeeModal({
       const data = (await response.json()) as {
         error?: string;
         errors?: EmployeeErrors;
-        employee?: { id: string };
+        employee?: EmployeeSummary;
       };
 
       if (!response.ok) {
@@ -168,7 +168,7 @@ export function EmployeeModal({
           : applicationId
             ? "Pelamar berhasil dikonversi menjadi karyawan"
             : "Karyawan baru ditambahkan",
-        data.employee?.id
+        data.employee
       );
     } catch (err) {
       setFormError(

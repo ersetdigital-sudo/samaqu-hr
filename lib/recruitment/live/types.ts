@@ -130,11 +130,23 @@ export type CandidateApplication = JobApplication & {
   job: CandidateJob | null;
 };
 
-/** Satu snapshot terbatas untuk Kandidat, Pipeline, dan Overview. */
+/** Satu snapshot terbatas untuk Kandidat dan Pipeline. */
 export type RecruitmentBoard = {
   jobs: CandidateJob[];
   applications: CandidateApplication[];
   /** Total pelamar di database, walau snapshot dibatasi. */
+  total: number;
+  limit: number;
+};
+
+/** Snapshot ringan khusus Overview; tanpa kolom detail yang tidak dipakai. */
+export type OverviewApplication = Pick<
+  JobApplication,
+  "id" | "full_name" | "job_id" | "stage" | "created_at"
+>;
+export type OverviewBoard = {
+  jobs: CandidateJob[];
+  applications: OverviewApplication[];
   total: number;
   limit: number;
 };

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { EmployeeDrawer } from "@/components/employees/employee-drawer";
 import { EmployeeModal } from "@/components/employees/employee-modal";
 import { employeeStatusTone } from "@/components/employees/status-tone";
@@ -16,6 +15,10 @@ import {
 } from "@/components/ui/data-table";
 import { Pagination } from "@/components/ui/pagination";
 import { useRecruitment } from "@/components/recruitment-provider";
+import {
+  invalidateEmployeeDetail,
+  loadEmployeeDetail,
+} from "@/lib/employees/detail-cache";
 import { formatIsoDateID } from "@/lib/employees/format";
 import {
   DEFAULT_FILTERS,
@@ -60,7 +63,6 @@ export function DirectoryView({
   conversionError?: string | null;
 }) {
   const { toast } = useRecruitment();
-  const router = useRouter();
   const [rows, setRows] = useState<EmployeeSummary[]>(initialEmployees);
   const [nextId, setNextId] = useState(initialNextId);
   const [filters, setFilters] = useState<DirectoryFilters>(DEFAULT_FILTERS);
@@ -68,11 +70,14 @@ export function DirectoryView({
   const [formOpen, setFormOpen] = useState(Boolean(conversion));
   const [editing, setEditing] = useState<EmployeeDetail | null>(null);
   const [activeConversion, setActiveConversion] = useState(conversion);
+  const [showConverted, setShowConverted] = useState(converted);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (initialEmployeeId) setDetailId(initialEmployeeId);
   }, [initialEmployeeId]);
+
+  useEffect(() => () => invalidateEmployeeDetail(), []);
 
   const stats = useMemo(() => buildDirectoryStats(rows), [rows]);
   const result = useMemo(() => filterEmployees(rows, filters), [rows, filters]);
@@ -131,20 +136,32 @@ export function DirectoryView({
     setFormOpen(true);
   };
 
-  const handleSaved = async (message: string, employeeId?: string) => {
+  const handleSaved = (message: string, employee?: EmployeeSummary) => {
     const conversionActive = Boolean(activeConversion);
     setFormOpen(false);
     setEditing(null);
     setActiveConversion(null);
 
-    if (conversionActive && employeeId) {
-      router.push(
-        `/employees/direktori?employee=${encodeURIComponent(employeeId)}&converted=1`,
+    if (employee) {
+      invalidateEmployeeDetail(employee.id);
+      setRows((current) =>
+        [...current.filter((row) => row.id !== employee.id), employee].sort(
+          (a, b) => a.fullName.localeCompare(b.fullName, "id"),
+        ),
       );
-      return;
+      setDetailId(employee.id);
+      if (conversionActive) setShowConverted(true);
+      window.history.replaceState(
+        null,
+        "",
+        `/employees/direktori?employee=${encodeURIComponent(employee.id)}${conversionActive ? "&converted=1" : ""}`,
+      );
     }
 
-    await reload(message);
+    toast(message);
+    // Daftar sudah diperbarui dari respons simpan; refresh ini hanya untuk
+    // menyegarkan nextId/urutan di latar belakang dan tidak menahan UI.
+    void refresh().catch(() => {});
   };
 
   const columns: DataTableColumn<EmployeeSummary>[] = [
@@ -238,7 +255,7 @@ export function DirectoryView({
         </button>
       </PageHead>
 
-      {converted && (
+      {showConverted && (
         <div
           className="card p-4 mb-5 flex flex-wrap items-center gap-3"
           style={{ borderColor: "#D8E8D2", background: "#F6FBF4" }}
@@ -374,6 +391,9 @@ export function DirectoryView({
         rowKey={(employee) => employee.id}
         rowLabel={(employee) => `Buka detail ${employee.fullName}`}
         onRowActivate={(employee) => setDetailId(employee.id)}
+        onRowPrefetch={(employee) => {
+          void loadEmployeeDetail(employee.id).catch(() => {});
+        }}
         rowAction={{
           ariaLabel: (employee) => `Lihat detail ${employee.fullName}`,
         }}
@@ -392,7 +412,15 @@ export function DirectoryView({
 
       <EmployeeDrawer
         employeeId={detailId}
-        onClose={() => setDetailId(null)}
+        preview={
+          detailId
+            ? rows.find((row) => row.id === detailId) ?? null
+            : null
+        }
+        onClose={() => {
+          setDetailId(null);
+          window.history.replaceState(null, "", "/employees/direktori");
+        }}
         onEdit={(detail) => {
           setDetailId(null);
           setEditing(detail);
@@ -414,12 +442,10 @@ export function DirectoryView({
           setEditing(null);
           if (activeConversion) {
             setActiveConversion(null);
-            router.replace("/employees/direktori");
+            window.history.replaceState(null, "", "/employees/direktori");
           }
         }}
-        onSaved={(message, employeeId) =>
-          void handleSaved(message, employeeId)
-        }
+        onSaved={handleSaved}
       />
     </>
   );

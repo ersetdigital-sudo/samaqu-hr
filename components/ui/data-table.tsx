@@ -61,6 +61,7 @@ export function DataTable<T>({
   rowKey,
   rowLabel,
   onRowActivate,
+  onRowPrefetch,
   rowAction,
   empty,
   minWidth = 680,
@@ -71,6 +72,8 @@ export function DataTable<T>({
   rowKey: (row: T) => string;
   rowLabel?: (row: T) => string;
   onRowActivate?: (row: T) => void;
+  /** Prefetch ringan saat baris di-hover/disentuh/difokus. */
+  onRowPrefetch?: (row: T) => void;
   rowAction?: RowAction<T>;
   empty: ReactNode;
   minWidth?: number;
@@ -137,6 +140,9 @@ export function DataTable<T>({
               aria-label={rowLabel?.(row)}
               onClick={() => activate(row)}
               onKeyDown={(event) => onKeyDown(event, row)}
+              onPointerEnter={() => onRowPrefetch?.(row)}
+              onTouchStart={() => onRowPrefetch?.(row)}
+              onFocus={() => onRowPrefetch?.(row)}
             >
               {columns.map((column) => (
                 <td key={column.key} className={column.className}>

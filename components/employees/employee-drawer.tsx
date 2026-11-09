@@ -6,7 +6,12 @@ import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { ini } from "@/lib/data";
 import { formatIsoDateID } from "@/lib/employees/format";
-import type { EmployeeDetail } from "@/lib/employees/types";
+import {
+  cachedEmployeeDetail,
+  invalidateEmployeeDetail,
+  loadEmployeeDetail,
+} from "@/lib/employees/detail-cache";
+import type { EmployeeDetail, EmployeeSummary } from "@/lib/employees/types";
 
 function Info({ label, value }: { label: string; value: ReactNode }) {
   return (
@@ -34,11 +39,13 @@ function Section({
 
 export function EmployeeDrawer({
   employeeId,
+  preview = null,
   onClose,
   onEdit,
   onChanged,
 }: {
   employeeId: string | null;
+  preview?: EmployeeSummary | null;
   onClose: () => void;
   onEdit: (detail: EmployeeDetail) => void;
   onChanged: (message: string) => void;
@@ -56,9 +63,18 @@ export function EmployeeDrawer({
     if (!employeeId) {
       setDetail(null);
       setError(null);
+      setLoading(false);
       setReactivating(false);
       setReason("");
       setReasonError(null);
+      return;
+    }
+
+    const cached = cachedEmployeeDetail(employeeId);
+    setDetail(cached);
+    if (cached) {
+      setError(null);
+      setLoading(false);
       return;
     }
 
@@ -66,13 +82,9 @@ export function EmployeeDrawer({
     setLoading(true);
     setError(null);
 
-    fetch(`/api/employees/${employeeId}`, { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Gagal memuat detail karyawan");
-        return (await response.json()) as { employee: EmployeeDetail };
-      })
-      .then((data) => {
-        if (active) setDetail(data.employee);
+    loadEmployeeDetail(employeeId)
+      .then((employee) => {
+        if (active) setDetail(employee);
       })
       .catch((err) => {
         if (active)
@@ -103,6 +115,7 @@ export function EmployeeDrawer({
       if (!response.ok) {
         throw new Error(data.error ?? "Gagal mengubah status karyawan");
       }
+      invalidateEmployeeDetail(detail.id);
       setReloadKey((key) => key + 1);
       onChanged("Karyawan dinonaktifkan");
     } catch (err) {
@@ -137,6 +150,7 @@ export function EmployeeDrawer({
       }
       setReactivating(false);
       setReason("");
+      invalidateEmployeeDetail(detail.id);
       setReloadKey((key) => key + 1);
       onChanged(
         "Karyawan direaktivasi — kontrak baru dibuat lewat modul Kontrak"
@@ -149,6 +163,8 @@ export function EmployeeDrawer({
       setUpdating(false);
     }
   };
+
+  const summary = detail ?? preview;
 
   return (
     <div className={`drawer ${employeeId ? "show" : ""}`} id="empDrawer">
@@ -165,33 +181,44 @@ export function EmployeeDrawer({
           </div>
 
           <div className="p-6">
-            {loading && <div className="sub text-[13px]">Memuat detail…</div>}
+            {summary && (
+              <div className="flex items-center gap-4 mb-5">
+                <div
+                  className="av"
+                  style={{ width: 56, height: 56, fontSize: 18 }}
+                >
+                  {ini(summary.fullName)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-[19px] leading-tight">
+                    {summary.fullName}
+                  </div>
+                  <div className="sub">{summary.position}</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span
+                      className={`tag ${employeeStatusTone(summary.status)}`}
+                    >
+                      {summary.status}
+                    </span>
+                    <span className="tag t-mute">{summary.employmentType}</span>
+                    <span className="tag t-mute">{summary.id}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {loading && !detail && (
+              <div className="sub text-[13px]">
+                Melengkapi detail karyawan…
+              </div>
+            )}
 
             {error && (
               <div className="tag t-bad mb-4 w-full justify-center">{error}</div>
             )}
 
-            {detail && !loading && (
+            {detail && (
               <>
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="av" style={{ width: 56, height: 56, fontSize: 18 }}>
-                    {ini(detail.fullName)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-[19px] leading-tight">
-                      {detail.fullName}
-                    </div>
-                    <div className="sub">{detail.position}</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <span className={`tag ${employeeStatusTone(detail.status)}`}>
-                        {detail.status}
-                      </span>
-                      <span className="tag t-mute">{detail.employmentType}</span>
-                      <span className="tag t-mute">{detail.id}</span>
-                    </div>
-                  </div>
-                </div>
-
                 <Section title="Identitas">
                   <div className="grid grid-cols-2 gap-3">
                     <Info label="Tempat lahir" value={detail.birthPlace} />

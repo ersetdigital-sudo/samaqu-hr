@@ -6,6 +6,7 @@
  * (`user_profiles` + `user_roles`). Role tidak pernah berasal dari input klien.
  */
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { initialsOf, type SessionUser } from "@/lib/session";
@@ -28,7 +29,7 @@ type ProfileRow = {
  * Pengguna terautentikasi dengan akun Aktif dan role valid, atau `null`.
  * Akun Nonaktif / Diundang / tanpa role dianggap tidak punya akses.
  */
-export async function getAuthUser(): Promise<SessionUser | null> {
+export const getAuthUser = cache(async (): Promise<SessionUser | null> => {
   const supabase = await getServerSupabase();
   const {
     data: { user },
@@ -36,23 +37,24 @@ export async function getAuthUser(): Promise<SessionUser | null> {
 
   if (!user) return null;
 
-  const { data: profileData } = await supabase
-    .from("user_profiles")
-    .select("full_name, email, account_status, employee_id")
-    .eq("id", user.id)
-    .maybeSingle();
+  // Profil dan role hanya bergantung pada user.id: ambil paralel, lalu
+  // memo-kan hasilnya per request agar layout, page, dan guard tidak
+  // mengulang auth/profile/role.
+  const [profileResult, roleResult] = await Promise.all([
+    supabase
+      .from("user_profiles")
+      .select("full_name, email, account_status, employee_id")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase.from("user_roles").select("roles(name)").eq("user_id", user.id),
+  ]);
 
-  const profile = profileData as ProfileRow | null;
+  const profile = profileResult.data as ProfileRow | null;
   if (!profile || profile.account_status !== "Aktif") return null;
-
-  const { data: roleData } = await supabase
-    .from("user_roles")
-    .select("roles(name)")
-    .eq("user_id", user.id);
 
   // PostgREST mengembalikan relasi sebagai objek (many-to-one) atau array
   // tergantung cache skema; tangani keduanya tanpa melemahkan tipe.
-  const roleNames = ((roleData ?? []) as unknown as {
+  const roleNames = ((roleResult.data ?? []) as unknown as {
     roles: { name: string } | { name: string }[] | null;
   }[])
     .flatMap((row) => {
@@ -74,7 +76,7 @@ export async function getAuthUser(): Promise<SessionUser | null> {
     initials: initialsOf(profile.full_name),
     employeeId: profile.employee_id,
   };
-}
+});
 
 /** Wajib login; redirect ke /login dengan tujuan semula. */
 export async function requireUser(nextPath?: string): Promise<SessionUser> {

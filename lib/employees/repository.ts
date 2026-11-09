@@ -58,9 +58,17 @@ type EmployeeRow = SummaryRow & {
 const SUMMARY_COLUMNS =
   "id, full_name, position, department, location, manager_id, joined_at, employment_type, status";
 
+const DIRECTORY_COLUMNS = `${SUMMARY_COLUMNS},manager_name`;
+
+const DETAIL_COLUMNS =
+  "id, full_name, position, department, location, manager_id, manager_name, joined_at, employment_type, status, gender, birth_place, birth_date, address, nik, personal_email, work_email, phone, emergency_name, emergency_relation, emergency_phone, probation_start, probation_end";
+
+type SummaryViewRow = SummaryRow & { manager_name: string | null };
+type DetailViewRow = EmployeeRow & { manager_name: string | null };
+
 const toSummary = (
   row: SummaryRow,
-  managers: Record<string, string>
+  managerName: string | null
 ): EmployeeSummary => ({
   id: row.id,
   fullName: row.full_name,
@@ -68,7 +76,7 @@ const toSummary = (
   department: row.department,
   location: row.location,
   managerId: row.manager_id,
-  managerName: row.manager_id ? managers[row.manager_id] ?? null : null,
+  managerName,
   joinedAt: row.joined_at,
   employmentType: row.employment_type,
   status: row.status,
@@ -76,10 +84,10 @@ const toSummary = (
 
 const toDetail = (
   row: EmployeeRow,
-  managers: Record<string, string>,
+  managerName: string | null,
   currentContractEnd: string | null
 ): EmployeeDetail => ({
-  ...toSummary(row, managers),
+  ...toSummary(row, managerName),
   gender: row.gender,
   birthPlace: row.birth_place,
   birthDate: row.birth_date,
@@ -94,19 +102,6 @@ const toDetail = (
   probationStart: row.probation_start,
   probationEnd: row.probation_end,
   currentContractEnd,
-});
-
-const summaryFromDetail = (detail: EmployeeDetail): EmployeeSummary => ({
-  id: detail.id,
-  fullName: detail.fullName,
-  position: detail.position,
-  department: detail.department,
-  location: detail.location,
-  managerId: detail.managerId,
-  managerName: detail.managerName,
-  joinedAt: detail.joinedAt,
-  employmentType: detail.employmentType,
-  status: detail.status,
 });
 
 /** Kolom domain → kolom tabel. `id` tidak pernah berasal dari klien. */
@@ -186,28 +181,6 @@ const mapRpcError = (error: { message?: string; code?: string }, action: string)
   return new EmployeeDataError(`Gagal ${action}`, 500);
 };
 
-const loadManagerNames = async (
-  ids: string[]
-): Promise<Record<string, string>> => {
-  if (ids.length === 0) return {};
-
-  const { data, error } = await (await getServerSupabase())
-    .from("employees")
-    .select("id, full_name")
-    .in("id", ids);
-
-  if (error) {
-    throw new EmployeeDataError("Gagal memuat data atasan langsung", 500);
-  }
-
-  return Object.fromEntries(
-    ((data ?? []) as { id: string; full_name: string }[]).map((row) => [
-      row.id,
-      row.full_name,
-    ])
-  );
-};
-
 /** Ringkasan tanggal berakhir kontrak — sumbernya tabel contracts. */
 const loadActiveContractEnd = async (
   employeeId: string
@@ -229,44 +202,48 @@ const loadActiveContractEnd = async (
 
 export async function listEmployeeSummaries(): Promise<EmployeeSummary[]> {
   const { data, error } = await (await getServerSupabase())
-    .from("employees")
-    .select(SUMMARY_COLUMNS)
+    .from("employee_directory")
+    .select(DIRECTORY_COLUMNS)
     .order("full_name", { ascending: true });
 
   if (error) throw mapDbError(error, "memuat direktori");
 
-  const rows = (data ?? []) as SummaryRow[];
-  const managers = await loadManagerNames([
-    ...new Set(
-      rows
-        .map((row) => row.manager_id)
-        .filter((id): id is string => Boolean(id))
-    ),
-  ]);
-
-  return rows.map((row) => toSummary(row, managers));
+  const rows = (data ?? []) as SummaryViewRow[];
+  return rows.map((row) => toSummary(row, row.manager_name));
 }
 
 /** Detail lengkap termasuk NIK — hanya untuk role hr_manager. */
 export async function getEmployeeDetail(
   id: string
 ): Promise<EmployeeDetail | null> {
-  const { data, error } = await (await getServerSupabase())
-    .from("employees")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) throw mapDbError(error, "memuat detail");
-  if (!data) return null;
-
-  const row = data as EmployeeRow;
-  const [managers, currentContractEnd] = await Promise.all([
-    loadManagerNames(row.manager_id ? [row.manager_id] : []),
+  const db = await getServerSupabase();
+  const [result, currentContractEnd] = await Promise.all([
+    db.from("employee_details").select(DETAIL_COLUMNS).eq("id", id).maybeSingle(),
     loadActiveContractEnd(id),
   ]);
 
-  return toDetail(row, managers, currentContractEnd);
+  if (result.error) throw mapDbError(result.error, "memuat detail");
+  if (!result.data) return null;
+
+  const row = result.data as DetailViewRow;
+  return toDetail(row, row.manager_name, currentContractEnd);
+}
+
+/** Ringkasan ringan untuk respons simpan/konversi tanpa detail lengkap. */
+export async function getEmployeeSummary(
+  id: string
+): Promise<EmployeeSummary | null> {
+  const { data, error } = await (await getServerSupabase())
+    .from("employee_directory")
+    .select(DIRECTORY_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw mapDbError(error, "memuat ringkasan");
+  if (!data) return null;
+
+  const row = data as SummaryViewRow;
+  return toSummary(row, row.manager_name);
 }
 
 /** Pratinjau Employee ID berikutnya (sequence tidak digeser). */
@@ -286,20 +263,14 @@ export async function createEmployee(
   const { data, error } = await (await getServerSupabase())
     .from("employees")
     .insert(toRow(input))
-    .select("id")
+    .select(SUMMARY_COLUMNS)
     .single();
 
   if (error) throw mapDbError(error, "menambah");
 
-  const detail = await getEmployeeDetail((data as { id: string }).id);
-  if (!detail) {
-    throw new EmployeeDataError(
-      "Karyawan tersimpan tetapi gagal dibaca kembali",
-      500
-    );
-  }
-
-  return summaryFromDetail(detail);
+  // Daftar langsung diperbarui dari baris ini; nama atasan menyusul lewat
+  // refresh latar belakang/detail tanpa menahan respons simpan.
+  return toSummary(data as SummaryRow, null);
 }
 
 /**
@@ -323,15 +294,15 @@ export async function convertApplicationToEmployee(
     );
   }
 
-  const detail = await getEmployeeDetail(data);
-  if (!detail) {
+  const summary = await getEmployeeSummary(data);
+  if (!summary) {
     throw new EmployeeDataError(
       "Karyawan tersimpan tetapi gagal dibaca kembali",
       500
     );
   }
 
-  return summaryFromDetail(detail);
+  return summary;
 }
 
 /** Peringatan lembut agar HR memeriksa kemungkinan karyawan ganda. */
@@ -390,8 +361,7 @@ export async function updateEmployee(
   if (error) throw mapDbError(error, "memperbarui");
   if (!data) return null;
 
-  const detail = await getEmployeeDetail(id);
-  return detail ? summaryFromDetail(detail) : null;
+  return getEmployeeSummary(id);
 }
 
 export async function updateEmployeeStatus(
@@ -429,8 +399,7 @@ export async function updateEmployeeStatus(
   if (error) throw mapDbError(error, "mengubah status");
   if (!data) return null;
 
-  const detail = await getEmployeeDetail(id);
-  return detail ? summaryFromDetail(detail) : null;
+  return getEmployeeSummary(id);
 }
 
 /**
@@ -454,13 +423,5 @@ export async function reactivateEmployee(
   if (error) throw mapRpcError(error, "mereaktivasi karyawan");
   if (!data) return null;
 
-  const detail = await getEmployeeDetail((data as { id: string }).id);
-  if (!detail) {
-    throw new EmployeeDataError(
-      "Karyawan tersimpan tetapi gagal dibaca kembali",
-      500
-    );
-  }
-
-  return summaryFromDetail(detail);
+  return getEmployeeSummary((data as { id: string }).id);
 }

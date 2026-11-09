@@ -9,6 +9,7 @@
  * Jangan import file ini dari komponen client.
  */
 
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -26,26 +27,28 @@ function publicEnv() {
   return { url, anonKey };
 }
 
-/** Client terikat session pengguna — RLS berlaku. */
-export async function getServerSupabase(): Promise<SupabaseClient> {
-  const { url, anonKey } = publicEnv();
-  const cookieStore = await cookies();
+/** Client terikat session pengguna — RLS berlaku. Satu client per request. */
+export const getServerSupabase = cache(
+  async (): Promise<SupabaseClient> => {
+    const { url, anonKey } = publicEnv();
+    const cookieStore = await cookies();
 
-  return createServerClient(url, anonKey, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (cookiesToSet) => {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        } catch {
-          // Server Component tidak boleh menulis cookie; proxy yang me-refresh.
-        }
+    return createServerClient(url, anonKey, {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component tidak boleh menulis cookie; proxy yang me-refresh.
+          }
+        },
       },
-    },
-  });
-}
+    });
+  }
+);
 
 let serviceClient: SupabaseClient | null = null;
 

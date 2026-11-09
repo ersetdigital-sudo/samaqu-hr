@@ -6,6 +6,8 @@ import type {
   CandidateApplication,
   CandidateJob,
   JobApplication,
+  OverviewApplication,
+  OverviewBoard,
   RecruitmentBoard,
 } from "./types";
 
@@ -59,6 +61,35 @@ export async function getRecruitmentBoard(): Promise<RecruitmentBoard> {
     jobs,
     applications,
     total: applicationsResult.count ?? applications.length,
+    limit: CANDIDATE_LIMIT,
+  };
+}
+
+/** Overview hanya butuh kolom agregat; jangan tarik detail lamaran penuh. */
+export async function getRecruitmentOverviewBoard(): Promise<OverviewBoard> {
+  const db = await getServerSupabase();
+  const [jobsResult, applicationsResult] = await Promise.all([
+    db
+      .from("job_postings")
+      .select(JOB_COLUMNS)
+      .order("created_at", { ascending: false })
+      .order("id")
+      .limit(JOB_LIMIT),
+    db
+      .from("job_applications")
+      .select("id,full_name,job_id,stage,created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .order("id")
+      .limit(CANDIDATE_LIMIT),
+  ]);
+
+  if (jobsResult.error) dbFailure(jobsResult.error);
+  if (applicationsResult.error) dbFailure(applicationsResult.error);
+
+  return {
+    jobs: (jobsResult.data ?? []) as CandidateJob[],
+    applications: (applicationsResult.data ?? []) as OverviewApplication[],
+    total: applicationsResult.count ?? 0,
     limit: CANDIDATE_LIMIT,
   };
 }

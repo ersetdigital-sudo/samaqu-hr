@@ -26,57 +26,85 @@ import {
 
 export const APPLICATION_COLUMNS =
   "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,rejected_at,cv_deleted_at,employee_id,created_at,updated_at";
+const JOB_COLUMNS =
+  "id,slug,title,department,location,employment_type,headcount,summary,duties,qualifications,closes_at,status,published_at,closed_at,created_by,created_at,updated_at";
+
+type JobStats = {
+  applicant_count: number;
+  unreviewed_count: number;
+  accepted_count: number;
+};
+
+const EMPTY_JOB_STATS: JobStats = {
+  applicant_count: 0,
+  unreviewed_count: 0,
+  accepted_count: 0,
+};
+
+/** Satu pass untuk statistik semua lowongan, bukan 3 query per lowongan. */
+async function loadJobStats(
+  db: Awaited<ReturnType<typeof getServerSupabase>>,
+): Promise<Map<string, JobStats>> {
+  const stats = new Map<string, JobStats>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db
+      .from("job_applications")
+      .select("job_id,stage,reviewed_at")
+      .order("id")
+      .range(from, from + 999);
+    if (error) dbFailure(error);
+
+    const rows = (data ?? []) as {
+      job_id: string;
+      stage: string;
+      reviewed_at: string | null;
+    }[];
+    for (const row of rows) {
+      const current = stats.get(row.job_id) ?? { ...EMPTY_JOB_STATS };
+      current.applicant_count += 1;
+      if (!row.reviewed_at) current.unreviewed_count += 1;
+      if (row.stage === "Diterima") current.accepted_count += 1;
+      stats.set(row.job_id, current);
+    }
+    if (rows.length < 1000) break;
+  }
+  return stats;
+}
+
 const effective = (job: JobPosting): JobPosting => ({
   ...job,
   status: effectiveStatus(job.status, job.closes_at),
 });
+
 export async function listJobs(): Promise<JobSummary[]> {
   const db = await getServerSupabase();
-  const jobs: JobPosting[] = [];
-  for (let from = 0; ; from += 200) {
-    const { data, error } = await db
-      .from("job_postings")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .order("id")
-      .range(from, from + 199);
-    if (error) dbFailure(error);
-    jobs.push(...(data as JobPosting[]));
-    if (data.length < 200) break;
-  }
-  return Promise.all(
-    jobs.map(async (job) => {
-      const queries = await Promise.all([
-        db
-          .from("job_applications")
-          .select("id", { head: true, count: "exact" })
-          .eq("job_id", job.id),
-        db
-          .from("job_applications")
-          .select("id", { head: true, count: "exact" })
-          .eq("job_id", job.id)
-          .is("reviewed_at", null),
-        db
-          .from("job_applications")
-          .select("id", { head: true, count: "exact" })
-          .eq("job_id", job.id)
-          .eq("stage", "Diterima"),
-      ]);
-      for (const q of queries) if (q.error) dbFailure(q.error);
-      return {
-        ...effective(job),
-        applicant_count: queries[0].count ?? 0,
-        unreviewed_count: queries[1].count ?? 0,
-        accepted_count: queries[2].count ?? 0,
-      };
-    }),
-  );
+  const loadJobs = async () => {
+    const jobs: JobPosting[] = [];
+    for (let from = 0; ; from += 200) {
+      const { data, error } = await db
+        .from("job_postings")
+        .select(JOB_COLUMNS)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, from + 199);
+      if (error) dbFailure(error);
+      jobs.push(...(data as JobPosting[]));
+      if (data.length < 200) break;
+    }
+    return jobs;
+  };
+
+  const [jobs, stats] = await Promise.all([loadJobs(), loadJobStats(db)]);
+  return jobs.map((job) => ({
+    ...effective(job),
+    ...(stats.get(job.id) ?? EMPTY_JOB_STATS),
+  }));
 }
 export async function getJob(id: string): Promise<JobPosting | null> {
   assertId(id);
   const { data, error } = await (await getServerSupabase())
     .from("job_postings")
-    .select("*")
+    .select(JOB_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (error) dbFailure(error);

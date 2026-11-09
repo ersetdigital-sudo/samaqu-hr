@@ -5,7 +5,7 @@ import type {
   PipelineMetric,
   StatCard,
 } from "@/lib/recruitment/types";
-import type { RecruitmentBoard } from "./types";
+import type { OverviewBoard } from "./types";
 import { effectiveStatus } from "./validation";
 
 const DAY_MS = 86_400_000;
@@ -29,7 +29,7 @@ export type RecruitmentOverview = {
 
 /** Ringkasan Overview dari snapshot live; tidak membaca data seed. */
 export function buildRecruitmentOverview(
-  board: RecruitmentBoard,
+  board: OverviewBoard,
   now = new Date(),
 ): RecruitmentOverview {
   const stageCounts = Object.fromEntries(
@@ -67,11 +67,15 @@ export function buildRecruitmentOverview(
     return { stage, count, conversion: ratio };
   });
 
+  const jobTitles = new Map(
+    board.jobs.map((job) => [job.id, job.title] as const),
+  );
+
   const activities: Activity[] = board.applications.slice(0, 5).map((item) => ({
     id: item.id,
     actor: item.full_name,
     before: " melamar ",
-    subject: item.job?.title ?? "lowongan",
+    subject: jobTitles.get(item.job_id) ?? "lowongan",
     after: ` · ${item.stage}`,
     at: item.created_at,
     label: formatRelativeID(new Date(item.created_at), now),
@@ -80,7 +84,7 @@ export function buildRecruitmentOverview(
   const jobCounts = new Map<string, { title: string; count: number }>();
   for (const application of board.applications) {
     const current = jobCounts.get(application.job_id) ?? {
-      title: application.job?.title ?? "Lowongan",
+      title: jobTitles.get(application.job_id) ?? "Lowongan",
       count: 0,
     };
     current.count += 1;
