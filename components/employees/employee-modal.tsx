@@ -78,6 +78,9 @@ function FieldError({ message }: { message?: string }) {
 export function EmployeeModal({
   open,
   initial,
+  initialInput = null,
+  warning = null,
+  applicationId = null,
   nextId,
   managers,
   onClose,
@@ -85,10 +88,13 @@ export function EmployeeModal({
 }: {
   open: boolean;
   initial: EmployeeDetail | null;
+  initialInput?: Partial<EmployeeInput> | null;
+  warning?: string | null;
+  applicationId?: string | null;
   nextId: string;
   managers: EmployeeSummary[];
   onClose: () => void;
-  onSaved: (message: string) => void;
+  onSaved: (message: string, employeeId?: string) => void;
 }) {
   const [form, setForm] = useState<EmployeeInput>(emptyForm);
   const [errors, setErrors] = useState<EmployeeErrors>({});
@@ -97,11 +103,15 @@ export function EmployeeModal({
 
   useEffect(() => {
     if (!open) return;
-    setForm(initial ? toInput(initial) : emptyForm());
+    setForm(
+      initial
+        ? toInput(initial)
+        : { ...emptyForm(), ...(initialInput ?? {}) }
+    );
     setErrors({});
     setFormError(null);
     setSaving(false);
-  }, [open, initial]);
+  }, [open, initial, initialInput]);
 
   const set = <K extends keyof EmployeeInput,>(
     key: K,
@@ -135,13 +145,16 @@ export function EmployeeModal({
         {
           method: initial ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(
+            applicationId ? { ...payload, applicationId } : payload
+          ),
         }
       );
 
       const data = (await response.json()) as {
         error?: string;
         errors?: EmployeeErrors;
+        employee?: { id: string };
       };
 
       if (!response.ok) {
@@ -150,7 +163,12 @@ export function EmployeeModal({
       }
 
       onSaved(
-        initial ? "Data karyawan diperbarui" : "Karyawan baru ditambahkan"
+        initial
+          ? "Data karyawan diperbarui"
+          : applicationId
+            ? "Pelamar berhasil dikonversi menjadi karyawan"
+            : "Karyawan baru ditambahkan",
+        data.employee?.id
       );
     } catch (err) {
       setFormError(
@@ -181,8 +199,9 @@ export function EmployeeModal({
               {initial ? "Edit Data Karyawan" : "Tambah Karyawan"}
             </div>
             <div className="sub text-[13px]">
-              Employee ID dibuat otomatis oleh sistem dan dipakai seluruh modul
-              HRIS.
+              {applicationId
+                ? "Data dari lamaran sudah terisi. Lengkapi sisanya sebelum menyimpan."
+                : "Employee ID dibuat otomatis oleh sistem dan dipakai seluruh modul HRIS."}
             </div>
           </div>
           <button className="btn btn-g !px-3" onClick={onClose}>
@@ -197,6 +216,16 @@ export function EmployeeModal({
               style={{ background: "var(--badb)", color: "var(--bad)" }}
             >
               {formError}
+            </div>
+          )}
+
+          {warning && (
+            <div
+              className="mb-4 p-3 rounded-xl text-[12px]"
+              style={{ background: "#FFF7E6", color: "#8A5A12" }}
+              role="status"
+            >
+              {warning}
             </div>
           )}
 
@@ -498,7 +527,11 @@ export function EmployeeModal({
             onClick={() => void submit()}
             disabled={saving}
           >
-            {saving ? "Menyimpan…" : "Simpan"}
+            {saving
+              ? "Menyimpan…"
+              : applicationId
+                ? "Simpan & Jadikan Karyawan"
+                : "Simpan"}
           </button>
         </div>
       </div>

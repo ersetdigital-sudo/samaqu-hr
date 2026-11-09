@@ -6,6 +6,7 @@ import { DEPARTMENTS } from "@/lib/employees/types";
 import { requireRole } from "@/lib/auth/session";
 import {
   APPLICATION_STAGES,
+  type ApplicationEmployeeSource,
   type ApplicationPage,
   type JobApplication,
   type JobInput,
@@ -24,7 +25,7 @@ import {
 } from "@/lib/recruitment/live/http";
 
 export const APPLICATION_COLUMNS =
-  "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,rejected_at,cv_deleted_at,created_at,updated_at";
+  "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,rejected_at,cv_deleted_at,employee_id,created_at,updated_at";
 const effective = (job: JobPosting): JobPosting => ({
   ...job,
   status: effectiveStatus(job.status, job.closes_at),
@@ -271,6 +272,71 @@ export async function updateApplication(
   if (!data) throw new RecruitmentError("Pelamar tidak ditemukan", 404);
   return data as JobApplication;
 }
+type ConversionRow = {
+  id: string;
+  full_name: string;
+  birth_date: string;
+  whatsapp: string;
+  email: string;
+  stage: string;
+  employee_id: string | null;
+  job:
+    | {
+        title: string;
+        department: string;
+        location: string;
+        employment_type: string;
+      }
+    | {
+        title: string;
+        department: string;
+        location: string;
+        employment_type: string;
+      }[]
+    | null;
+};
+
+/** Sumber prefill form karyawan; hanya untuk pelamar Diterima yang belum dikonversi. */
+export async function getApplicationEmployeeSource(
+  id: string,
+): Promise<ApplicationEmployeeSource> {
+  assertId(id);
+  const { data, error } = await (await getServerSupabase())
+    .from("job_applications")
+    .select(
+      "id,full_name,birth_date,whatsapp,email,stage,employee_id,job:job_postings(title,department,location,employment_type)",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) dbFailure(error);
+  if (!data) throw new RecruitmentError("Lamaran tidak ditemukan", 404);
+
+  const row = data as unknown as ConversionRow;
+  if (row.employee_id)
+    throw new RecruitmentError(
+      "Pelamar ini sudah dikonversi menjadi karyawan",
+      409,
+    );
+  if (row.stage !== "Diterima")
+    throw new RecruitmentError(
+      "Pelamar harus berstatus Diterima sebelum dikonversi",
+      409,
+    );
+
+  const job = Array.isArray(row.job) ? row.job[0] ?? null : row.job;
+  return {
+    applicationId: row.id,
+    fullName: row.full_name,
+    birthDate: row.birth_date,
+    phone: row.whatsapp,
+    email: row.email,
+    position: job?.title ?? "",
+    department: job?.department ?? "",
+    location: job?.location ?? "",
+    employmentType: job?.employment_type ?? "",
+  };
+}
+
 export async function getApplicationCv(id: string): Promise<string> {
   assertId(id);
   const db = await getServerSupabase();

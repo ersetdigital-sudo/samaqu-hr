@@ -162,8 +162,26 @@ const mapRpcError = (error: { message?: string; code?: string }, action: string)
 
   if (error.code === "42501") return new EmployeeDataError(message, 403);
   if (error.code === "P0002") return new EmployeeDataError(message, 404);
-  if (error.code === "P0001" || error.code === "23514") {
-    return new EmployeeDataError(message, 400);
+  if (error.code === "23505") {
+    return new EmployeeDataError(
+      "NIK atau email kerja sudah dipakai karyawan lain",
+      409
+    );
+  }
+  if (
+    error.code === "P0001" ||
+    error.code === "23514" ||
+    error.code === "23502" ||
+    error.code === "22007" ||
+    error.code === "22008" ||
+    error.code === "22P02"
+  ) {
+    return new EmployeeDataError(
+      message === `Gagal ${action}`
+        ? "Data karyawan tidak valid. Periksa field wajib, tanggal, dan pilihan."
+        : message,
+      400
+    );
   }
   return new EmployeeDataError(`Gagal ${action}`, 500);
 };
@@ -282,6 +300,59 @@ export async function createEmployee(
   }
 
   return summaryFromDetail(detail);
+}
+
+/**
+ * Konversi pelamar Diterima menjadi karyawan dan tautkan dalam satu transaksi
+ * database. Role, tahap, dan konversi ganda diperiksa di dalam fungsi SQL.
+ */
+export async function convertApplicationToEmployee(
+  applicationId: string,
+  input: EmployeeInput
+): Promise<EmployeeSummary> {
+  const { data, error } = await (await getServerSupabase()).rpc(
+    "convert_job_application_to_employee",
+    { p_application_id: applicationId, p_employee: toRow(input) }
+  );
+
+  if (error) throw mapRpcError(error, "mengonversi pelamar");
+  if (typeof data !== "string") {
+    throw new EmployeeDataError(
+      "Karyawan tersimpan tetapi ID karyawan tidak terbaca",
+      500
+    );
+  }
+
+  const detail = await getEmployeeDetail(data);
+  if (!detail) {
+    throw new EmployeeDataError(
+      "Karyawan tersimpan tetapi gagal dibaca kembali",
+      500
+    );
+  }
+
+  return summaryFromDetail(detail);
+}
+
+/** Peringatan lembut agar HR memeriksa kemungkinan karyawan ganda. */
+export async function findEmployeeByNameAndBirthDate(
+  fullName: string,
+  birthDate: string
+): Promise<{ id: string; fullName: string } | null> {
+  const { data, error } = await (await getServerSupabase())
+    .from("employees")
+    .select("id, full_name")
+    .ilike("full_name", fullName.trim())
+    .eq("birth_date", birthDate)
+    .maybeSingle();
+
+  if (error) {
+    throw new EmployeeDataError("Gagal memeriksa karyawan yang mirip", 500);
+  }
+  if (!data) return null;
+
+  const row = data as { id: string; full_name: string };
+  return { id: row.id, fullName: row.full_name };
 }
 
 export async function updateEmployee(

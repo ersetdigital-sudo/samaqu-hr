@@ -29,6 +29,10 @@ import {
   NEXT_STAGE_LABELS,
   nextStageFor,
 } from "./application-detail-model";
+import {
+  EmployeeConversionAction,
+  EmployeeConversionPrompt,
+} from "./employee-conversion";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
@@ -37,10 +41,12 @@ export function Applicants({
   job,
   initial,
   initialError,
+  canConvert,
 }: {
   job: JobPosting;
   initial: ApplicationPage;
   initialError?: string;
+  canConvert: boolean;
 }) {
   const router = useRouter();
   const [data, setData] = useState(initial);
@@ -67,6 +73,8 @@ export function Applicants({
   const [stageBusy, setStageBusy] = useState(false);
   const stageBusyRef = useRef(false);
   const [reject, setReject] = useState<JobApplication | null>(null);
+  const [conversionTarget, setConversionTarget] =
+    useState<JobApplication | null>(null);
   const requestId = useRef(0);
   const requestController = useRef<AbortController | null>(null);
   const selectionId = useRef(0);
@@ -263,6 +271,12 @@ export function Applicants({
         cv_deleted_at: result.application.cv_deleted_at,
       });
       setReject(null);
+      if (
+        canConvert &&
+        result.application.stage === "Diterima" &&
+        !result.application.employee_id
+      )
+        setConversionTarget(result.application);
       await load(filterRef.current);
       router.refresh();
     } catch (cause) {
@@ -564,6 +578,10 @@ export function Applicants({
                   </p>
                 )}
               </div>
+              <EmployeeConversionAction
+                application={selected}
+                canConvert={canConvert}
+              />
               <dl className="rl-details-grid">
                 {detail.map(([label, value, wide]) => (
                   <div key={label} className={wide ? "rl-span-two" : undefined}>
@@ -680,6 +698,12 @@ export function Applicants({
           )}
         </section>
       </div>
+      <EmployeeConversionPrompt
+        applicationId={conversionTarget?.id ?? ""}
+        open={Boolean(conversionTarget)}
+        onClose={() => setConversionTarget(null)}
+      />
+
       {reject && (
         <ConfirmDialog
           title="Tolak lamaran?"

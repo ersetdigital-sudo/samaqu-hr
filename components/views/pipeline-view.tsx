@@ -21,9 +21,11 @@ import "@/components/recruitment-live/live.css";
 export function PipelineView({
   initial,
   initialError,
+  canConvert,
 }: {
   initial: RecruitmentBoard | null;
   initialError?: string;
+  canConvert: boolean;
 }) {
   const router = useRouter();
   const [applications, setApplications] = useState(
@@ -177,6 +179,7 @@ export function PipelineView({
       {selected && (
         <CandidateDetailModal
           application={selected}
+          canConvert={canConvert}
           onPatch={patch}
           onClose={() => setSelectedId(null)}
         />

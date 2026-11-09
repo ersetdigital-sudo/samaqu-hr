@@ -87,6 +87,8 @@ export type JobApplication = Omit<ApplicationInput, "consent"> & {
   reviewed_at: string | null;
   rejected_at: string | null;
   cv_deleted_at: string | null;
+  /** Terisi setelah pelamar Diterima dikonversi menjadi karyawan. */
+  employee_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -97,6 +99,19 @@ export type ApplicationPage = {
   stage_counts: Record<string, number>;
   page: number;
   page_size: number;
+};
+
+/** Data lamaran + lowongan yang aman dipakai untuk mengisi form karyawan. */
+export type ApplicationEmployeeSource = {
+  applicationId: string;
+  fullName: string;
+  birthDate: string;
+  phone: string;
+  email: string;
+  position: string;
+  department: string;
+  location: string;
+  employmentType: string;
 };
 
 export type CandidateJob = Pick<

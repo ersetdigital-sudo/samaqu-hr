@@ -27,14 +27,20 @@ import {
   NEXT_STAGE_LABELS,
   nextStageFor,
 } from "./application-detail-model";
+import {
+  EmployeeConversionAction,
+  EmployeeConversionPrompt,
+} from "./employee-conversion";
 
 /** Detail pelamar lintas lowongan: CV, catatan, dan perubahan tahap. */
 export function CandidateDetailModal({
   application,
+  canConvert,
   onPatch,
   onClose,
 }: {
   application: CandidateApplication;
+  canConvert: boolean;
   onPatch: (id: string, patch: Partial<JobApplication>) => void;
   onClose: () => void;
 }) {
@@ -42,6 +48,8 @@ export function CandidateDetailModal({
   const [stageBusy, setStageBusy] = useState(false);
   const [stageError, setStageError] = useState("");
   const [reject, setReject] = useState(false);
+  const [conversionTarget, setConversionTarget] =
+    useState<JobApplication | null>(null);
   const notes = useApplicationNotes((id, note) => {
     onPatch(id, { internal_note: note });
   });
@@ -67,6 +75,12 @@ export function CandidateDetailModal({
         cv_deleted_at: result.application.cv_deleted_at,
       });
       setReject(false);
+      if (
+        canConvert &&
+        result.application.stage === "Diterima" &&
+        !result.application.employee_id
+      )
+        setConversionTarget(result.application);
       router.refresh();
     } catch (cause) {
       setStageError(
@@ -152,6 +166,11 @@ export function CandidateDetailModal({
               </p>
             )}
           </div>
+
+          <EmployeeConversionAction
+            application={application}
+            canConvert={canConvert}
+          />
 
           <dl className="rl-details-grid">
             {detail.map(([label, value, wide]) => (
@@ -261,6 +280,12 @@ export function CandidateDetailModal({
           </div>
         </div>
       </Modal>
+
+      <EmployeeConversionPrompt
+        applicationId={conversionTarget?.id ?? ""}
+        open={Boolean(conversionTarget)}
+        onClose={() => setConversionTarget(null)}
+      />
 
       {reject && (
         <ConfirmDialog

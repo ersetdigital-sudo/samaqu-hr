@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Applicants } from "@/components/recruitment-live/applicants";
 import { requireRole } from "@/lib/auth/session";
+import { canManageEmployees } from "@/lib/navigation";
 import { getJob, listApplications } from "@/lib/recruitment/live/repository";
 
 export default async function JobApplicantsPage({
@@ -8,13 +9,21 @@ export default async function JobApplicantsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole(["hr_manager", "recruiter"]);
+  const user = await requireRole(["hr_manager", "recruiter"]);
+  const canConvert = canManageEmployees(user.role);
   const { id } = await params;
   const job = await getJob(id);
   if (!job) notFound();
   try {
     const initial = await listApplications(id);
-    return <Applicants key={id} job={job} initial={initial} />;
+    return (
+      <Applicants
+        key={id}
+        job={job}
+        initial={initial}
+        canConvert={canConvert}
+      />
+    );
   } catch {
     return (
       <Applicants
@@ -29,6 +38,7 @@ export default async function JobApplicantsPage({
           page_size: 10,
         }}
         initialError="Daftar pelamar belum dapat dimuat. Silakan coba lagi."
+        canConvert={canConvert}
       />
     );
   }

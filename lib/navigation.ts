@@ -324,6 +324,10 @@ const SUPERUSER_ROLES: Role[] = ["admin"];
 export const isSuperuser = (role: Role | null): boolean =>
   role !== null && SUPERUSER_ROLES.includes(role);
 
+/** Role yang boleh mengelola karyawan dan mengonversi pelamar. */
+export const canManageEmployees = (role: Role | null): boolean =>
+  role !== null && (isSuperuser(role) || role === "hr_manager");
+
 /** Role yang boleh membuka modul. */
 export function canAccess(role: Role | null, module: NavModule): boolean {
   return role !== null && (isSuperuser(role) || module.roles.includes(role));

@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { EmployeeDrawer } from "@/components/employees/employee-drawer";
 import { EmployeeModal } from "@/components/employees/employee-modal";
 import { employeeStatusTone } from "@/components/employees/status-tone";
@@ -26,6 +28,7 @@ import {
 import {
   EMPLOYEE_STATUSES,
   type EmployeeDetail,
+  type EmployeeInput,
   type EmployeeListResponse,
   type EmployeeSummary,
 } from "@/lib/employees/types";
@@ -40,18 +43,36 @@ const SORT_OPTIONS: { value: DirectorySort; label: string }[] = [
 export function DirectoryView({
   initialEmployees,
   initialNextId,
+  initialEmployeeId = null,
+  converted = false,
+  conversion = null,
+  conversionError = null,
 }: {
   initialEmployees: EmployeeSummary[];
   initialNextId: string;
+  initialEmployeeId?: string | null;
+  converted?: boolean;
+  conversion?: {
+    applicationId: string;
+    prefill: Partial<EmployeeInput>;
+    warning: string | null;
+  } | null;
+  conversionError?: string | null;
 }) {
   const { toast } = useRecruitment();
+  const router = useRouter();
   const [rows, setRows] = useState<EmployeeSummary[]>(initialEmployees);
   const [nextId, setNextId] = useState(initialNextId);
   const [filters, setFilters] = useState<DirectoryFilters>(DEFAULT_FILTERS);
-  const [detailId, setDetailId] = useState<string | null>(null);
-  const [formOpen, setFormOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(initialEmployeeId);
+  const [formOpen, setFormOpen] = useState(Boolean(conversion));
   const [editing, setEditing] = useState<EmployeeDetail | null>(null);
+  const [activeConversion, setActiveConversion] = useState(conversion);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (initialEmployeeId) setDetailId(initialEmployeeId);
+  }, [initialEmployeeId]);
 
   const stats = useMemo(() => buildDirectoryStats(rows), [rows]);
   const result = useMemo(() => filterEmployees(rows, filters), [rows, filters]);
@@ -106,12 +127,23 @@ export function DirectoryView({
 
   const openCreate = () => {
     setEditing(null);
+    setActiveConversion(null);
     setFormOpen(true);
   };
 
-  const handleSaved = async (message: string) => {
+  const handleSaved = async (message: string, employeeId?: string) => {
+    const conversionActive = Boolean(activeConversion);
     setFormOpen(false);
     setEditing(null);
+    setActiveConversion(null);
+
+    if (conversionActive && employeeId) {
+      router.push(
+        `/employees/direktori?employee=${encodeURIComponent(employeeId)}&converted=1`,
+      );
+      return;
+    }
+
     await reload(message);
   };
 
@@ -205,6 +237,40 @@ export function DirectoryView({
           <Icon name="plus" /> Tambah Karyawan
         </button>
       </PageHead>
+
+      {converted && (
+        <div
+          className="card p-4 mb-5 flex flex-wrap items-center gap-3"
+          style={{ borderColor: "#D8E8D2", background: "#F6FBF4" }}
+        >
+          <div className="flex-1 min-w-[220px]">
+            <div className="font-bold text-[14px]">
+              Karyawan berhasil dibuat
+            </div>
+            <div className="sub text-[13px]">
+              Langkah berikutnya: buat kontrak pertama lewat modul Kontrak
+              &amp; Masa Kerja.
+            </div>
+          </div>
+          <Link
+            prefetch={false}
+            href="/employees/kontrak"
+            className="btn btn-p"
+          >
+            Buka Kontrak
+          </Link>
+        </div>
+      )}
+
+      {conversionError && (
+        <div
+          className="card p-4 mb-5 text-[13px]"
+          style={{ background: "#FFF7E6", color: "#8A5A12" }}
+          role="alert"
+        >
+          {conversionError}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {summary.map((card) => (
@@ -338,13 +404,22 @@ export function DirectoryView({
       <EmployeeModal
         open={formOpen}
         initial={editing}
+        initialInput={activeConversion?.prefill ?? null}
+        warning={activeConversion?.warning ?? null}
+        applicationId={activeConversion?.applicationId ?? null}
         nextId={nextId}
         managers={rows}
         onClose={() => {
           setFormOpen(false);
           setEditing(null);
+          if (activeConversion) {
+            setActiveConversion(null);
+            router.replace("/employees/direktori");
+          }
         }}
-        onSaved={(message) => void handleSaved(message)}
+        onSaved={(message, employeeId) =>
+          void handleSaved(message, employeeId)
+        }
       />
     </>
   );

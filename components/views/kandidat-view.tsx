@@ -21,9 +21,11 @@ import "@/components/recruitment-live/live.css";
 export function KandidatView({
   initial,
   initialError,
+  canConvert,
 }: {
   initial: RecruitmentBoard | null;
   initialError?: string;
+  canConvert: boolean;
 }) {
   const router = useRouter();
   const [applications, setApplications] = useState(
@@ -193,6 +195,7 @@ export function KandidatView({
       {selected && (
         <CandidateDetailModal
           application={selected}
+          canConvert={canConvert}
           onPatch={patch}
           onClose={() => setSelectedId(null)}
         />

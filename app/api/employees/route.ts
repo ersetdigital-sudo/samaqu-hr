@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import {
   EmployeeDataError,
+  convertApplicationToEmployee,
   createEmployee,
   getNextEmployeeId,
   listEmployeeSummaries,
@@ -15,8 +16,12 @@ import {
 import type { EmployeeInput } from "@/lib/employees/types";
 import { validateEmployee } from "@/lib/employees/validation";
 import { requireApiModule } from "@/lib/auth/guard";
+import { canManageEmployees } from "@/lib/navigation";
 
 export const dynamic = "force-dynamic";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const fail = (error: unknown, context: string) => {
   if (error instanceof EmployeeDataError) {
@@ -56,11 +61,36 @@ export async function POST(request: Request) {
   if (guard.response) return guard.response;
 
   try {
-    const body = (await request.json()) as EmployeeInput;
+    const body = (await request.json()) as EmployeeInput & {
+      applicationId?: unknown;
+    };
     const errors = validateEmployee(body);
 
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    if (body.applicationId !== undefined) {
+      if (
+        typeof body.applicationId !== "string" ||
+        !UUID_PATTERN.test(body.applicationId)
+      ) {
+        return NextResponse.json(
+          { error: "Lamaran yang akan dikonversi tidak valid" },
+          { status: 400 }
+        );
+      }
+      if (!canManageEmployees(guard.user.role)) {
+        return NextResponse.json(
+          { error: "Hanya admin atau HR Manager yang dapat mengonversi pelamar" },
+          { status: 403 }
+        );
+      }
+      const employee = await convertApplicationToEmployee(
+        body.applicationId,
+        body
+      );
+      return NextResponse.json({ employee }, { status: 201 });
     }
 
     const employee = await createEmployee(body);

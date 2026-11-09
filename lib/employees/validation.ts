@@ -8,6 +8,8 @@ export type EmployeeErrors = Partial<Record<keyof EmployeeInput, string>>;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NIK_PATTERN = /^\d{16}$/;
 
+export const isValidEmail = (value: string) => EMAIL_PATTERN.test(value);
+
 const REQUIRED_TEXT: { key: keyof EmployeeInput; label: string }[] = [
   { key: "fullName", label: "Nama lengkap" },
   { key: "position", label: "Jabatan" },
