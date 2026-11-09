@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { careersJobsHref } from "@/lib/careers/urls";
 import { CareerHeader } from "@/components/careers/primitives";
 import styles from "@/components/careers/careers.module.css";
 
@@ -14,7 +15,7 @@ export default function CareerNotFound() {
             yang sedang dibuka.
           </p>
         </div>
-        <Link href="/karir" className={styles.primary}>
+        <Link href={careersJobsHref()} className={styles.primary}>
           Lihat lowongan lain
         </Link>
       </main>

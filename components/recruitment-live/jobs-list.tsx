@@ -24,6 +24,9 @@ export function JobsList({
 }) {
   const router = useRouter();
   const origin = useOrigin();
+  const careersBase =
+    process.env.NEXT_PUBLIC_CAREERS_URL?.trim().replace(/\/+$/, "") ||
+    (origin ? `${origin}/karir` : "");
   const [jobs, setJobs] = useState(initialJobs);
   const [filter, setFilter] = useState("Semua");
   const [notice, setNotice] = useState<{
@@ -111,7 +114,7 @@ export function JobsList({
         </div>
         <div className="rl-row">
           <a
-            href="/karir"
+            href={careersBase || "/karir"}
             target="_blank"
             rel="noopener noreferrer"
             className="rl-btn"
@@ -184,7 +187,7 @@ export function JobsList({
       )}
       <div className="rl-card-grid">
         {shown.map((job) => {
-          const link = origin ? `${origin}/karir/${job.slug}` : "";
+          const link = careersBase ? `${careersBase}/${job.slug}` : "";
           const duplicate = `/recruitment/lowongan/baru?duplicate=${encodeURIComponent(job.id)}`;
           return (
             <article key={job.id} className="rl-card">
@@ -356,11 +359,8 @@ export function JobsList({
             dibuka.
           </span>
         </div>
-        <span className="rl-career-url">{origin}/karir</span>
-        <CopyButton
-          value={origin ? `${origin}/karir` : ""}
-          onMessage={message}
-        />
+        <span className="rl-career-url">{careersBase || "/karir"}</span>
+        <CopyButton value={careersBase} onMessage={message} />
       </div>
       {confirm && (
         <ConfirmDialog

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { careersJobHref } from "@/lib/careers/urls";
 import {
   useEffect,
   useRef,
@@ -401,7 +402,7 @@ export function ApplicationWizard({ job }: { job: PublicJob }) {
           {step === 1 ? (
             <Link
               prefetch={false}
-              href={`/karir/${encodeURIComponent(job.slug)}`}
+              href={careersJobHref(job.slug)}
               className={styles.backIcon}
               aria-label="Kembali ke lowongan"
             >

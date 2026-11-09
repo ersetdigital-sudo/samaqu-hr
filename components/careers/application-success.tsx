@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { careersJobsHref } from "@/lib/careers/urls";
 import { CareerHeader, CareerIcon } from "./primitives";
 import styles from "./careers.module.css";
 
@@ -98,7 +99,11 @@ export function ApplicationSuccess({
           Simpan nomor lamaran ini. Sebutkan nomornya kalau mau tanya status
           lamaran.
         </p>
-        <Link prefetch={false} href="/karir" className={styles.secondary}>
+        <Link
+          prefetch={false}
+          href={careersJobsHref()}
+          className={styles.secondary}
+        >
           Lihat lowongan lain
         </Link>
       </main>

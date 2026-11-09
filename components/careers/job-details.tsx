@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { careersJobHref, careersJobsHref } from "@/lib/careers/urls";
 import type { JobInput } from "@/lib/recruitment/live/types";
 import { effectiveStatus } from "@/lib/recruitment/live/validation";
 import { CareerHeader, CareerIcon, JobInfo } from "./primitives";
@@ -88,7 +89,7 @@ export function JobDetails({
       </main>
       <div className={styles.actionBar}>
         {closed ? (
-          <Link prefetch={false} href="/karir" className={styles.primary}>
+          <Link prefetch={false} href={careersJobsHref()} className={styles.primary}>
             Lihat lowongan lain
           </Link>
         ) : preview ? (
@@ -98,7 +99,7 @@ export function JobDetails({
         ) : (
           <Link
             prefetch={false}
-            href={`/karir/${encodeURIComponent(job.slug)}/lamar`}
+            href={`${careersJobHref(job.slug)}/lamar`}
             className={styles.primary}
           >
             Lamar Sekarang

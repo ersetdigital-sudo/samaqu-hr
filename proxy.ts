@@ -8,6 +8,14 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  ADMIN_HOST,
+  careersBaseUrl,
+  isAdminHost,
+  isCareersHost,
+  normalizeHost,
+  resolveCareersRoute,
+} from "@/lib/careers/urls";
 
 const PUBLIC_PATHS = [
   "/login",
@@ -77,20 +85,72 @@ function configErrorResponse(request: NextRequest): NextResponse {
 export default async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const host = normalizeHost(
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
+  );
 
-  let response = NextResponse.next({ request });
+  const withAdminRobots = (response: NextResponse) => {
+    if (isAdminHost(host))
+      response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  };
 
   if (!url || !anonKey) {
     console.warn("[proxy] Supabase env belum lengkap; akses ditolak.");
-    return configErrorResponse(request);
+    return withAdminRobots(configErrorResponse(request));
+  }
+
+  // Domain karir hanya melayani lowongan publik dan endpoint form lamaran.
+  if (isCareersHost(host)) {
+    const route = resolveCareersRoute(request.nextUrl.pathname);
+
+    switch (route.type) {
+      case "allow":
+        return NextResponse.next({ request });
+      case "rewrite": {
+        const target = request.nextUrl.clone();
+        target.pathname = route.pathname;
+        return NextResponse.rewrite(target);
+      }
+      case "redirect": {
+        const target = request.nextUrl.clone();
+        target.pathname = route.location;
+        return NextResponse.redirect(target, 301);
+      }
+      case "block":
+        return NextResponse.json(
+          { error: "Tidak ditemukan." },
+          { status: 404, headers: { "Cache-Control": "no-store" } },
+        );
+      case "to-admin": {
+        const target = new URL(`https://${ADMIN_HOST}`);
+        target.pathname = request.nextUrl.pathname;
+        target.search = request.nextUrl.search;
+        return NextResponse.redirect(target, 308);
+      }
+    }
   }
 
   const { pathname, search } = request.nextUrl;
 
+  // Link lama di domain admin dipindah permanen ke domain karir.
+  if (
+    isAdminHost(host) &&
+    (pathname === "/karir" || pathname.startsWith("/karir/"))
+  ) {
+    const target = pathname.slice("/karir".length) || "/";
+    return NextResponse.redirect(
+      new URL(`${careersBaseUrl()}${target}${search}`),
+      301,
+    );
+  }
+
+  let response = NextResponse.next({ request });
+
   // Public pages and the application endpoint do not need a session lookup.
   // Keep /login dynamic so an already signed-in user is still redirected home.
   if (isPublic(pathname) && pathname !== "/login") {
-    return response;
+    return withAdminRobots(response);
   }
 
   const supabase = createServerClient(url, anonKey, {
@@ -126,7 +186,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  return response;
+  return withAdminRobots(response);
 }
 
 export const config = {

@@ -1,7 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { careersJobHref, careersUrl } from "@/lib/careers/urls";
 import { getPublicJobs } from "@/lib/recruitment/live/public-repository";
 import { CareerHeader, JobInfo } from "@/components/careers/primitives";
 import styles from "@/components/careers/careers.module.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: careersUrl("/") },
+};
 
 export default async function CareersPage() {
   const jobs = await getPublicJobs();
@@ -32,7 +38,7 @@ export default async function CareersPage() {
               <JobInfo {...job} />
               <Link
                 className={styles.primary}
-                href={`/karir/${encodeURIComponent(job.slug)}`}
+                href={careersJobHref(job.slug)}
                 aria-label={`Lihat lowongan ${job.title}`}
                 prefetch={false}
               >

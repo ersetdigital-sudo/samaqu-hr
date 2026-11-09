@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { careersJobsHref } from "@/lib/careers/urls";
 import styles from "./careers.module.css";
 
 const paths: Record<string, ReactNode> = {
@@ -87,7 +88,11 @@ export function CareerHeader({ otherJobs = false }: { otherJobs?: boolean }) {
         </div>
       </div>
       {otherJobs && (
-        <Link prefetch={false} href="/karir" className={styles.otherJobs}>
+        <Link
+          prefetch={false}
+          href={careersJobsHref()}
+          className={styles.otherJobs}
+        >
           Lowongan lain
         </Link>
       )}
