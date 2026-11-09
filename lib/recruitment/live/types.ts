@@ -98,4 +98,29 @@ export type ApplicationPage = {
   page: number;
   page_size: number;
 };
+
+export type CandidateJob = Pick<
+  JobPosting,
+  | "id"
+  | "slug"
+  | "title"
+  | "status"
+  | "closes_at"
+  | "closed_at"
+  | "published_at"
+  | "created_at"
+>;
+
+export type CandidateApplication = JobApplication & {
+  job: CandidateJob | null;
+};
+
+/** Satu snapshot terbatas untuk Kandidat, Pipeline, dan Overview. */
+export type RecruitmentBoard = {
+  jobs: CandidateJob[];
+  applications: CandidateApplication[];
+  /** Total pelamar di database, walau snapshot dibatasi. */
+  total: number;
+  limit: number;
+};
 export type FieldErrors = Record<string, string>;

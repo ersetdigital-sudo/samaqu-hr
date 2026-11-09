@@ -1,6 +1,7 @@
 "use client";
 
-import { useRecruitment } from "@/components/recruitment-provider";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
 /** Skeleton saat data rekrutmen sedang dimuat ulang. */
 export function OverviewSkeleton() {
@@ -60,22 +61,23 @@ export function OverviewSkeleton() {
   );
 }
 
-/** Error state dengan tombol muat ulang dari lapisan data. */
-export function OverviewErrorState() {
-  const { error, refresh, loading } = useRecruitment();
+/** Error state dengan tombol muat ulang dari server. */
+export function OverviewErrorState({ message }: { message?: string }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
 
   return (
     <div className="card p-8 text-center">
       <div className="font-bold text-[16px]">Data rekrutmen gagal dimuat</div>
       <div className="sub text-[13px] mt-1">
-        {error ?? "Terjadi kesalahan yang tidak diketahui."}
+        {message ?? "Terjadi kesalahan yang tidak diketahui."}
       </div>
       <button
         className="btn btn-p mt-4"
-        onClick={() => void refresh()}
-        disabled={loading}
+        onClick={() => startTransition(() => router.refresh())}
+        disabled={pending}
       >
-        {loading ? "Memuat…" : "Coba lagi"}
+        {pending ? "Memuat…" : "Coba lagi"}
       </button>
     </div>
   );

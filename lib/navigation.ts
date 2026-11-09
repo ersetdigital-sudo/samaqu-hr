@@ -113,13 +113,20 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "jadwal",
             label: "Jadwal & Evaluasi",
             href: "/recruitment/jadwal",
+            status: "planned",
           },
           {
             id: "onboarding",
             label: "Onboarding",
             href: "/recruitment/onboarding",
+            status: "planned",
           },
-          { id: "laporan", label: "Laporan", href: "/recruitment/laporan" },
+          {
+            id: "laporan",
+            label: "Laporan",
+            href: "/recruitment/laporan",
+            status: "planned",
+          },
         ],
       },
       {

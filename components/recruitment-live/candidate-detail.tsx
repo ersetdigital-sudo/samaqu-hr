@@ -1,0 +1,279 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import type {
+  CandidateApplication,
+  JobApplication,
+} from "@/lib/recruitment/live/types";
+import {
+  cvRetentionWarningAt,
+  formatRetentionDate,
+} from "@/lib/recruitment/live/retention";
+import {
+  api,
+  Badge,
+  ConfirmDialog,
+  ErrorBox,
+  Icon,
+  initials,
+  Modal,
+  relativeTime,
+  whatsappDigits,
+} from "./ui";
+import { useApplicationNotes } from "./use-application-notes";
+import {
+  applicationDetailItems,
+  NEXT_STAGE_LABELS,
+  nextStageFor,
+} from "./application-detail-model";
+
+/** Detail pelamar lintas lowongan: CV, catatan, dan perubahan tahap. */
+export function CandidateDetailModal({
+  application,
+  onPatch,
+  onClose,
+}: {
+  application: CandidateApplication;
+  onPatch: (id: string, patch: Partial<JobApplication>) => void;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [stageBusy, setStageBusy] = useState(false);
+  const [stageError, setStageError] = useState("");
+  const [reject, setReject] = useState(false);
+  const notes = useApplicationNotes((id, note) => {
+    onPatch(id, { internal_note: note });
+  });
+  const retentionWarning = application.job
+    ? cvRetentionWarningAt(application, application.job)
+    : null;
+  const nextStage = nextStageFor(application.stage);
+  const detail = applicationDetailItems(application);
+
+  async function changeStage(stage: string) {
+    if (stageBusy) return;
+    setStageBusy(true);
+    setStageError("");
+    try {
+      if (!(await notes.flush())) return;
+      const result = await api<{ application: JobApplication }>(
+        `/api/recruitment/applications/${application.id}`,
+        { method: "PATCH", body: JSON.stringify({ stage }) },
+      );
+      onPatch(application.id, {
+        stage: result.application.stage,
+        rejected_at: result.application.rejected_at,
+        cv_deleted_at: result.application.cv_deleted_at,
+      });
+      setReject(false);
+      router.refresh();
+    } catch (cause) {
+      setStageError(
+        cause instanceof Error
+          ? cause.message
+          : "Tahap pelamar gagal diperbarui.",
+      );
+    } finally {
+      setStageBusy(false);
+    }
+  }
+
+  function close() {
+    if (stageBusy) return;
+    void notes.flush().then((saved) => {
+      if (saved) onClose();
+    });
+  }
+
+  return (
+    <>
+      <Modal title="Detail Pelamar" onClose={close} busy={stageBusy}>
+        <div className="rl-stack rl-detail" style={{ gap: 18 }}>
+          <div className="rl-detail-top">
+            <span className="rl-avatar rl-avatar-large">
+              {initials(application.full_name)}
+            </span>
+            <div className="rl-stack" style={{ flex: 1, gap: 4 }}>
+              <h2>{application.full_name}</h2>
+              <span className="rl-muted">
+                {application.job?.title ?? "Lowongan"} · Melamar{" "}
+                <time
+                  dateTime={application.created_at}
+                  suppressHydrationWarning
+                >
+                  {relativeTime(application.created_at)}
+                </time>
+              </span>
+            </div>
+            <Badge value={application.stage} />
+          </div>
+
+          {stageError && !reject && <ErrorBox message={stageError} />}
+          {notes.status === "error" && (
+            <ErrorBox
+              message={`Catatan belum tersimpan: ${notes.error}`}
+              retry={() => void notes.flush()}
+            />
+          )}
+
+          <div className="rl-stack" style={{ gap: 6 }}>
+            <div className="rl-two">
+              <a
+                href={`https://wa.me/${whatsappDigits(application.whatsapp)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rl-btn rl-green"
+              >
+                <Icon name="chat" />
+                Chat WhatsApp
+              </a>
+              {application.cv_deleted_at ? (
+                <div className="rl-cv-deleted">
+                  CV dihapus otomatis pada{" "}
+                  {formatRetentionDate(application.cv_deleted_at)}
+                </div>
+              ) : (
+                <a
+                  href={`/api/recruitment/applications/${application.id}/cv`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rl-btn"
+                >
+                  <Icon name="file" />
+                  Buka CV
+                </a>
+              )}
+            </div>
+            {retentionWarning && (
+              <p className="rl-retention">
+                CV akan dihapus otomatis pada{" "}
+                {formatRetentionDate(retentionWarning)}
+              </p>
+            )}
+          </div>
+
+          <dl className="rl-details-grid">
+            {detail.map(([label, value, wide]) => (
+              <div key={label} className={wide ? "rl-span-two" : undefined}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div
+            className="rl-row"
+            style={{ justifyContent: "space-between", fontSize: 12.5 }}
+          >
+            <span className="rl-muted">{application.application_number}</span>
+            <a
+              href={`mailto:${application.email}`}
+              style={{ overflowWrap: "anywhere" }}
+            >
+              {application.email}
+            </a>
+            {/^https?:\/\//i.test(application.portfolio_url) && (
+              <a
+                href={application.portfolio_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rl-btn rl-small"
+              >
+                <Icon name="external" />
+                Portofolio
+              </a>
+            )}
+          </div>
+
+          <div className="rl-motivation">
+            <span
+              className="rl-muted"
+              style={{ fontSize: 12, fontWeight: 600 }}
+            >
+              Kenapa cocok di posisi ini
+            </span>
+            <p>{application.motivation || "Tidak diisi oleh pelamar."}</p>
+          </div>
+
+          <div className="rl-field">
+            <label htmlFor="internal-note">
+              Catatan internal (tidak terlihat pelamar)
+            </label>
+            <textarea
+              id="internal-note"
+              rows={2}
+              maxLength={10000}
+              className="rl-input"
+              placeholder="Contoh: Komunikasi bagus, cek ulang pengalaman Shopee"
+              value={notes.value(application)}
+              onChange={(event) => notes.edit(application, event.target.value)}
+              onBlur={() => void notes.flush()}
+              aria-describedby="note-status"
+            />
+            <span
+              id="note-status"
+              className={notes.status === "error" ? "rl-error" : "rl-muted"}
+              role="status"
+            >
+              {notes.status === "saving"
+                ? "Menyimpan catatan…"
+                : notes.status === "dirty"
+                  ? "Perubahan belum tersimpan…"
+                  : notes.status === "error"
+                    ? "Catatan belum tersimpan. Coba lagi sebelum berpindah."
+                    : "Catatan tersimpan otomatis"}
+            </span>
+          </div>
+
+          <div className="rl-stage-actions">
+            <button
+              type="button"
+              className="rl-btn rl-danger"
+              disabled={
+                stageBusy ||
+                application.stage === "Ditolak" ||
+                application.stage === "Diterima"
+              }
+              onClick={() => {
+                setStageError("");
+                setReject(true);
+              }}
+            >
+              Tolak
+            </button>
+            <button
+              type="button"
+              className="rl-btn rl-primary"
+              disabled={
+                stageBusy || !nextStage || application.stage === "Diterima"
+              }
+              onClick={() => {
+                if (nextStage) void changeStage(nextStage);
+              }}
+            >
+              {stageBusy
+                ? "Memproses…"
+                : application.stage === "Diterima"
+                  ? "Sudah Diterima"
+                  : NEXT_STAGE_LABELS[application.stage] || "Tahap selesai"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {reject && (
+        <ConfirmDialog
+          title="Tolak lamaran?"
+          description={`Lamaran ${application.full_name} akan dipindahkan ke tahap Ditolak. Kamu dapat memulihkannya nanti.`}
+          confirmLabel="Tolak Lamaran"
+          danger
+          busy={stageBusy}
+          error={stageError || (notes.status === "error" ? notes.error : "")}
+          onClose={() => setReject(false)}
+          onConfirm={() => void changeStage("Ditolak")}
+        />
+      )}
+    </>
+  );
+}

@@ -23,7 +23,7 @@ import {
   RecruitmentError,
 } from "@/lib/recruitment/live/http";
 
-const APPLICATION_COLUMNS =
+export const APPLICATION_COLUMNS =
   "id,job_id,application_number,full_name,whatsapp,email,birth_date,city,education,has_admin_experience,last_position,last_company,experience_length,skills,expected_salary,start_availability,source,portfolio_url,motivation,consent_at,stage,internal_note,reviewed_at,rejected_at,cv_deleted_at,created_at,updated_at";
 const effective = (job: JobPosting): JobPosting => ({
   ...job,

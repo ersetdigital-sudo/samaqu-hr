@@ -1,5 +1,5 @@
-import { OnboardingView } from "@/components/views/onboarding-view";
+import { ModuleLandingView } from "@/components/views/module-landing-view";
 
 export default function RecruitmentOnboardingPage() {
-  return <OnboardingView />;
+  return <ModuleLandingView moduleId="recruitment" />;
 }

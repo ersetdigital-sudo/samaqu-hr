@@ -10,7 +10,6 @@ import type {
   JobPosting,
 } from "@/lib/recruitment/live/types";
 import {
-  ageLabel,
   api,
   Badge,
   ConfirmDialog,
@@ -25,17 +24,14 @@ import {
   cvRetentionWarningAt,
   formatRetentionDate,
 } from "@/lib/recruitment/live/retention";
+import {
+  applicationDetailItems,
+  NEXT_STAGE_LABELS,
+  nextStageFor,
+} from "./application-detail-model";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
-const nextLabels: Record<string, string> = {
-  "Lamaran Masuk": "Lanjut ke Screening",
-  Screening: "Undang Wawancara",
-  Wawancara: "Lanjut ke Tes",
-  Tes: "Lanjut ke Offering",
-  Offering: "Terima Pelamar",
-  Ditolak: "Pulihkan Lamaran",
-};
 
 export function Applicants({
   job,
@@ -294,40 +290,11 @@ export function Applicants({
     filterRef.current = next;
     setFilter(next);
   };
-  const nextStage =
-    selected?.stage === "Ditolak"
-      ? STAGES[0]
-      : selected && selected.stage !== "Diterima"
-        ? STAGES[STAGES.indexOf(selected.stage) + 1]
-        : undefined;
+  const nextStage = nextStageFor(selected?.stage);
   const retentionWarning = selected
     ? cvRetentionWarningAt(selected, job)
     : null;
-  const detail = selected
-    ? [
-        ["Domisili", selected.city],
-        ["Usia", ageLabel(selected.birth_date)],
-        ["Pendidikan", selected.education],
-        [
-          "Pengalaman admin",
-          selected.has_admin_experience
-            ? `Ya${selected.experience_length ? `, ${selected.experience_length}` : ""}`
-            : "Belum",
-        ],
-        [
-          "Pekerjaan terakhir",
-          [selected.last_position, selected.last_company]
-            .filter(Boolean)
-            .join(" · ") || "Belum ada",
-          "wide",
-        ],
-        ["Aplikasi dikuasai", selected.skills.join(", ") || "—", "wide"],
-        ["Ekspektasi gaji", money(selected.expected_salary)],
-        ["Bisa mulai", selected.start_availability],
-        ["Tahu dari", selected.source || "—"],
-        ["WhatsApp", `+${whatsappDigits(selected.whatsapp)}`],
-      ]
-    : [];
+  const detail = selected ? applicationDetailItems(selected) : [];
   return (
     <div className="rl rl-applicants">
       <div className="rl-header" style={{ alignItems: "center" }}>
@@ -697,7 +664,7 @@ export function Applicants({
                     ? "Memproses…"
                     : selected.stage === "Diterima"
                       ? "Sudah Diterima"
-                      : nextLabels[selected.stage] || "Tahap selesai"}
+                      : NEXT_STAGE_LABELS[selected.stage] || "Tahap selesai"}
                 </button>
               </div>
             </>

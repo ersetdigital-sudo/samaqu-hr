@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/overview/empty-state";
-import { useRecruitment } from "@/components/recruitment-provider";
 import type { PipelineMetric } from "@/lib/recruitment/types";
 
 /**
@@ -11,13 +10,11 @@ import type { PipelineMetric } from "@/lib/recruitment/types";
  */
 export function PipelineCard({ metrics }: { metrics: PipelineMetric[] }) {
   const router = useRouter();
-  const { setPipeFilter } = useRecruitment();
 
   const total = metrics.reduce((sum, metric) => sum + metric.count, 0);
   const max = Math.max(1, ...metrics.map((metric) => metric.count));
 
   const openPipeline = () => {
-    setPipeFilter("Semua");
     router.push("/recruitment/pipeline");
   };
 
@@ -27,7 +24,7 @@ export function PipelineCard({ metrics }: { metrics: PipelineMetric[] }) {
         <div>
           <div className="font-bold text-[16px]">Pipeline Rekrutmen</div>
           <div className="sub text-[13px]">
-            Semua lowongan aktif · konversi antar tahap
+            Semua lowongan · jumlah pelamar per tahap
           </div>
         </div>
         <button className="btn btn-g" onClick={openPipeline}>
@@ -38,7 +35,7 @@ export function PipelineCard({ metrics }: { metrics: PipelineMetric[] }) {
       {total === 0 ? (
         <EmptyState>Belum ada kandidat di pipeline.</EmptyState>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
           {metrics.map((metric, i) => (
             <div
               key={metric.stage}
@@ -60,9 +57,11 @@ export function PipelineCard({ metrics }: { metrics: PipelineMetric[] }) {
                   style={{
                     height: `${(metric.count / max) * 100}%`,
                     background:
-                      i === metrics.length - 1
+                      metric.stage === "Diterima"
                         ? "var(--pink)"
-                        : `rgba(17,17,17,${0.12 + i * 0.12})`,
+                        : metric.stage === "Ditolak"
+                          ? "#D9CFCA"
+                          : `rgba(17,17,17,${0.12 + i * 0.12})`,
                   }}
                 />
               </div>

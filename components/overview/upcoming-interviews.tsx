@@ -23,7 +23,10 @@ export function UpcomingInterviews({
         </Link>
       </div>
       {interviews.length === 0 ? (
-        <EmptyState>Belum ada jadwal wawancara terdekat.</EmptyState>
+        <EmptyState>
+          Jadwal wawancara belum tersedia. Modul Jadwal &amp; Evaluasi segera
+          hadir.
+        </EmptyState>
       ) : (
         interviews.map((interview) => (
           <div

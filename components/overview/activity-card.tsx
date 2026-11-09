@@ -3,12 +3,16 @@ import { ini } from "@/lib/data";
 import type { Activity } from "@/lib/recruitment/types";
 
 /** Aktivitas rekrutmen terbaru, diurutkan berdasarkan waktu kejadian. */
-export function ActivityCard({ activities }: { activities: Activity[] }) {
+export function ActivityCard({
+  activities,
+  title = "Aktivitas Terbaru",
+}: {
+  activities: Activity[];
+  title?: string;
+}) {
   return (
     <div className="card lg:col-span-3 min-w-0">
-      <div className="px-6 pt-5 pb-3 font-bold text-[16px]">
-        Aktivitas Terbaru
-      </div>
+      <div className="px-6 pt-5 pb-3 font-bold text-[16px]">{title}</div>
       {activities.length === 0 ? (
         <EmptyState>Belum ada aktivitas rekrutmen.</EmptyState>
       ) : (

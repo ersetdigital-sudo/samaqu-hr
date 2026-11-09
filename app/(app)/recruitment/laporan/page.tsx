@@ -1,5 +1,5 @@
-import { LaporanView } from "@/components/views/laporan-view";
+import { ModuleLandingView } from "@/components/views/module-landing-view";
 
 export default function RecruitmentLaporanPage() {
-  return <LaporanView />;
+  return <ModuleLandingView moduleId="recruitment" />;
 }

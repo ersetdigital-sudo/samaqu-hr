@@ -1,5 +1,5 @@
-import { JadwalView } from "@/components/views/jadwal-view";
+import { ModuleLandingView } from "@/components/views/module-landing-view";
 
 export default function RecruitmentJadwalPage() {
-  return <JadwalView />;
+  return <ModuleLandingView moduleId="recruitment" />;
 }

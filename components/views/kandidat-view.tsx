@@ -1,132 +1,202 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
-import { useRecruitment } from "@/components/recruitment-provider";
-import { StageTag } from "@/components/stage-tag";
-import { STAGES, ini } from "@/lib/data";
+import { CandidateDetailModal } from "@/components/recruitment-live/candidate-detail";
+import {
+  Badge,
+  ErrorBox,
+  initials,
+  relativeTime,
+} from "@/components/recruitment-live/ui";
+import { STAGES } from "@/lib/data";
+import type {
+  JobApplication,
+  RecruitmentBoard,
+} from "@/lib/recruitment/live/types";
+import "@/components/recruitment-live/live.css";
 
-export function KandidatView() {
-  const {
-    jobs,
-    candidates,
-    candQ,
-    setCandQ,
-    candStage,
-    setCandStage,
-    openCand,
-    toast,
-  } = useRecruitment();
-
-  const list = candidates.filter(
-    (candidate) =>
-      (candStage === "Semua" || candidate.stage === candStage) &&
-      (candidate.name + candidate.pos)
-        .toLowerCase()
-        .includes(candQ.toLowerCase())
+export function KandidatView({
+  initial,
+  initialError,
+}: {
+  initial: RecruitmentBoard | null;
+  initialError?: string;
+}) {
+  const router = useRouter();
+  const [applications, setApplications] = useState(
+    initial?.applications ?? [],
   );
+  const [query, setQuery] = useState("");
+  const [jobFilter, setJobFilter] = useState("Semua");
+  const [stageFilter, setStageFilter] = useState("Semua");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setApplications(initial?.applications ?? []);
+  }, [initial]);
+
+  const jobs = initial?.jobs ?? [];
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return applications.filter(
+      (application) =>
+        (jobFilter === "Semua" || application.job_id === jobFilter) &&
+        (stageFilter === "Semua" || application.stage === stageFilter) &&
+        (!term ||
+          application.full_name.toLowerCase().includes(term) ||
+          application.city.toLowerCase().includes(term)),
+    );
+  }, [applications, query, jobFilter, stageFilter]);
+  const selected = applications.find((item) => item.id === selectedId) ?? null;
+
+  function patch(id: string, changes: Partial<JobApplication>) {
+    setApplications((current) =>
+      current.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+    );
+  }
+
+  const total = initial?.total ?? 0;
+  const countLabel =
+    initial && initial.applications.length < total
+      ? `Menampilkan ${initial.applications.length} dari ${total} pelamar terbaru`
+      : `${total} pelamar`;
 
   return (
-    <>
+    <div className="rl">
       <PageHead
         title="Kandidat"
         subtitle="Seluruh pelamar lintas lowongan. Klik baris untuk melihat detail."
       >
-        <button
-          className="btn btn-g"
-          onClick={() => toast("Ekspor belum tersedia")}
-        >
-          Ekspor
-        </button>
+        <span className="sub text-[13px]">{countLabel}</span>
       </PageHead>
 
-      <div className="flex flex-wrap gap-3 mb-4">
-        <div className="relative w-full md:w-80">
-          <input
-            id="cq"
-            className="inp inp-search"
-            placeholder="Cari nama atau posisi…"
-            value={candQ}
-            onChange={(event) => setCandQ(event.target.value)}
-          />
-          <Icon
-            name="search"
-            className="search-icon"
-          />
-        </div>
-        <select
-          className="inp !w-auto"
-          value={candStage}
-          onChange={(event) => setCandStage(event.target.value)}
-        >
-          {["Semua", ...STAGES].map((stage) => (
-            <option key={stage}>{stage}</option>
-          ))}
-        </select>
-        <select
-          className="inp !w-auto"
-          onChange={() => toast("Filter posisi belum tersedia")}
-        >
-          <option>Semua posisi</option>
-          {jobs.map((job) => (
-            <option key={job.id}>{job.pos}</option>
-          ))}
-        </select>
-      </div>
+      {!initial ? (
+        <ErrorBox
+          message={
+            initialError ??
+            "Daftar kandidat belum dapat dimuat. Silakan coba lagi."
+          }
+          retry={() => router.refresh()}
+        />
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-3">
+            <div className="relative w-full md:w-80">
+              <input
+                id="cq"
+                className="inp inp-search"
+                placeholder="Cari nama atau domisili…"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <Icon name="search" className="search-icon" />
+            </div>
+            <select
+              className="inp !w-auto"
+              value={jobFilter}
+              onChange={(event) => setJobFilter(event.target.value)}
+            >
+              <option value="Semua">Semua lowongan</option>
+              {jobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.title}
+                </option>
+              ))}
+            </select>
+            <select
+              className="inp !w-auto"
+              value={stageFilter}
+              onChange={(event) => setStageFilter(event.target.value)}
+            >
+              {["Semua", ...STAGES].map((stage) => (
+                <option key={stage} value={stage}>
+                  {stage}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="card overflow-x-auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Kandidat</th>
-              <th>Posisi</th>
-              <th>Tahap</th>
-              <th>Skor Screening</th>
-              <th>Sumber</th>
-              <th>Update</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((candidate) => (
-              <tr
-                key={candidate.id}
-                className="cursor-pointer"
-                onClick={() => openCand(candidate.id)}
-              >
-                <td>
-                  <div className="flex items-center gap-3">
-                    <div className="av">{ini(candidate.name)}</div>
-                    <b>{candidate.name}</b>
-                  </div>
-                </td>
-                <td className="sub">{candidate.pos}</td>
-                <td>
-                  <StageTag stage={candidate.stage} />
-                </td>
-                <td>
-                  {candidate.score ? (
-                    <>
-                      <b>{candidate.score}</b>
-                      <span className="sub">/100</span>
-                    </>
-                  ) : (
-                    <span className="sub">—</span>
-                  )}
-                </td>
-                <td className="sub">{candidate.src}</td>
-                <td className="sub text-[13px]">{candidate.note}</td>
-              </tr>
-            ))}
-            {list.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center sub py-10">
-                  Tidak ada kandidat yang cocok.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-    </>
+          <div className="card overflow-x-auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kandidat</th>
+                  <th>Lowongan</th>
+                  <th>Tahap</th>
+                  <th>Tanggal Melamar</th>
+                  <th>Sumber</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((application) => (
+                  <tr
+                    key={application.id}
+                    className="cursor-pointer"
+                    tabIndex={0}
+                    aria-label={`Lihat detail ${application.full_name}`}
+                    onClick={() => setSelectedId(application.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedId(application.id);
+                      }
+                    }}
+                  >
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className="av">
+                          {initials(application.full_name)}
+                        </div>
+                        <div>
+                          <b>{application.full_name}</b>
+                          <div className="sub text-[12px]">
+                            {application.city}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="sub">
+                      {application.job?.title ?? "Lowongan"}
+                    </td>
+                    <td>
+                      <Badge value={application.stage} />
+                    </td>
+                    <td className="sub text-[13px]">
+                      <time
+                        dateTime={application.created_at}
+                        suppressHydrationWarning
+                      >
+                        {relativeTime(application.created_at)}
+                      </time>
+                    </td>
+                    <td className="sub">{application.source || "—"}</td>
+                  </tr>
+                ))}
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center sub py-10">
+                      {applications.length
+                        ? "Tidak ada kandidat yang cocok dengan filter."
+                        : "Belum ada pelamar. Bagikan link lowongan untuk mulai menerima lamaran."}
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {selected && (
+        <CandidateDetailModal
+          application={selected}
+          onPatch={patch}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
+    </div>
   );
 }
