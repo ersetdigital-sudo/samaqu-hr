@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { FieldErrors } from "@/lib/recruitment/live/types";
+import { formatRelativeID } from "@/lib/recruitment/format";
 
 export function Icon({
   name,
@@ -114,16 +115,7 @@ export function initials(value: string) {
     .toUpperCase();
 }
 export function relativeTime(value: string) {
-  const minutes = Math.max(
-    0,
-    Math.floor((Date.now() - new Date(value).getTime()) / 60000),
-  );
-  if (minutes < 1) return "Baru saja";
-  if (minutes < 60) return `${minutes} menit lalu`;
-  if (minutes < 1440) return `${Math.floor(minutes / 60)} jam lalu`;
-  if (minutes < 2880) return "Kemarin";
-  if (minutes < 43200) return `${Math.floor(minutes / 1440)} hari lalu`;
-  return dateLabel(value);
+  return formatRelativeID(new Date(value));
 }
 export function ageLabel(value: string) {
   const birth = new Date(`${value}T12:00:00`);

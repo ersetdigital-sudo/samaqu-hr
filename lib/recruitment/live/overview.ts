@@ -143,13 +143,20 @@ export function buildRecruitmentOverview(
     )
     .slice(0, 5);
 
+  const jobExtras = [
+    draftJobs > 0 ? `${draftJobs} draf` : null,
+    closedJobs > 0 ? `${closedJobs} ditutup` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   const jobHint =
-    [
-      draftJobs > 0 ? `${draftJobs} draf` : null,
-      closedJobs > 0 ? `${closedJobs} ditutup` : null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || "Belum ada lowongan lain";
+    jobExtras ||
+    (activeJobs === 0
+      ? "Belum ada lowongan aktif"
+      : activeJobs === 1
+        ? "Satu lowongan aktif"
+        : "Tidak ada draf atau lowongan ditutup");
 
   const stats: StatCard[] = [
     { label: "Lowongan Aktif", value: activeJobs, hint: jobHint },

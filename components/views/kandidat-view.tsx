@@ -197,7 +197,10 @@ export function KandidatView({
           application={selected}
           canConvert={canConvert}
           onPatch={patch}
-          onClose={() => setSelectedId(null)}
+          onClose={() => {
+            setSelectedId(null);
+            router.refresh();
+          }}
         />
       )}
     </div>

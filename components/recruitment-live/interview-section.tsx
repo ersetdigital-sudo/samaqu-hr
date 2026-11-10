@@ -33,7 +33,13 @@ const byRound = (a: InterviewSchedule, b: InterviewSchedule) =>
 const formatAverage = (value: number) =>
   value.toFixed(2).replace(".", ",");
 
-export function InterviewSection({ applicationId }: { applicationId: string }) {
+export function InterviewSection({
+  applicationId,
+  onFlowSaved,
+}: {
+  applicationId: string;
+  onFlowSaved?: () => void;
+}) {
   const { toast } = useRecruitment();
   const [interviews, setInterviews] = useState<InterviewSchedule[]>(
     () => cachedApplicationInterviews(applicationId) ?? [],
@@ -48,6 +54,9 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
   const [form, setForm] = useState<"new" | InterviewSchedule | null>(null);
   const [evalTarget, setEvalTarget] = useState<InterviewSchedule | null>(null);
   const [cancelTarget, setCancelTarget] = useState<InterviewSchedule | null>(
+    null,
+  );
+  const [finishTarget, setFinishTarget] = useState<InterviewSchedule | null>(
     null,
   );
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -127,6 +136,7 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
 
       replaceInterview(data.interview);
       setCancelTarget(null);
+      setFinishTarget(null);
       toast(
         status === "Selesai"
           ? "Wawancara ditandai Selesai"
@@ -249,7 +259,16 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
                 <button
                   type="button"
                   className="rl-btn rl-small rl-primary"
-                  onClick={() => void changeStatus(interview, "Selesai")}
+                  onClick={() => {
+                    if (
+                      new Date(interview.scheduled_at).getTime() > Date.now()
+                    ) {
+                      setStatusError("");
+                      setFinishTarget(interview);
+                      return;
+                    }
+                    void changeStatus(interview, "Selesai");
+                  }}
                   disabled={Boolean(busyId)}
                 >
                   Tandai Selesai
@@ -304,11 +323,12 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
             );
             setForm(null);
             setNotice(warning ?? "");
-            toast(
+            const message =
               form === "new"
                 ? "Jadwal wawancara dibuat"
-                : "Jadwal wawancara diperbarui",
-            );
+                : "Jadwal wawancara diperbarui";
+            toast(warning ? `${message}. ${warning}` : message);
+            onFlowSaved?.();
           }}
         />
       )}
@@ -321,6 +341,7 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
             replaceInterview(interview);
             setEvalTarget(null);
             toast("Evaluasi wawancara disimpan");
+            onFlowSaved?.();
           }}
         />
       )}
@@ -335,6 +356,18 @@ export function InterviewSection({ applicationId }: { applicationId: string }) {
           error={statusError}
           onClose={() => setCancelTarget(null)}
           onConfirm={() => void changeStatus(cancelTarget, "Dibatalkan")}
+        />
+      )}
+
+      {finishTarget && (
+        <ConfirmDialog
+          title="Tandai selesai?"
+          description={`Jadwal ronde ${finishTarget.round_number} pada ${formatInterviewDate(finishTarget.scheduled_at)} ${formatInterviewTime(finishTarget.scheduled_at)} WIB belum dimulai. Tandai selesai sekarang?`}
+          confirmLabel="Ya, tandai selesai"
+          busy={busyId === finishTarget.id}
+          error={statusError}
+          onClose={() => setFinishTarget(null)}
+          onConfirm={() => void changeStatus(finishTarget, "Selesai")}
         />
       )}
     </section>

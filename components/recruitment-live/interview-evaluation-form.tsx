@@ -39,28 +39,38 @@ export function InterviewEvaluationForm({
   onClose: () => void;
   onSaved: (interview: InterviewSchedule) => void;
 }) {
-  const [scores, setScores] = useState<Record<string, number>>({
-    score_communication: interview.score_communication ?? 3,
-    score_attitude: interview.score_attitude ?? 3,
-    score_skill: interview.score_skill ?? 3,
-    score_team_fit: interview.score_team_fit ?? 3,
+  const [scores, setScores] = useState<Record<string, number | "">>({
+    score_communication: interview.score_communication ?? "",
+    score_attitude: interview.score_attitude ?? "",
+    score_skill: interview.score_skill ?? "",
+    score_team_fit: interview.score_team_fit ?? "",
   });
-  const [recommendation, setRecommendation] = useState<InterviewRecommendation>(
-    interview.recommendation ?? INTERVIEW_RECOMMENDATIONS[0],
-  );
+  const [recommendation, setRecommendation] = useState<
+    InterviewRecommendation | ""
+  >(interview.recommendation ?? "");
   const [comments, setComments] = useState(interview.comments ?? "");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const total = Object.values(scores).reduce((sum, value) => sum + value, 0);
+  const numericScores = CRITERIA.map(([key]) => scores[key]).filter(
+    (value): value is number => typeof value === "number"
+  );
+  const filledScores = numericScores.length === CRITERIA.length;
+  const total = numericScores.reduce((sum, value) => sum + value, 0);
+  const ready = filledScores && recommendation !== "";
 
   const submit = async () => {
+    if (!filledScores || recommendation === "") {
+      setFormError("Isi keempat nilai dan pilih rekomendasi sebelum menyimpan.");
+      return;
+    }
+
     const payload: InterviewEvaluationInput = {
-      score_communication: scores.score_communication,
-      score_attitude: scores.score_attitude,
-      score_skill: scores.score_skill,
-      score_team_fit: scores.score_team_fit,
+      score_communication: scores.score_communication as number,
+      score_attitude: scores.score_attitude as number,
+      score_skill: scores.score_skill as number,
+      score_team_fit: scores.score_team_fit as number,
       recommendation,
       comments: comments.trim(),
     };
@@ -120,11 +130,15 @@ export function InterviewEvaluationForm({
               onChange={(event) =>
                 setScores((current) => ({
                   ...current,
-                  [key]: Number(event.target.value),
+                  [key]:
+                    event.target.value === ""
+                      ? ""
+                      : Number(event.target.value),
                 }))
               }
               aria-invalid={Boolean(errors[key])}
             >
+              <option value="">— Pilih —</option>
               {[1, 2, 3, 4, 5].map((value) => (
                 <option key={value} value={value}>
                   {value}
@@ -137,7 +151,7 @@ export function InterviewEvaluationForm({
       </div>
       <div className="rl-average mt-4">
         <span>Rata-rata nilai</span>
-        <span>{formatAverage(total)} / 5</span>
+        <span>{filledScores ? `${formatAverage(total)} / 5` : "-"}</span>
       </div>
       <div className="rl-field mt-4">
         <label htmlFor="eval-recommendation">Rekomendasi</label>
@@ -146,10 +160,13 @@ export function InterviewEvaluationForm({
           className="rl-input"
           value={recommendation}
           onChange={(event) =>
-            setRecommendation(event.target.value as InterviewRecommendation)
+            setRecommendation(
+              event.target.value as InterviewRecommendation | "",
+            )
           }
           aria-invalid={Boolean(errors.recommendation)}
         >
+          <option value="">— Pilih rekomendasi —</option>
           {INTERVIEW_RECOMMENDATIONS.map((value) => (
             <option key={value}>{value}</option>
           ))}
@@ -168,6 +185,11 @@ export function InterviewEvaluationForm({
         />
         <FieldError message={errors.comments} />
       </div>
+      {!ready && (
+        <p className="sub text-[11px] mt-3">
+          Isi keempat nilai dan pilih rekomendasi untuk menyimpan.
+        </p>
+      )}
       <div className="rl-actions">
         <button
           type="button"
@@ -181,7 +203,7 @@ export function InterviewEvaluationForm({
           type="button"
           className="rl-btn rl-primary"
           onClick={() => void submit()}
-          disabled={saving}
+          disabled={saving || !ready}
         >
           {saving ? "Menyimpan…" : "Simpan Evaluasi"}
         </button>

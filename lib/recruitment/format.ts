@@ -58,18 +58,33 @@ export const formatDayLabelID = (date: Date, now: Date) => {
   return `${DAYS_SHORT[date.getDay()]} ${date.getDate()}`;
 };
 
-/** "2 jam lalu", "Kemarin", "3 hari lalu" */
-export const formatRelativeID = (date: Date, now: Date) => {
-  const minutes = Math.max(
-    0,
-    Math.round((now.getTime() - date.getTime()) / MINUTE_MS)
-  );
-  if (minutes < 1) return "baru saja";
-  if (minutes < 60) return `${minutes} menit lalu`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} jam lalu`;
-  if (hours < 48) return "Kemarin";
-  return `${Math.round(hours / 24)} hari lalu`;
+const JAKARTA_DAY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Jakarta",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Indeks hari kalender WIB; selisihnya dipakai untuk label relatif. */
+const jakartaDayIndex = (date: Date) => {
+  const [year, month, day] = JAKARTA_DAY.format(date).split("-").map(Number);
+  return Date.UTC(year, month - 1, day) / DAY_MS;
+};
+
+/** "2 jam lalu", "Kemarin", "3 hari lalu" — hitungan hari kalender WIB. */
+export const formatRelativeID = (date: Date, now: Date = new Date()) => {
+  const dayDiff = jakartaDayIndex(now) - jakartaDayIndex(date);
+  if (dayDiff <= 0) {
+    const minutes = Math.max(
+      0,
+      Math.floor((now.getTime() - date.getTime()) / MINUTE_MS)
+    );
+    if (minutes < 1) return "baru saja";
+    if (minutes < 60) return `${minutes} menit lalu`;
+    return `${Math.floor(minutes / 60)} jam lalu`;
+  }
+  if (dayDiff === 1) return "Kemarin";
+  return `${dayDiff} hari lalu`;
 };
 
 /** "November 2026" */

@@ -157,10 +157,19 @@ export function StaffDashboard({
             {modules.map((module) => (
               <ModuleCard key={module.id} module={module} />
             ))}
-            {externalModules.map((module) => (
-              <ModuleCard key={module.id} module={module} />
-            ))}
           </div>
+          {externalModules.length > 0 && (
+            <>
+              <div className="text-[12px] sub font-semibold mt-6 mb-2">
+                Layanan eksternal
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {externalModules.map((module) => (
+                  <ModuleCard key={module.id} module={module} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {recruitment && (

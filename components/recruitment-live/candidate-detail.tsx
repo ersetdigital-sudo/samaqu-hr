@@ -158,7 +158,9 @@ export function CandidateDetailModal({
               </a>
               {application.cv_deleted_at ? (
                 <div className="rl-cv-deleted">
-                  CV dihapus otomatis pada{" "}
+                  {new Date(application.cv_deleted_at).getTime() <= Date.now()
+                    ? "CV sudah dihapus pada "
+                    : "CV dihapus otomatis pada "}
                   {formatRetentionDate(application.cv_deleted_at)}
                 </div>
               ) : (
@@ -229,7 +231,7 @@ export function CandidateDetailModal({
             <p>{application.motivation || "Tidak diisi oleh pelamar."}</p>
           </div>
 
-          <InterviewSection applicationId={application.id} />
+          <InterviewSection applicationId={application.id} onFlowSaved={close} />
 
           <div className="rl-field">
             <label htmlFor="internal-note">
@@ -262,22 +264,21 @@ export function CandidateDetailModal({
           </div>
 
           <div className="rl-stage-actions">
-            <button
-              type="button"
-              className="rl-btn rl-danger"
-              disabled={
-                stageBusy ||
-                application.stage === "Ditolak" ||
-                application.stage === "Diterima"
-              }
-              onClick={() => {
-                setStageError("");
-                setPendingStage(null);
-                setReject(true);
-              }}
-            >
-              Tolak
-            </button>
+            {application.stage !== "Diterima" &&
+              application.stage !== "Ditolak" && (
+                <button
+                  type="button"
+                  className="rl-btn rl-danger"
+                  disabled={stageBusy}
+                  onClick={() => {
+                    setStageError("");
+                    setPendingStage(null);
+                    setReject(true);
+                  }}
+                >
+                  Tolak
+                </button>
+              )}
             <button
               type="button"
               className="rl-btn rl-primary"

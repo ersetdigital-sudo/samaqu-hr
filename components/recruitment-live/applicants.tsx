@@ -570,7 +570,9 @@ export function Applicants({
                   </a>
                   {selected.cv_deleted_at ? (
                     <div className="rl-cv-deleted">
-                      CV dihapus otomatis pada{" "}
+                      {new Date(selected.cv_deleted_at).getTime() <= Date.now()
+                        ? "CV sudah dihapus pada "
+                        : "CV dihapus otomatis pada "}
                       {formatRetentionDate(selected.cv_deleted_at)}
                     </div>
                   ) : (
@@ -636,7 +638,15 @@ export function Applicants({
                 </span>
                 <p>{selected.motivation || "Tidak diisi oleh pelamar."}</p>
               </div>
-              <InterviewSection applicationId={selected.id} />
+              <InterviewSection
+                applicationId={selected.id}
+                onFlowSaved={() => {
+                  selectedRef.current = null;
+                  setSelected(null);
+                  void load(filterRef.current);
+                  router.refresh();
+                }}
+              />
               <div className="rl-field">
                 <label htmlFor="internal-note">
                   Catatan internal (tidak terlihat pelamar)
@@ -668,22 +678,21 @@ export function Applicants({
               </div>
               {stageError && !reject && <ErrorBox message={stageError} />}
               <div className="rl-stage-actions">
-                <button
-                  type="button"
-                  className="rl-btn rl-danger"
-                  disabled={
-                    stageBusy ||
-                    selected.stage === "Ditolak" ||
-                    selected.stage === "Diterima"
-                  }
-                  onClick={() => {
-                    setStageError("");
-                    setPendingStage(null);
-                    setReject(selected);
-                  }}
-                >
-                  Tolak
-                </button>
+                {selected.stage !== "Diterima" &&
+                  selected.stage !== "Ditolak" && (
+                    <button
+                      type="button"
+                      className="rl-btn rl-danger"
+                      disabled={stageBusy}
+                      onClick={() => {
+                        setStageError("");
+                        setPendingStage(null);
+                        setReject(selected);
+                      }}
+                    >
+                      Tolak
+                    </button>
+                  )}
                 <button
                   type="button"
                   className="rl-btn rl-primary"

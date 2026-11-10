@@ -50,7 +50,7 @@ function buildActivities(
     .map((application) => ({
       id: `application-${application.id}`,
       actor: application.full_name,
-      before: " melamar ",
+      before: " melamar sebagai ",
       subject: jobTitles.get(application.job_id) ?? "lowongan",
       after: "",
       at: application.created_at,
@@ -60,7 +60,7 @@ function buildActivities(
   const interviews: Activity[] = recentInterviews.map((interview) => ({
     id: `interview-${interview.id}`,
     actor: interview.applicant_name,
-    before: " dijadwalkan wawancara untuk ",
+    before: " dijadwalkan wawancara untuk posisi ",
     subject: interview.job_title,
     after: "",
     at: interview.created_at,
