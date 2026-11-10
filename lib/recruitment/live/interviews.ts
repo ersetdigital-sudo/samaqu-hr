@@ -88,6 +88,65 @@ export async function getUpcomingInterviews(
   return ((data ?? []) as unknown as ViewRow[]).map(mapRow);
 }
 
+const JAKARTA_DAY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Jakarta",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** Jumlah wawancara mendatang dan yang dijadwalkan hari ini (WIB). */
+export async function getInterviewDashboardStats(
+  now = new Date(),
+): Promise<{ upcoming: number; today: number }> {
+  const db = await getServerSupabase();
+  const dayStart = new Date(`${JAKARTA_DAY.format(now)}T00:00:00+07:00`);
+  const dayEnd = new Date(dayStart.getTime() + 86_400_000);
+
+  const [upcomingResult, todayResult] = await Promise.all([
+    db
+      .from("interview_schedule_view")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "Dijadwalkan")
+      .gte("scheduled_at", now.toISOString()),
+    db
+      .from("interview_schedule_view")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "Dijadwalkan")
+      .gte("scheduled_at", dayStart.toISOString())
+      .lt("scheduled_at", dayEnd.toISOString()),
+  ]);
+
+  if (upcomingResult.error) fail(upcomingResult.error, "memuat");
+  if (todayResult.error) fail(todayResult.error, "memuat");
+
+  return {
+    upcoming: upcomingResult.count ?? 0,
+    today: todayResult.count ?? 0,
+  };
+}
+
+export type RecentInterview = {
+  id: string;
+  applicant_name: string;
+  job_title: string;
+  created_at: string;
+};
+
+/** Jadwal yang baru dibuat, untuk umpan aktivitas dashboard. */
+export async function listRecentInterviews(
+  limit = 5,
+): Promise<RecentInterview[]> {
+  const { data, error } = await (await getServerSupabase())
+    .from("interview_schedule_view")
+    .select("id,applicant_name,job_title,created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) fail(error, "memuat");
+  return (data ?? []) as unknown as RecentInterview[];
+}
+
 async function getInterviewSchedule(
   id: string,
 ): Promise<InterviewSchedule | null> {
