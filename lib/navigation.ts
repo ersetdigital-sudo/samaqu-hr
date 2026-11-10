@@ -118,7 +118,8 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "onboarding",
             label: "Onboarding",
             href: "/recruitment/onboarding",
-            status: "planned",
+            status: "live",
+            roles: ["hr_manager"],
           },
           {
             id: "laporan",
