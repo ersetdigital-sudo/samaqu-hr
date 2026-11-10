@@ -2,19 +2,37 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 
 const MIN_PASSWORD = 8;
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const [linkState, setLinkState] = useState<"checking" | "ready" | "invalid">(
+    "checking"
+  );
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    createBrowserSupabase()
+      .auth.getSession()
+      .then(({ data }) => {
+        if (active) setLinkState(data.session ? "ready" : "invalid");
+      })
+      .catch(() => {
+        if (active) setLinkState("invalid");
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,17 +54,45 @@ export function ResetPasswordForm() {
 
     if (updateError) {
       setError(
-        "Tautan reset tidak valid atau kedaluwarsa. Minta tautan baru dari administrator."
+        "Tautan sudah tidak berlaku atau sesi kamu berakhir. Minta tautan baru dari administrator."
       );
       return;
     }
 
     setDone(true);
     setTimeout(() => {
-      router.replace("/login");
+      router.replace("/");
       router.refresh();
     }, 1200);
   };
+
+  if (linkState === "checking") {
+    return <div className="sub text-[13px]">Memeriksa tautan…</div>;
+  }
+
+  if (linkState === "invalid") {
+    return (
+      <div className="flex flex-col gap-4">
+        <div
+          className="p-4 rounded-xl text-[13px]"
+          style={{ background: "var(--badb)", color: "var(--bad)" }}
+          role="alert"
+        >
+          Tautan undangan atau reset kata sandi sudah tidak berlaku atau sudah
+          dipakai. Minta tautan baru untuk melanjutkan.
+        </div>
+        <Link
+          className="btn btn-p w-full justify-center"
+          href="/forgot-password"
+        >
+          Minta tautan baru
+        </Link>
+        <Link className="text-[12px] sub underline" href="/login">
+          Kembali ke halaman masuk
+        </Link>
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -54,7 +100,7 @@ export function ResetPasswordForm() {
         className="p-4 rounded-xl text-[13px]"
         style={{ background: "var(--okb, #EAF7EF)", color: "var(--ok, #1E7A46)" }}
       >
-        Kata sandi berhasil diperbarui. Mengalihkan ke halaman masuk…
+        Kata sandi berhasil disimpan. Mengalihkan ke dashboard…
       </div>
     );
   }
@@ -67,7 +113,13 @@ export function ResetPasswordForm() {
           style={{ background: "var(--badb)", color: "var(--bad)" }}
           role="alert"
         >
-          {error}
+          <div>{error}</div>
+          <Link
+            className="font-semibold underline mt-1 inline-block"
+            href="/forgot-password"
+          >
+            Minta tautan baru
+          </Link>
         </div>
       )}
 

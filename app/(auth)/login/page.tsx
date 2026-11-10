@@ -80,7 +80,8 @@ export default async function LoginPage({
               style={{ background: "var(--badb)", color: "var(--bad)" }}
               role="alert"
             >
-              Tautan reset kata sandi tidak valid atau sudah kedaluwarsa.{" "}
+              Tautan undangan atau reset kata sandi tidak valid atau sudah
+              kedaluwarsa.{" "}
               <Link className="font-semibold underline" href="/forgot-password">
                 Minta tautan baru
               </Link>
