@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase/browser";
 
 const MIN_PASSWORD = 8;
 
 export function ResetPasswordForm() {
-  const router = useRouter();
   const [linkState, setLinkState] = useState<"checking" | "ready" | "invalid">(
     "checking"
   );
@@ -50,19 +48,25 @@ export function ResetPasswordForm() {
     setLoading(true);
     const supabase = createBrowserSupabase();
     const { error: updateError } = await supabase.auth.updateUser({ password });
-    setLoading(false);
 
     if (updateError) {
+      setLoading(false);
       setError(
         "Tautan sudah tidak berlaku atau sesi kamu berakhir. Minta tautan baru dari administrator."
       );
       return;
     }
 
+    // Mekanisme server yang sama seperti login: aktivasi akun Diundang,
+    // penegakan status Nonaktif, dan pencatatan waktu masuk.
+    await fetch("/api/auth/session", { method: "POST" }).catch(() => null);
+    setLoading(false);
+
     setDone(true);
     setTimeout(() => {
-      router.replace("/");
-      router.refresh();
+      // Muat penuh agar server membaca sesi terbaru, mengaktifkan akun
+      // Diundang, dan menegakkan status sebelum dashboard dirender.
+      window.location.assign("/");
     }, 1200);
   };
 
