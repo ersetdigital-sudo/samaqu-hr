@@ -34,6 +34,7 @@ import {
   EmployeeConversionPrompt,
 } from "./employee-conversion";
 import { InterviewSection } from "./interview-section";
+import { StageHistory } from "./stage-history";
 
 /** Detail pelamar lintas lowongan: CV, catatan, dan perubahan tahap. */
 export function CandidateDetailModal({
@@ -230,6 +231,11 @@ export function CandidateDetailModal({
             </span>
             <p>{application.motivation || "Tidak diisi oleh pelamar."}</p>
           </div>
+
+          <StageHistory
+            applicationId={application.id}
+            stage={application.stage}
+          />
 
           <InterviewSection applicationId={application.id} onFlowSaved={close} />
 

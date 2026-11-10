@@ -36,6 +36,7 @@ import {
   EmployeeConversionPrompt,
 } from "./employee-conversion";
 import { InterviewSection } from "./interview-section";
+import { StageHistory } from "./stage-history";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
@@ -638,6 +639,10 @@ export function Applicants({
                 </span>
                 <p>{selected.motivation || "Tidak diisi oleh pelamar."}</p>
               </div>
+              <StageHistory
+                applicationId={selected.id}
+                stage={selected.stage}
+              />
               <InterviewSection
                 applicationId={selected.id}
                 onFlowSaved={() => {

@@ -53,7 +53,6 @@ const secondStepFields = [
   "skills",
   "expected_salary",
   "start_availability",
-  "source",
 ];
 
 function ErrorText({ name, errors }: { name: string; errors: FieldErrors }) {
@@ -695,25 +694,6 @@ export function ApplicationWizard({ job }: { job: PublicJob }) {
                     ))}
                   </div>
                 </Choices>
-                <Choices
-                  name="source"
-                  label="Tahu lowongan ini dari"
-                  errors={errors}
-                >
-                  <div className={styles.chips}>
-                    {SOURCES.map((value) => (
-                      <Choice
-                        key={value}
-                        selected={draft.source === value}
-                        onClick={() =>
-                          update("source", draft.source === value ? "" : value)
-                        }
-                      >
-                        {value}
-                      </Choice>
-                    ))}
-                  </div>
-                </Choices>
               </>
             )}
             {step === 3 && (
@@ -846,6 +826,25 @@ export function ApplicationWizard({ job }: { job: PublicJob }) {
                     </div>
                   </dl>
                 </section>
+                <Choices
+                  name="source"
+                  label="Tahu lowongan ini dari mana? (opsional)"
+                  errors={errors}
+                >
+                  <div className={styles.chips}>
+                    {SOURCES.map((value) => (
+                      <Choice
+                        key={value}
+                        selected={draft.source === value}
+                        onClick={() =>
+                          update("source", draft.source === value ? "" : value)
+                        }
+                      >
+                        {value}
+                      </Choice>
+                    ))}
+                  </div>
+                </Choices>
                 <div>
                   <label htmlFor="consent" className={styles.consent}>
                     <input

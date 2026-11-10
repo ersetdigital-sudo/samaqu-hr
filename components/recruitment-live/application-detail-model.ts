@@ -52,7 +52,7 @@ export function applicationDetailItems(
     ],
     ["Ekspektasi gaji", money(application.expected_salary)],
     ["Bisa mulai", application.start_availability],
-    ["Tahu dari", application.source || "—"],
+    ["Tahu dari", application.source || "Tidak diisi"],
     ["WhatsApp", `+${whatsappDigits(application.whatsapp)}`],
   ];
 }

@@ -168,10 +168,10 @@ export function validateApplicationStep(
       errors.expected_salary = "Isi ekspektasi gaji yang valid";
     if (!choice(input.start_availability, AVAILABILITIES))
       errors.start_availability = "Pilih kapan kamu bisa mulai";
-    if (input.source !== "" && !choice(input.source, SOURCES))
-      errors.source = "Pilih sumber info yang valid";
   }
   if (step === 3) {
+    if (input.source !== "" && !choice(input.source, SOURCES))
+      errors.source = "Pilih sumber info yang valid";
     field(errors, input, "portfolio_url", "Link portofolio", 2000, false);
     if (text(input.portfolio_url)) {
       try {

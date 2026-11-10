@@ -16,7 +16,13 @@ export const SKILLS = [
   "Canva",
 ] as const;
 export const AVAILABILITIES = ["Segera", "2 minggu", "1 bulan"] as const;
-export const SOURCES = ["Instagram", "WhatsApp", "Teman", "Lainnya"] as const;
+export const SOURCES = [
+  "Instagram",
+  "WhatsApp",
+  "Teman atau keluarga",
+  "Situs lowongan",
+  "Lainnya",
+] as const;
 export const MAX_CV_BYTES = 2 * 1024 * 1024;
 export type JobStatus = "Draf" | "Aktif" | "Ditutup";
 export type JobInput = {
@@ -187,6 +193,15 @@ export type InterviewEvaluationInput = {
 };
 
 /** Baris view interview_schedule_view. */
+export type StageHistoryEntry = {
+  id: number;
+  applicationId: string;
+  fromStage: string | null;
+  toStage: string;
+  changedAt: string;
+  changedByName: string;
+};
+
 export type InterviewSchedule = {
   id: string;
   application_id: string;
