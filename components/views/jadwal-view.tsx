@@ -1,179 +1,304 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
-import { useRecruitment } from "@/components/recruitment-provider";
-import { StageTag } from "@/components/stage-tag";
-import { RATING_KEYS } from "@/lib/data";
-import { formatMonthYearID } from "@/lib/recruitment/format";
+import { CandidateDetailModal } from "@/components/recruitment-live/candidate-detail";
+import { ErrorBox } from "@/components/recruitment-live/ui";
+import {
+  DataTable,
+  TwoLineCell,
+  type DataTableColumn,
+} from "@/components/ui/data-table";
+import {
+  cachedCandidateApplication,
+  loadCandidateApplication,
+} from "@/lib/recruitment/live/application-cache";
+import { formatInterviewTime } from "@/lib/recruitment/live/invitation";
+import {
+  INTERVIEW_STATUSES,
+  type CandidateApplication,
+  type InterviewSchedule,
+  type InterviewStatus,
+  type JobApplication,
+} from "@/lib/recruitment/live/types";
+import "@/components/recruitment-live/live.css";
 
-export function JadwalView() {
-  const {
-    rating,
-    setRating,
-    rec,
-    setRec,
-    selSch,
-    setSelSch,
-    toast,
-    interviews,
-  } = useRecruitment();
+const statusTone: Record<InterviewStatus, string> = {
+  Dijadwalkan: "t-warn",
+  Selesai: "t-ok",
+  Dibatalkan: "t-mute",
+  "Tidak hadir": "t-bad",
+};
 
-  const average = (
-    Object.values(rating).reduce((a, b) => a + b, 0) / 5
-  )
-    .toFixed(1)
-    .replace(".", ",");
-  const selected = interviews[selSch] ?? interviews[0];
-  const monthLabel = selected
-    ? formatMonthYearID(new Date(selected.at))
-    : "Belum ada jadwal";
+const shortDate = new Intl.DateTimeFormat("id-ID", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: "Asia/Jakarta",
+});
+
+const isUpcoming = (interview: InterviewSchedule, now: number) =>
+  interview.status === "Dijadwalkan" &&
+  new Date(interview.scheduled_at).getTime() >= now;
+
+export function JadwalView({
+  initial,
+  initialError,
+  canConvert,
+}: {
+  initial: InterviewSchedule[] | null;
+  initialError?: string;
+  canConvert: boolean;
+}) {
+  const router = useRouter();
+  const [interviews, setInterviews] = useState(initial ?? []);
+  const [query, setQuery] = useState("");
+  const [jobFilter, setJobFilter] = useState("Semua");
+  const [statusFilter, setStatusFilter] = useState("Semua");
+  const [selected, setSelected] = useState<CandidateApplication | null>(null);
+  const [detailBusyId, setDetailBusyId] = useState<string | null>(null);
+  const [detailError, setDetailError] = useState("");
+  const [now] = useState(() => Date.now());
+
+  useEffect(() => {
+    setInterviews(initial ?? []);
+  }, [initial]);
+
+  const jobs = useMemo(() => {
+    const unique = new Map<string, string>();
+    for (const interview of interviews)
+      unique.set(interview.job_id, interview.job_title);
+    return [...unique.entries()].map(([id, title]) => ({ id, title }));
+  }, [interviews]);
+
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return interviews.filter(
+      (interview) =>
+        (jobFilter === "Semua" || interview.job_id === jobFilter) &&
+        (statusFilter === "Semua" || interview.status === statusFilter) &&
+        (!term ||
+          interview.applicant_name.toLowerCase().includes(term) ||
+          interview.job_title.toLowerCase().includes(term) ||
+          interview.interviewer_name.toLowerCase().includes(term)),
+    );
+  }, [interviews, query, jobFilter, statusFilter]);
+
+  const upcoming = filtered.filter((item) => isUpcoming(item, now));
+  const past = filtered.filter((item) => !isUpcoming(item, now));
+
+  async function openDetail(interview: InterviewSchedule) {
+    setDetailError("");
+    const cached = cachedCandidateApplication(interview.application_id);
+    if (cached) {
+      setSelected(cached);
+      return;
+    }
+    setDetailBusyId(interview.id);
+    try {
+      setSelected(await loadCandidateApplication(interview.application_id));
+    } catch (cause) {
+      setDetailError(
+        cause instanceof Error
+          ? cause.message
+          : "Detail pelamar belum dapat dimuat.",
+      );
+    } finally {
+      setDetailBusyId(null);
+    }
+  }
+
+  function patchApplication(id: string, changes: Partial<JobApplication>) {
+    setSelected((current) =>
+      current && current.id === id ? { ...current, ...changes } : current,
+    );
+  }
+
+  function closeDetail() {
+    setSelected(null);
+    router.refresh();
+  }
+
+  const columns: DataTableColumn<InterviewSchedule>[] = [
+    {
+      key: "waktu",
+      label: "Waktu",
+      width: "22%",
+      render: (interview) => (
+        <TwoLineCell
+          primary={shortDate.format(new Date(interview.scheduled_at))}
+          secondary={`${formatInterviewTime(interview.scheduled_at)} WIB · ${interview.duration_minutes} mnt · Ronde ${interview.round_number}`}
+        />
+      ),
+    },
+    {
+      key: "kandidat",
+      label: "Kandidat",
+      width: "28%",
+      render: (interview) => (
+        <TwoLineCell
+          primary={interview.applicant_name}
+          secondary={interview.job_title}
+        />
+      ),
+    },
+    {
+      key: "pewawancara",
+      label: "Pewawancara",
+      width: "20%",
+      render: (interview) => (
+        <TwoLineCell
+          primary={interview.interviewer_name}
+          secondary={interview.mode}
+        />
+      ),
+    },
+    {
+      key: "nilai",
+      label: "Nilai",
+      width: "14%",
+      render: (interview) =>
+        interview.average_score !== null ? (
+          <TwoLineCell
+            primary={`${interview.average_score.toFixed(2).replace(".", ",")} / 5`}
+            secondary={interview.recommendation ?? undefined}
+          />
+        ) : (
+          <span className="sub">—</span>
+        ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      width: "16%",
+      render: (interview) => (
+        <span className={`tag ${statusTone[interview.status]}`}>
+          {interview.status}
+        </span>
+      ),
+    },
+  ];
+
+  const emptyText = interviews.length
+    ? "Tidak ada jadwal yang cocok dengan filter."
+    : "Belum ada jadwal wawancara. Buka detail pelamar untuk menjadwalkan wawancara pertama.";
+
+  const table = (rows: InterviewSchedule[], label: string) => (
+    <DataTable
+      ariaLabel={label}
+      columns={columns}
+      rows={rows}
+      rowKey={(interview) => interview.id}
+      rowLabel={(interview) =>
+        `Lihat detail pelamar ${interview.applicant_name}`
+      }
+      onRowActivate={(interview) => void openDetail(interview)}
+      onRowPrefetch={(interview) => {
+        void loadCandidateApplication(interview.application_id).catch(
+          () => undefined,
+        );
+      }}
+      empty={emptyText}
+    />
+  );
 
   return (
-    <>
+    <div className="rl">
       <PageHead
         title="Jadwal & Evaluasi"
-        subtitle="Jadwal wawancara dan tes, serta form penilaian kandidat."
+        subtitle="Jadwal wawancara dan evaluasi kandidat. Klik baris untuk membuka detail pelamar."
       >
-        <button
-          className="btn btn-p"
-          onClick={() => toast("Form jadwal belum tersedia")}
-        >
-          <Icon name="plus" style={{ width: 16 }} />
-          Jadwalkan
-        </button>
+        <span className="sub text-[13px]">
+          {interviews.length} jadwal wawancara
+        </span>
       </PageHead>
 
-      <div className="grid xl:grid-cols-5 gap-6">
-        <div className="xl:col-span-3">
+      {!initial ? (
+        <ErrorBox
+          message={
+            initialError ??
+            "Jadwal wawancara belum dapat dimuat. Silakan coba lagi."
+          }
+          retry={() => router.refresh()}
+        />
+      ) : (
+        <div className="rl-stack" style={{ gap: 18 }}>
+          <div className="flex flex-wrap gap-3">
+            <div className="relative w-full md:w-80">
+              <input
+                className="inp inp-search"
+                placeholder="Cari kandidat, lowongan, atau pewawancara…"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <Icon name="search" className="search-icon" />
+            </div>
+            <select
+              className="inp !w-auto"
+              value={jobFilter}
+              onChange={(event) => setJobFilter(event.target.value)}
+              aria-label="Filter lowongan"
+            >
+              <option value="Semua">Semua lowongan</option>
+              {jobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.title}
+                </option>
+              ))}
+            </select>
+            <select
+              className="inp !w-auto"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              aria-label="Filter status"
+            >
+              {["Semua", ...INTERVIEW_STATUSES].map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {detailError && <ErrorBox message={detailError} />}
+          {detailBusyId && (
+            <p className="rl-muted" role="status">
+              Memuat detail pelamar…
+            </p>
+          )}
+
           <div className="card">
             <div
-              className="flex justify-between items-center px-6 py-4 border-b"
+              className="px-6 py-4 border-b font-bold text-[14px]"
               style={{ borderColor: "var(--line)" }}
             >
-              <div className="font-bold">{monthLabel}</div>
-              <div className="flex bg-[#F1EDEB] p-1 rounded-xl">
-                <div className="tab on">Daftar</div>
-                <div
-                  className="tab"
-                  onClick={() => toast("Tampilan kalender belum tersedia")}
-                >
-                  Kalender
-                </div>
-              </div>
+              Mendatang ({upcoming.length})
             </div>
-            <div className="overflow-x-auto">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Waktu</th>
-                    <th>Kandidat</th>
-                    <th>Interviewer</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {interviews.map((schedule, k) => (
-                    <tr
-                      key={schedule.id}
-                      className="cursor-pointer"
-                      onClick={() => setSelSch(k)}
-                      style={
-                        selSch === k
-                          ? { background: "var(--pink-50)" }
-                          : undefined
-                      }
-                    >
-                      <td className="whitespace-nowrap">
-                        <div className="text-[11px] sub font-bold">
-                          {schedule.d}
-                        </div>
-                        <b>{schedule.t}</b>
-                      </td>
-                      <td>
-                        <div className="font-semibold">{schedule.c}</div>
-                        <div className="text-[12px] sub">
-                          {`${schedule.p} · ${schedule.m}`}
-                        </div>
-                      </td>
-                      <td className="sub">{schedule.i}</td>
-                      <td>
-                        <StageTag stage={schedule.st} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {table(upcoming, "Jadwal wawancara mendatang")}
+          </div>
+
+          <div className="card">
+            <div
+              className="px-6 py-4 border-b font-bold text-[14px]"
+              style={{ borderColor: "var(--line)" }}
+            >
+              Sudah lewat / selesai ({past.length})
             </div>
+            {table(past, "Jadwal wawancara sudah lewat atau selesai")}
           </div>
         </div>
+      )}
 
-        <div className="xl:col-span-2 card p-6">
-          <div className="text-[12px] sub font-semibold">
-            FORM PENILAIAN
-          </div>
-          <div className="font-bold text-[17px]">{selected?.c ?? "—"}</div>
-          <div className="sub text-[13px] mb-5">
-            {`${selected?.p ?? "—"} · Kriteria posisi`}
-          </div>
-
-          {RATING_KEYS.map((key) => (
-            <div className="flex items-center justify-between mb-3" key={key}>
-              <span className="text-[13px] font-medium">{key}</span>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <div
-                    key={n}
-                    className={`star ${rating[key] >= n ? "on" : ""}`}
-                    onClick={() => setRating(key, n)}
-                  >
-                    {n}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          <div
-            className="flex justify-between items-center p-3 rounded-xl my-4"
-            style={{ background: "var(--pink-50)" }}
-          >
-            <span className="font-semibold text-[13px]">Skor rata-rata</span>
-            <b className="text-[20px]" style={{ color: "var(--pink)" }}>
-              {`${average} / 5`}
-            </b>
-          </div>
-
-          <label className="lbl">Catatan</label>
-          <textarea
-            className="inp mb-4"
-            rows={3}
-            placeholder="Kekuatan, area pengembangan, dan observasi…"
-          />
-
-          <label className="lbl">Rekomendasi Keputusan</label>
-          <div className="grid grid-cols-3 gap-2 mb-5">
-            {["Lanjut", "Pertimbangkan", "Tidak Lanjut"].map((option) => (
-              <button
-                key={option}
-                className={`btn ${
-                  rec === option ? "btn-p" : "btn-g"
-                } justify-center !px-2`}
-                onClick={() => setRec(option)}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-
-          <button
-            className="btn btn-p w-full justify-center"
-            onClick={() => toast("Evaluasi terkirim (simulasi)")}
-          >
-            Kirim Evaluasi
-          </button>
-        </div>
-      </div>
-    </>
+      {selected && (
+        <CandidateDetailModal
+          application={selected}
+          canConvert={canConvert}
+          onPatch={patchApplication}
+          onClose={closeDetail}
+        />
+      )}
+    </div>
   );
 }

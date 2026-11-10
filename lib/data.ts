@@ -46,6 +46,7 @@ const STAGE_TONES: Record<string, string> = {
   Terkonfirmasi: "t-ok",
   Menunggu: "t-warn",
   Selesai: "t-mute",
+  Dijadwalkan: "t-warn",
   "Dijadwalkan Ulang": "t-info",
 };
 

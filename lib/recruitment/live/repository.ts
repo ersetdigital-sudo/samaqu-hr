@@ -8,6 +8,8 @@ import {
   APPLICATION_STAGES,
   type ApplicationEmployeeSource,
   type ApplicationPage,
+  type CandidateApplication,
+  type CandidateJob,
   type JobApplication,
   type JobInput,
   type JobPosting,
@@ -362,6 +364,35 @@ export async function getApplicationEmployeeSource(
     department: job?.department ?? "",
     location: job?.location ?? "",
     employmentType: job?.employment_type ?? "",
+  };
+}
+
+const CANDIDATE_JOB_COLUMNS =
+  "id,slug,title,status,closes_at,closed_at,published_at,created_at";
+
+/** Detail pelamar + lowongan untuk modal lintas halaman. */
+export async function getCandidateApplication(
+  id: string,
+): Promise<CandidateApplication | null> {
+  assertId(id);
+  const { data, error } = await (await getServerSupabase())
+    .from("job_applications")
+    .select(
+      `${APPLICATION_COLUMNS},job:job_postings(${CANDIDATE_JOB_COLUMNS})`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) dbFailure(error);
+  if (!data) return null;
+
+  const row = data as unknown as JobApplication & {
+    job: CandidateJob | CandidateJob[] | null;
+  };
+  const { job, ...application } = row;
+  return {
+    ...application,
+    job: Array.isArray(job) ? job[0] ?? null : job,
   };
 }
 

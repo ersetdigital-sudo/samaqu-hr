@@ -150,4 +150,67 @@ export type OverviewBoard = {
   total: number;
   limit: number;
 };
+export const INTERVIEW_MODES = ["Online", "Tatap muka"] as const;
+export const INTERVIEW_STATUSES = [
+  "Dijadwalkan",
+  "Selesai",
+  "Dibatalkan",
+  "Tidak hadir",
+] as const;
+export const INTERVIEW_RECOMMENDATIONS = [
+  "Lanjut",
+  "Pertimbangkan",
+  "Tolak",
+] as const;
+
+export type InterviewMode = (typeof INTERVIEW_MODES)[number];
+export type InterviewStatus = (typeof INTERVIEW_STATUSES)[number];
+export type InterviewRecommendation =
+  (typeof INTERVIEW_RECOMMENDATIONS)[number];
+
+export type InterviewInput = {
+  scheduled_at: string;
+  duration_minutes: number;
+  mode: InterviewMode;
+  location_or_link: string;
+  interviewer_name: string;
+  notes: string;
+};
+
+export type InterviewEvaluationInput = {
+  score_communication: number;
+  score_attitude: number;
+  score_skill: number;
+  score_team_fit: number;
+  recommendation: InterviewRecommendation;
+  comments: string;
+};
+
+/** Baris view interview_schedule_view. */
+export type InterviewSchedule = {
+  id: string;
+  application_id: string;
+  round_number: number;
+  scheduled_at: string;
+  duration_minutes: number;
+  mode: InterviewMode;
+  location_or_link: string;
+  interviewer_name: string;
+  status: InterviewStatus;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  applicant_name: string;
+  job_id: string;
+  job_title: string;
+  evaluation_id: string | null;
+  score_communication: number | null;
+  score_attitude: number | null;
+  score_skill: number | null;
+  score_team_fit: number | null;
+  recommendation: InterviewRecommendation | null;
+  comments: string;
+  average_score: number | null;
+};
+
 export type FieldErrors = Record<string, string>;

@@ -12,15 +12,18 @@ import { TopJobsCard } from "@/components/overview/top-jobs-card";
 import { UpcomingInterviews } from "@/components/overview/upcoming-interviews";
 import { PageHead } from "@/components/page-head";
 import type { RecruitmentOverview } from "@/lib/recruitment/live/overview";
+import type { Interview } from "@/lib/recruitment/types";
 
 export function OverviewView({
   userName,
   initial,
   initialError,
+  interviews,
 }: {
   userName: string;
   initial: RecruitmentOverview | null;
   initialError?: string;
+  interviews: Interview[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -67,7 +70,7 @@ export function OverviewView({
       <div className="grid lg:grid-cols-5 gap-6">
         <ActivityCard title="Pelamar Terbaru" activities={initial.activities} />
         <div className="lg:col-span-2 flex flex-col gap-6 min-w-0">
-          <UpcomingInterviews interviews={[]} />
+          <UpcomingInterviews interviews={interviews} />
           <TopJobsCard jobs={initial.topJobs} />
         </div>
       </div>

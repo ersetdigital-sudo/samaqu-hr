@@ -2,13 +2,59 @@ import { STAGES } from "@/lib/data";
 import { formatRelativeID } from "@/lib/recruitment/format";
 import type {
   Activity,
+  Interview,
   PipelineMetric,
   StatCard,
 } from "@/lib/recruitment/types";
-import type { OverviewBoard } from "./types";
+import { formatInterviewTime } from "./invitation";
+import type { InterviewSchedule, OverviewBoard } from "./types";
 import { effectiveStatus } from "./validation";
 
 const DAY_MS = 86_400_000;
+
+const jakartaDayKey = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Jakarta",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+const jakartaWeekday = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "Asia/Jakarta",
+  weekday: "short",
+});
+
+/** Jadwal live untuk kartu Overview; label hari mengikuti WIB. */
+export function toOverviewInterviews(
+  schedules: InterviewSchedule[],
+  now = new Date(),
+): Interview[] {
+  const todayKey = jakartaDayKey.format(now);
+  return schedules.map((schedule) => {
+    const date = new Date(schedule.scheduled_at);
+    const key = jakartaDayKey.format(date);
+    const diffDays = Math.round(
+      (Date.parse(key) - Date.parse(todayKey)) / DAY_MS,
+    );
+    const dayLabel =
+      diffDays === 0
+        ? "HARI INI"
+        : diffDays === 1
+          ? "BESOK"
+          : `${jakartaWeekday.format(date).toUpperCase()} ${Number(key.slice(8))}`;
+    return {
+      id: schedule.id,
+      d: dayLabel,
+      t: formatInterviewTime(schedule.scheduled_at),
+      c: schedule.applicant_name,
+      p: schedule.job_title,
+      i: schedule.interviewer_name,
+      m: schedule.mode,
+      st: schedule.status,
+      at: schedule.scheduled_at,
+    };
+  });
+}
 
 export type OverviewTopJob = {
   id: string;

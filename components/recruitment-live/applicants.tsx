@@ -33,6 +33,7 @@ import {
   EmployeeConversionAction,
   EmployeeConversionPrompt,
 } from "./employee-conversion";
+import { InterviewSection } from "./interview-section";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
@@ -622,6 +623,7 @@ export function Applicants({
                 </span>
                 <p>{selected.motivation || "Tidak diisi oleh pelamar."}</p>
               </div>
+              <InterviewSection applicationId={selected.id} />
               <div className="rl-field">
                 <label htmlFor="internal-note">
                   Catatan internal (tidak terlihat pelamar)

@@ -31,6 +31,7 @@ import {
   EmployeeConversionAction,
   EmployeeConversionPrompt,
 } from "./employee-conversion";
+import { InterviewSection } from "./interview-section";
 
 /** Detail pelamar lintas lowongan: CV, catatan, dan perubahan tahap. */
 export function CandidateDetailModal({
@@ -214,6 +215,8 @@ export function CandidateDetailModal({
             </span>
             <p>{application.motivation || "Tidak diisi oleh pelamar."}</p>
           </div>
+
+          <InterviewSection applicationId={application.id} />
 
           <div className="rl-field">
             <label htmlFor="internal-note">
