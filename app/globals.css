@@ -364,8 +364,11 @@ tbody tr:hover {
 
 .toast {
   position: fixed;
+  inset: auto;
   bottom: 24px;
   left: 50%;
+  margin: 0;
+  border: 0;
   transform: translateX(-50%) translateY(20px);
   opacity: 0;
   background: var(--ink);
@@ -374,7 +377,7 @@ tbody tr:hover {
   border-radius: 10px;
   font-weight: 500;
   transition: 0.25s;
-  z-index: 99;
+  z-index: 9999;
   pointer-events: none;
 }
 

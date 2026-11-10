@@ -128,7 +128,7 @@ export function RecruitmentProvider({
     setToastMsg(message);
     setToastOn(true);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToastOn(false), 2400);
+    toastTimer.current = setTimeout(() => setToastOn(false), 3500);
   }, []);
 
   const logActivity = useCallback(
