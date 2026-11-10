@@ -365,11 +365,14 @@ tbody tr:hover {
 .toast {
   position: fixed;
   inset: auto;
-  bottom: 24px;
-  left: 50%;
+  top: 24px;
+  right: 24px;
+  bottom: auto;
+  left: auto;
+  max-width: min(420px, calc(100vw - 48px));
   margin: 0;
   border: 0;
-  transform: translateX(-50%) translateY(20px);
+  transform: translateY(-12px);
   opacity: 0;
   background: var(--ink);
   color: #fff;
@@ -383,7 +386,22 @@ tbody tr:hover {
 
 .toast.show {
   opacity: 1;
-  transform: translateX(-50%);
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .toast {
+    top: 16px;
+    right: auto;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    transform: translateX(-50%) translateY(-12px);
+  }
+
+  .toast.show {
+    transform: translateX(-50%);
+  }
 }
 
 .modal {
