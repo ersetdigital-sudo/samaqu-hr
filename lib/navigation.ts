@@ -349,6 +349,14 @@ export function isSubItemLive(module: NavModule, item: NavSubItem): boolean {
   return (item.status ?? module.status) === "live";
 }
 
+/** Modul siap dipakai bila modul live atau minimal satu submenunya live. */
+export function isModuleLive(module: NavModule): boolean {
+  return (
+    module.status === "live" ||
+    module.items.some((item) => isSubItemLive(module, item))
+  );
+}
+
 /** Apakah role boleh membuka submenu pada path aktif. */
 export function subItemAllowed(
   role: Role | null,

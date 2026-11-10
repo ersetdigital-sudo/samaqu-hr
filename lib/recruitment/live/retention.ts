@@ -1,5 +1,6 @@
 import type { JobApplication, JobPosting } from "./types";
 import { jakartaDate } from "./validation";
+import { formatDateID } from "@/lib/datetime";
 
 /** Single source for retention windows. */
 export const CV_RETENTION = {
@@ -93,12 +94,5 @@ export function cvRetentionWarningAt(
 }
 
 export function formatRetentionDate(value: Date | string): string {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Asia/Jakarta",
-  }).format(date);
+  return formatDateID(value);
 }

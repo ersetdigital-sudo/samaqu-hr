@@ -5,6 +5,7 @@ import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
 import { useRecruitment } from "@/components/recruitment-provider";
 import { ConfirmDialog } from "@/components/recruitment-live/ui";
+import { formatDateID, formatDateTimeID } from "@/lib/datetime";
 import { ROLE_LABELS } from "@/lib/session";
 import type { Role } from "@/lib/navigation";
 import {
@@ -16,19 +17,6 @@ import {
   type UserAccount,
 } from "@/lib/users/types";
 import "@/components/recruitment-live/live.css";
-
-const formatDate = (iso: string | null) =>
-  iso
-    ? new Date(iso).toLocaleDateString("id-ID", { dateStyle: "medium" })
-    : "—";
-
-const formatDateTime = (iso: string | null) =>
-  iso
-    ? new Date(iso).toLocaleString("id-ID", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      })
-    : "—";
 
 const statusTone = (status: AccountStatus) =>
   status === "Aktif" ? "t-ok" : status === "Diundang" ? "t-warn" : "t-bad";
@@ -304,10 +292,10 @@ export function UsersView({
                   </span>
                 </td>
                 <td className="sub whitespace-nowrap">
-                  {formatDateTime(user.lastSignInAt)}
+                  {formatDateTimeID(user.lastSignInAt)}
                 </td>
                 <td className="sub whitespace-nowrap">
-                  {formatDate(user.createdAt)}
+                  {formatDateID(user.createdAt)}
                 </td>
                 <td>
                   <div className="flex flex-wrap gap-1.5">
@@ -570,7 +558,7 @@ export function UsersView({
                   <div className="min-w-0">
                     <div className="text-[13px] font-semibold">{entry.action}</div>
                     <div className="text-[11px] sub">
-                      {formatDateTime(entry.changedAt)}
+                      {formatDateTimeID(entry.changedAt)}
                       {entry.fromValue || entry.toValue
                         ? ` · ${entry.fromValue ?? "—"} → ${entry.toValue ?? "—"}`
                         : ""}

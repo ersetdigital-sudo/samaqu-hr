@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { careersJobsHref } from "@/lib/careers/urls";
+import { formatDateID } from "@/lib/datetime";
 import styles from "./careers.module.css";
 
 const paths: Record<string, ReactNode> = {
@@ -101,16 +102,7 @@ export function CareerHeader({ otherJobs = false }: { otherJobs?: boolean }) {
 }
 
 export function formatClosingDate(value: string | null) {
-  if (!value) return "Tanpa batas waktu";
-  const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime())
-    ? value
-    : new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(date);
+  return value ? formatDateID(value) : "Tanpa batas waktu";
 }
 
 export function JobInfo({

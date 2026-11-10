@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { FieldErrors } from "@/lib/recruitment/live/types";
-import { formatRelativeID } from "@/lib/recruitment/format";
+import { formatDateID, formatRelativeID } from "@/lib/datetime";
 
 export function Icon({
   name,
@@ -80,15 +80,7 @@ export function useOrigin() {
   return origin;
 }
 export function dateLabel(value: string | null) {
-  return value
-    ? new Date(
-        value.length === 10 ? `${value}T12:00:00` : value,
-      ).toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "";
+  return value ? formatDateID(value) : "";
 }
 export function whatsappDigits(value: string) {
   const digits = value.replace(/\D/g, "");

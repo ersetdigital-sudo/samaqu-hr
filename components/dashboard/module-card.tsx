@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
-import type { NavModule } from "@/lib/navigation";
+import { isModuleLive, type NavModule } from "@/lib/navigation";
 
 export function ModuleCard({ module }: { module: NavModule }) {
-  const live = module.status === "live";
+  const live = isModuleLive(module);
   const content = (
     <>
       <div className="flex items-start justify-between gap-3">

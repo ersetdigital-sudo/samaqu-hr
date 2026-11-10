@@ -10,13 +10,8 @@ import type {
   ContractHistoryEntry,
 } from "@/lib/contracts/types";
 import { ini } from "@/lib/data";
+import { formatDateTimeID } from "@/lib/datetime";
 import { formatIsoDateID } from "@/lib/employees/format";
-
-const formatDateTime = (iso: string) =>
-  new Date(iso).toLocaleString("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 
 /** Nama field yang berubah, untuk ringkasan audit trail. */
 function changedFields(entry: ContractHistoryEntry): string[] {
@@ -280,7 +275,7 @@ export function ContractDrawer({
                             {entry.event}
                           </div>
                           <div className="text-[11px] sub">
-                            {formatDateTime(entry.changedAt)}
+                            {formatDateTimeID(entry.changedAt)}
                             {fields.length > 0
                               ? ` · ${fields.join(", ")}`
                               : ""}

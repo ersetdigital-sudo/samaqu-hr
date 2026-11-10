@@ -16,6 +16,7 @@ import {
   loadCandidateApplication,
 } from "@/lib/recruitment/live/application-cache";
 import { formatInterviewTime } from "@/lib/recruitment/live/invitation";
+import { formatWeekdayDateID } from "@/lib/datetime";
 import {
   INTERVIEW_STATUSES,
   type CandidateApplication,
@@ -31,13 +32,6 @@ const statusTone: Record<InterviewStatus, string> = {
   Dibatalkan: "t-mute",
   "Tidak hadir": "t-bad",
 };
-
-const shortDate = new Intl.DateTimeFormat("id-ID", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  timeZone: "Asia/Jakarta",
-});
 
 const isUpcoming = (interview: InterviewSchedule, now: number) =>
   interview.status === "Dijadwalkan" &&
@@ -128,7 +122,7 @@ export function JadwalView({
       width: "22%",
       render: (interview) => (
         <TwoLineCell
-          primary={shortDate.format(new Date(interview.scheduled_at))}
+          primary={formatWeekdayDateID(interview.scheduled_at)}
           secondary={`${formatInterviewTime(interview.scheduled_at)} WIB · ${interview.duration_minutes} mnt · Ronde ${interview.round_number}`}
         />
       ),

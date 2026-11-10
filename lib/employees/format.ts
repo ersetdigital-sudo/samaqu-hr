@@ -1,6 +1,6 @@
 /** Helper tanggal untuk modul Employee Management (format input: YYYY-MM-DD). */
 
-import { formatDateID } from "@/lib/recruitment/format";
+import { formatDateID } from "@/lib/datetime";
 
 export const parseIsoDate = (iso: string | null | undefined): Date | null => {
   if (!iso) return null;
@@ -11,8 +11,7 @@ export const parseIsoDate = (iso: string | null | undefined): Date | null => {
 
 /** "2026-11-03" → "03 Nov 2026" */
 export const formatIsoDateID = (iso: string | null | undefined): string => {
-  const date = parseIsoDate(iso);
-  return date ? formatDateID(date) : "—";
+  return iso ? formatDateID(iso) : "—";
 };
 
 export const isoFromDate = (date: Date): string => {

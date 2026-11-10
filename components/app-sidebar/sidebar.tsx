@@ -8,6 +8,7 @@ import {
   NAV_GROUPS,
   canAccess,
   findModuleByPath,
+  isModuleLive,
   isSubItemLive,
   visibleSubItems,
   type NavModule,
@@ -36,9 +37,7 @@ function ItemContent({
   subItems: NavSubItem[];
   open: boolean;
 }) {
-  const showSoon =
-    module.status === "planned" &&
-    !subItems.some((item) => isSubItemLive(module, item));
+  const showSoon = !isModuleLive(module);
 
   return (
     <>

@@ -6,6 +6,7 @@ import { ACADEMY_URL } from "@/lib/external-links";
 import {
   ALL_MODULES,
   canAccess,
+  isModuleLive,
   type NavModule,
 } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
@@ -149,7 +150,7 @@ export function StaffDashboard({
           <div className="flex items-center justify-between mb-4">
             <div className="font-bold text-[17px]">Modul HRIS</div>
             <span className="text-[12px] sub">
-              {modules.filter((module) => module.status === "live").length} dari{" "}
+              {modules.filter((module) => isModuleLive(module)).length} dari{" "}
               {modules.length} modul siap
             </span>
           </div>
