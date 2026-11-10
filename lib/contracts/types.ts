@@ -64,8 +64,10 @@ export type ContractHistoryEntry = {
   event: ContractEvent;
   changes: unknown;
   note: string | null;
-  /** auth.uid() aktor; `null` selama autentikasi asli belum aktif. */
+  /** auth.uid() aktor; tetap ada walau akun pelaku sudah dihapus. */
   changedBy: string | null;
+  /** Nama pelaku saat ini; null bila akunnya sudah dihapus. */
+  changedByName: string | null;
   changedAt: string;
 };
 
@@ -75,6 +77,8 @@ export type ContractDetail = {
   contracts: Contract[];
   /** Audit trail seluruh kontrak karyawan, terbaru lebih dulu. */
   history: ContractHistoryEntry[];
+  /** False bila nama pelaku gagal dimuat (UI memakai ID sebagai cadangan). */
+  actorNamesResolved: boolean;
 };
 
 /** Payload pembuatan / perubahan kontrak. */

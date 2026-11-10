@@ -24,6 +24,7 @@ export type UserAccount = {
   createdAt: string;
   canDelete: boolean;
   deleteBlockReason: string | null;
+  hasTraces: boolean;
 };
 
 export type RoleOption = {

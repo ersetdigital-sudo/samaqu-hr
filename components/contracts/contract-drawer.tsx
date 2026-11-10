@@ -285,7 +285,12 @@ export function ContractDrawer({
                               ? ` · ${fields.join(", ")}`
                               : ""}
                             {entry.changedBy
-                              ? ` · oleh ${entry.changedBy.slice(0, 8)}`
+                              ? ` · oleh ${
+                                  entry.changedByName ??
+                                  (detail.actorNamesResolved
+                                    ? "Pengguna terhapus"
+                                    : entry.changedBy.slice(0, 8))
+                                }`
                               : ""}
                           </div>
                           {entry.note && (

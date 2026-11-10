@@ -79,11 +79,17 @@ export async function listUsers(): Promise<UserAccount[]> {
   if (profileResult.error) throw new UserDataError("Gagal memuat pengguna", 500);
 
   const blockersByUser = new Map<string, string[]>();
+  const tracesByUser = new Map<string, boolean>();
+  const loginByUser = new Map<string, string | null>();
   for (const row of (deletionResult.data ?? []) as unknown as {
     user_id: string;
     blockers: string[] | null;
+    has_traces: boolean | null;
+    last_sign_in_at: string | null;
   }[]) {
     blockersByUser.set(row.user_id, row.blockers ?? []);
+    tracesByUser.set(row.user_id, Boolean(row.has_traces));
+    loginByUser.set(row.user_id, row.last_sign_in_at);
   }
   const deletionReady = !deletionResult.error;
 
@@ -122,7 +128,7 @@ export async function listUsers(): Promise<UserAccount[]> {
       employeeName: row.employee_id
         ? nameByEmployee.get(row.employee_id) ?? null
         : null,
-      lastSignInAt: row.last_sign_in_at,
+      lastSignInAt: loginByUser.get(row.id) ?? row.last_sign_in_at,
       createdAt: row.created_at,
       canDelete,
       deleteBlockReason: canDelete
@@ -130,6 +136,7 @@ export async function listUsers(): Promise<UserAccount[]> {
         : deletionReady
           ? blockers?.[0] ?? "Kelayakan hapus belum tersedia"
           : "Pemeriksaan hapus akun tidak tersedia",
+      hasTraces: tracesByUser.get(row.id) ?? false,
     };
   });
 }
@@ -364,6 +371,7 @@ type DeletionCheck = {
   email?: string;
   roles?: string[];
   employee_id?: string | null;
+  account_status?: string;
   blockers?: string[];
 };
 
@@ -414,6 +422,7 @@ export async function deleteUserAccount(
       email: info.email ?? "—",
       roles: info.roles ?? [],
       employee_id: info.employee_id ?? null,
+      account_status: info.account_status ?? "Tidak diketahui",
       deleted_by: actorId,
       deleted_by_name:
         (actor as { full_name: string } | null)?.full_name ?? null,

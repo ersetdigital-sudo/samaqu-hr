@@ -593,7 +593,11 @@ export function UsersView({
         <div className="rl">
           <ConfirmDialog
             title="Hapus akun?"
-            description={`Akun ${deleteTarget.fullName} (${deleteTarget.email}) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`}
+            description={`Akun ${deleteTarget.fullName} (${deleteTarget.email}) akan dihapus permanen.${
+              deleteTarget.hasTraces
+                ? " Nama akun ini pada data lama (jadwal, evaluasi, jejak perubahan) akan tampil sebagai Pengguna terhapus."
+                : ""
+            } Tindakan ini tidak bisa dibatalkan.`}
             confirmLabel="Ya, hapus"
             danger
             busy={deleting}

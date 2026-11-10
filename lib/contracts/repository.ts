@@ -116,7 +116,10 @@ const toEmployeeRef = (row: EmployeeOptionRow): ContractEmployeeRef => ({
   status: row.status,
 });
 
-const toHistory = (row: HistoryRow): ContractHistoryEntry => ({
+const toHistory = (
+  row: HistoryRow,
+  nameById: Map<string, string>
+): ContractHistoryEntry => ({
   id: row.id,
   contractId: row.contract_id,
   employeeId: row.employee_id,
@@ -124,6 +127,9 @@ const toHistory = (row: HistoryRow): ContractHistoryEntry => ({
   changes: row.changes,
   note: row.note,
   changedBy: row.changed_by,
+  changedByName: row.changed_by
+    ? nameById.get(row.changed_by) ?? null
+    : null,
   changedAt: row.changed_at,
 });
 
@@ -254,10 +260,39 @@ export async function getEmployeeContracts(
     throw mapDbError(historyResult.error, "memuat jejak perubahan");
   }
 
+  const historyRows = (historyResult.data ?? []) as HistoryRow[];
+  const actorIds = [
+    ...new Set(
+      historyRows
+        .map((row) => row.changed_by)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+  const nameById = new Map<string, string>();
+  let actorNamesResolved = true;
+
+  if (actorIds.length > 0) {
+    const { data: actors, error: actorError } = await supabase.rpc(
+      "user_full_names",
+      { p_ids: actorIds }
+    );
+    if (actorError) {
+      actorNamesResolved = false;
+    } else {
+      for (const actor of (actors ?? []) as {
+        id: string;
+        full_name: string;
+      }[]) {
+        nameById.set(actor.id, actor.full_name);
+      }
+    }
+  }
+
   return {
     employee,
     contracts: ((contractResult.data ?? []) as ContractRow[]).map(toContract),
-    history: ((historyResult.data ?? []) as HistoryRow[]).map(toHistory),
+    history: historyRows.map((row) => toHistory(row, nameById)),
+    actorNamesResolved,
   };
 }
 
