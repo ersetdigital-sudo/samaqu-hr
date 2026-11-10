@@ -22,6 +22,8 @@ export type UserAccount = {
   employeeName: string | null;
   lastSignInAt: string | null;
   createdAt: string;
+  canDelete: boolean;
+  deleteBlockReason: string | null;
 };
 
 export type RoleOption = {

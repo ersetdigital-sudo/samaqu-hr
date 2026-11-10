@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireApiRole } from "@/lib/auth/guard";
-import { UserDataError, updateUser } from "@/lib/users/repository";
+import {
+  UserDataError,
+  deleteUserAccount,
+  updateUser,
+} from "@/lib/users/repository";
 import { validateUserUpdate } from "@/lib/users/validation";
 import type { AccountStatus, UserUpdateInput } from "@/lib/users/types";
 import type { Role } from "@/lib/navigation";
@@ -41,5 +45,33 @@ export async function PATCH(
     }
     console.error("[users] gagal memperbarui pengguna", error);
     return NextResponse.json({ error: "Gagal memperbarui pengguna" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const guard = await requireApiRole(["admin"]);
+  if (guard.response) return guard.response;
+
+  try {
+    const origin = request.headers.get("origin");
+    if (origin && origin !== new URL(request.url).origin) {
+      return NextResponse.json(
+        { error: "Asal permintaan tidak valid" },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await params;
+    const result = await deleteUserAccount(id, guard.user.id);
+    return NextResponse.json({ ok: true, name: result.name });
+  } catch (error) {
+    if (error instanceof UserDataError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error("[users] gagal menghapus akun", error);
+    return NextResponse.json({ error: "Gagal menghapus akun" }, { status: 500 });
   }
 }

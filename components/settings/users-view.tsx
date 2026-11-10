@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
 import { useRecruitment } from "@/components/recruitment-provider";
+import { ConfirmDialog } from "@/components/recruitment-live/ui";
 import { ROLE_LABELS } from "@/lib/session";
 import type { Role } from "@/lib/navigation";
 import {
@@ -14,6 +15,7 @@ import {
   type UserAccessEntry,
   type UserAccount,
 } from "@/lib/users/types";
+import "@/components/recruitment-live/live.css";
 
 const formatDate = (iso: string | null) =>
   iso
@@ -74,6 +76,9 @@ export function UsersView({
     user: UserAccount;
     entries: UserAccessEntry[];
   } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UserAccount | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase();
@@ -202,6 +207,39 @@ export function UsersView({
     }
   };
 
+  const requestDelete = (user: UserAccount) => {
+    setDeleteError("");
+    setDeleteTarget(user);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const response = await fetch(`/api/users/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      const data = (await response.json().catch(() => null)) as {
+        error?: string;
+        name?: string;
+      } | null;
+      if (!response.ok)
+        throw new Error(data?.error ?? "Gagal menghapus akun pengguna");
+
+      await refresh();
+      setDeleteTarget(null);
+      toast(`Akun ${data?.name ?? deleteTarget.fullName} dihapus`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Gagal menghapus akun pengguna";
+      setDeleteError(message);
+      toast(message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <>
       <PageHead
@@ -302,6 +340,29 @@ export function UsersView({
                     >
                       Riwayat
                     </button>
+                    <button
+                      className="btn btn-g !py-1 !px-2.5 !text-[11px]"
+                      style={{ color: "var(--bad)" }}
+                      onClick={() => requestDelete(user)}
+                      disabled={busyId === user.id || deleting || !user.canDelete}
+                      title={
+                        user.canDelete
+                          ? "Hapus akun"
+                          : user.deleteBlockReason ?? "Tidak dapat dihapus"
+                      }
+                      aria-label={
+                        user.canDelete
+                          ? `Hapus akun ${user.fullName}`
+                          : `Tidak dapat menghapus ${user.fullName}: ${user.deleteBlockReason}`
+                      }
+                    >
+                      Hapus
+                    </button>
+                    {!user.canDelete && user.deleteBlockReason && (
+                      <div className="text-[10px] sub w-full">
+                        {user.deleteBlockReason}
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -525,6 +586,23 @@ export function UsersView({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="rl">
+          <ConfirmDialog
+            title="Hapus akun?"
+            description={`Akun ${deleteTarget.fullName} (${deleteTarget.email}) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`}
+            confirmLabel="Ya, hapus"
+            danger
+            busy={deleting}
+            error={deleteError}
+            onClose={() => {
+              if (!deleting) setDeleteTarget(null);
+            }}
+            onConfirm={() => void confirmDelete()}
+          />
         </div>
       )}
     </>

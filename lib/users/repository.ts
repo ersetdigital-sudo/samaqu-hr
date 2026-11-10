@@ -9,7 +9,7 @@
  * ke nama role yang terdaftar, tidak pernah dipercaya sebagai otoritas.
  */
 
-import { getServiceSupabase } from "@/lib/supabase/server";
+import { getServerSupabase, getServiceSupabase } from "@/lib/supabase/server";
 import type { Role } from "@/lib/navigation";
 import {
   MANAGEABLE_ROLES,
@@ -61,19 +61,31 @@ const baseUrl = (origin: string) => origin.replace(/\/$/, "");
 
 export async function listUsers(): Promise<UserAccount[]> {
   const supabase = getServiceSupabase();
+  const userClient = await getServerSupabase();
 
-  const [profileResult, roleResult, employeeResult] = await Promise.all([
-    supabase
-      .from("user_profiles")
-      .select(
-        "id, full_name, email, account_status, employee_id, last_sign_in_at, created_at"
-      )
-      .order("created_at", { ascending: false }),
-    supabase.from("user_roles").select("user_id, roles(name)"),
-    supabase.from("employees").select("id, full_name"),
-  ]);
+  const [profileResult, roleResult, employeeResult, deletionResult] =
+    await Promise.all([
+      supabase
+        .from("user_profiles")
+        .select(
+          "id, full_name, email, account_status, employee_id, last_sign_in_at, created_at"
+        )
+        .order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("user_id, roles(name)"),
+      supabase.from("employees").select("id, full_name"),
+      userClient.rpc("account_deletion_overview"),
+    ]);
 
   if (profileResult.error) throw new UserDataError("Gagal memuat pengguna", 500);
+
+  const blockersByUser = new Map<string, string[]>();
+  for (const row of (deletionResult.data ?? []) as unknown as {
+    user_id: string;
+    blockers: string[] | null;
+  }[]) {
+    blockersByUser.set(row.user_id, row.blockers ?? []);
+  }
+  const deletionReady = !deletionResult.error;
 
   const roleByUser = new Map<string, Role>();
   ((roleResult.data ?? []) as unknown as {
@@ -96,19 +108,30 @@ export async function listUsers(): Promise<UserAccount[]> {
     )
   );
 
-  return ((profileResult.data ?? []) as ProfileRow[]).map((row) => ({
-    id: row.id,
-    fullName: row.full_name,
-    email: row.email,
-    role: roleByUser.get(row.id) ?? null,
-    accountStatus: row.account_status,
-    employeeId: row.employee_id,
-    employeeName: row.employee_id
-      ? nameByEmployee.get(row.employee_id) ?? null
-      : null,
-    lastSignInAt: row.last_sign_in_at,
-    createdAt: row.created_at,
-  }));
+  return ((profileResult.data ?? []) as ProfileRow[]).map((row) => {
+    const blockers = blockersByUser.get(row.id);
+    const canDelete =
+      deletionReady && Array.isArray(blockers) && blockers.length === 0;
+    return {
+      id: row.id,
+      fullName: row.full_name,
+      email: row.email,
+      role: roleByUser.get(row.id) ?? null,
+      accountStatus: row.account_status,
+      employeeId: row.employee_id,
+      employeeName: row.employee_id
+        ? nameByEmployee.get(row.employee_id) ?? null
+        : null,
+      lastSignInAt: row.last_sign_in_at,
+      createdAt: row.created_at,
+      canDelete,
+      deleteBlockReason: canDelete
+        ? null
+        : deletionReady
+          ? blockers?.[0] ?? "Kelayakan hapus belum tersedia"
+          : "Pemeriksaan hapus akun tidak tersedia",
+    };
+  });
 }
 
 export async function listRoleOptions(): Promise<RoleOption[]> {
@@ -330,6 +353,96 @@ export async function sendPasswordReset(
       400
     );
   }
+}
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+type DeletionCheck = {
+  exists?: boolean;
+  full_name?: string;
+  email?: string;
+  roles?: string[];
+  employee_id?: string | null;
+  blockers?: string[];
+};
+
+/**
+ * Hapus akun hanya jika belum pernah login dan belum meninggalkan jejak.
+ * Urutan: cek DB -> snapshot audit -> hapus auth (cascade profil/role).
+ * Bila hapus auth gagal, snapshot dibatalkan agar audit tidak menyesatkan.
+ */
+export async function deleteUserAccount(
+  userId: string,
+  actorId: string
+): Promise<{ name: string }> {
+  if (!UUID_PATTERN.test(userId))
+    throw new UserDataError("Pengguna tidak ditemukan", 404);
+
+  const userClient = await getServerSupabase();
+  const service = getServiceSupabase();
+
+  const { data: check, error: checkError } = await userClient.rpc(
+    "account_deletion_check",
+    { p_user_id: userId }
+  );
+
+  if (checkError) {
+    if (checkError.code === "42501")
+      throw new UserDataError("Akses ditolak", 403);
+    throw new UserDataError("Gagal memeriksa kelayakan hapus akun", 500);
+  }
+
+  const info = check as DeletionCheck | null;
+  if (!info?.exists) throw new UserDataError("Pengguna tidak ditemukan", 404);
+
+  const blockers = info.blockers ?? [];
+  if (blockers.length > 0)
+    throw new UserDataError(blockers.join(". "), 409);
+
+  const { data: actor } = await service
+    .from("user_profiles")
+    .select("full_name, email")
+    .eq("id", actorId)
+    .maybeSingle();
+
+  const { data: logRow, error: logError } = await service
+    .from("account_deletion_log")
+    .insert({
+      user_id: userId,
+      full_name: info.full_name ?? "—",
+      email: info.email ?? "—",
+      roles: info.roles ?? [],
+      employee_id: info.employee_id ?? null,
+      deleted_by: actorId,
+      deleted_by_name:
+        (actor as { full_name: string } | null)?.full_name ?? null,
+      deleted_by_email: (actor as { email: string } | null)?.email ?? null,
+    })
+    .select("id")
+    .single();
+
+  if (logError)
+    throw new UserDataError(
+      "Gagal mencatat audit penghapusan. Akun belum dihapus.",
+      500
+    );
+
+  const { error: deleteError } = await service.auth.admin.deleteUser(userId);
+
+  if (deleteError) {
+    console.error("[users] gagal menghapus akun", deleteError);
+    await service
+      .from("account_deletion_log")
+      .delete()
+      .eq("id", (logRow as { id: number }).id);
+    throw new UserDataError(
+      "Gagal menghapus akun. Akun belum dihapus; muat ulang lalu coba lagi.",
+      500
+    );
+  }
+
+  return { name: info.full_name ?? info.email ?? "Akun" };
 }
 
 export async function getUserHistory(userId: string): Promise<UserAccessEntry[]> {
