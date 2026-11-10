@@ -25,15 +25,25 @@ type ProfileRow = {
   employee_id: string | null;
 };
 
-/**
- * Pengguna terautentikasi dengan akun Aktif dan role valid, atau `null`.
- * Akun Nonaktif / Diundang / tanpa role dianggap tidak punya akses.
- */
-export const getAuthUser = cache(async (): Promise<SessionUser | null> => {
+/** User Supabase Auth mentah; dipakai untuk membedakan "tanpa sesi" dan "sesi tanpa akses". */
+const getSupabaseAuthUser = cache(async () => {
   const supabase = await getServerSupabase();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  return user;
+});
+
+/**
+ * Pengguna terautentikasi dengan akun Aktif dan role valid, atau `null`.
+ * Akun Nonaktif / Diundang / tanpa role dianggap tidak punya akses.
+ *
+ * Akun Diundang yang sudah punya sesi (berhasil login pertama kali)
+ * diaktifkan lewat RPC server-side, hanya untuk baris miliknya sendiri.
+ */
+export const getAuthUser = cache(async (): Promise<SessionUser | null> => {
+  const supabase = await getServerSupabase();
+  const user = await getSupabaseAuthUser();
 
   if (!user) return null;
 
@@ -49,7 +59,25 @@ export const getAuthUser = cache(async (): Promise<SessionUser | null> => {
     supabase.from("user_roles").select("roles(name)").eq("user_id", user.id),
   ]);
 
-  const profile = profileResult.data as ProfileRow | null;
+  let profile = profileResult.data as ProfileRow | null;
+
+  if (profile?.account_status === "Diundang") {
+    const { data: activated, error: activationError } = await supabase.rpc(
+      "activate_invited_user",
+    );
+    if (!activationError && activated === true) {
+      profile = { ...profile, account_status: "Aktif" };
+    } else if (!activationError) {
+      // Bisa terjadi bila request paralel lebih dulu mengaktifkan akun ini.
+      const { data: refreshed } = await supabase
+        .from("user_profiles")
+        .select("full_name, email, account_status, employee_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (refreshed) profile = refreshed as ProfileRow;
+    }
+  }
+
   if (!profile || profile.account_status !== "Aktif") return null;
 
   // PostgREST mengembalikan relasi sebagai objek (many-to-one) atau array
@@ -82,6 +110,9 @@ export const getAuthUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(nextPath?: string): Promise<SessionUser> {
   const user = await getAuthUser();
   if (!user) {
+    // Sesi ada tetapi akun tidak berhak masuk: tampilkan halaman penjelasan,
+    // bukan /login (proxy akan memantulkan pengguna ber-sesi kembali ke "/").
+    if (await getSupabaseAuthUser()) redirect("/akun-tidak-aktif");
     redirect(
       nextPath
         ? `/login?next=${encodeURIComponent(nextPath)}`

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
 export default function UnauthorizedPage() {
   return (
