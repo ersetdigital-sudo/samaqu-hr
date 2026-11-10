@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRecruitment } from "@/components/recruitment-provider";
 import { STAGES } from "@/lib/data";
 import type {
   ApplicationPage,
@@ -18,6 +19,7 @@ import {
   initials,
   money,
   relativeTime,
+  StageConfirmDialog,
   whatsappDigits,
 } from "./ui";
 import {
@@ -50,6 +52,7 @@ export function Applicants({
   canConvert: boolean;
 }) {
   const router = useRouter();
+  const { toast } = useRecruitment();
   const [data, setData] = useState(initial);
   const [filter, setFilter] = useState<Filter>({
     search: "",
@@ -72,6 +75,7 @@ export function Applicants({
   } | null>(null);
   const [stageError, setStageError] = useState("");
   const [stageBusy, setStageBusy] = useState(false);
+  const [pendingStage, setPendingStage] = useState<string | null>(null);
   const stageBusyRef = useRef(false);
   const [reject, setReject] = useState<JobApplication | null>(null);
   const [conversionTarget, setConversionTarget] =
@@ -260,7 +264,13 @@ export function Applicants({
     setStageBusy(true);
     setStageError("");
     try {
-      if (!(await notes.flush())) return;
+      if (!(await notes.flush())) {
+        setStageError(
+          "Catatan belum tersimpan. Coba lagi sebelum memindah tahap.",
+        );
+        toast("Gagal memindah tahap: catatan belum tersimpan.");
+        return;
+      }
       const result = await api<{ application: JobApplication }>(
         `/api/recruitment/applications/${application.id}`,
         { method: "PATCH", body: JSON.stringify({ stage }) },
@@ -272,6 +282,8 @@ export function Applicants({
         cv_deleted_at: result.application.cv_deleted_at,
       });
       setReject(null);
+      setPendingStage(null);
+      toast(`${application.full_name} dipindah ke ${stage}`);
       if (
         canConvert &&
         result.application.stage === "Diterima" &&
@@ -281,11 +293,12 @@ export function Applicants({
       await load(filterRef.current);
       router.refresh();
     } catch (cause) {
-      setStageError(
+      const message =
         cause instanceof Error
           ? cause.message
-          : "Tahap pelamar gagal diperbarui.",
-      );
+          : "Tahap pelamar gagal diperbarui.";
+      setStageError(message);
+      toast(`Gagal memindah tahap: ${message}`);
     } finally {
       stageBusyRef.current = false;
       if (mounted.current) setStageBusy(false);
@@ -665,6 +678,7 @@ export function Applicants({
                   }
                   onClick={() => {
                     setStageError("");
+                    setPendingStage(null);
                     setReject(selected);
                   }}
                 >
@@ -677,7 +691,10 @@ export function Applicants({
                     stageBusy || !nextStage || selected.stage === "Diterima"
                   }
                   onClick={() => {
-                    if (nextStage) void changeStage(selected, nextStage);
+                    if (!nextStage) return;
+                    setStageError("");
+                    setReject(null);
+                    setPendingStage(nextStage);
                   }}
                 >
                   {stageBusy
@@ -716,6 +733,20 @@ export function Applicants({
           error={stageError || (notes.status === "error" ? notes.error : "")}
           onClose={() => setReject(null)}
           onConfirm={() => void changeStage(reject, "Ditolak")}
+        />
+      )}
+
+      {pendingStage && selected && (
+        <StageConfirmDialog
+          applicationName={selected.full_name}
+          from={selected.stage}
+          to={pendingStage}
+          busy={stageBusy}
+          error={stageError}
+          onClose={() => {
+            if (!stageBusy) setPendingStage(null);
+          }}
+          onConfirm={() => void changeStage(selected, pendingStage)}
         />
       )}
     </div>

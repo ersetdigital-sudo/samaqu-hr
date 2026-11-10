@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRecruitment } from "@/components/recruitment-provider";
 import type {
   CandidateApplication,
   JobApplication,
@@ -19,6 +20,7 @@ import {
   initials,
   Modal,
   relativeTime,
+  StageConfirmDialog,
   whatsappDigits,
 } from "./ui";
 import { useApplicationNotes } from "./use-application-notes";
@@ -46,8 +48,10 @@ export function CandidateDetailModal({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const { toast } = useRecruitment();
   const [stageBusy, setStageBusy] = useState(false);
   const [stageError, setStageError] = useState("");
+  const [pendingStage, setPendingStage] = useState<string | null>(null);
   const [reject, setReject] = useState(false);
   const [conversionTarget, setConversionTarget] =
     useState<JobApplication | null>(null);
@@ -65,7 +69,13 @@ export function CandidateDetailModal({
     setStageBusy(true);
     setStageError("");
     try {
-      if (!(await notes.flush())) return;
+      if (!(await notes.flush())) {
+        setStageError(
+          "Catatan belum tersimpan. Coba lagi sebelum memindah tahap.",
+        );
+        toast("Gagal memindah tahap: catatan belum tersimpan.");
+        return;
+      }
       const result = await api<{ application: JobApplication }>(
         `/api/recruitment/applications/${application.id}`,
         { method: "PATCH", body: JSON.stringify({ stage }) },
@@ -76,6 +86,8 @@ export function CandidateDetailModal({
         cv_deleted_at: result.application.cv_deleted_at,
       });
       setReject(false);
+      setPendingStage(null);
+      toast(`${application.full_name} dipindah ke ${stage}`);
       if (
         canConvert &&
         result.application.stage === "Diterima" &&
@@ -84,11 +96,12 @@ export function CandidateDetailModal({
         setConversionTarget(result.application);
       router.refresh();
     } catch (cause) {
-      setStageError(
+      const message =
         cause instanceof Error
           ? cause.message
-          : "Tahap pelamar gagal diperbarui.",
-      );
+          : "Tahap pelamar gagal diperbarui.";
+      setStageError(message);
+      toast(`Gagal memindah tahap: ${message}`);
     } finally {
       setStageBusy(false);
     }
@@ -259,6 +272,7 @@ export function CandidateDetailModal({
               }
               onClick={() => {
                 setStageError("");
+                setPendingStage(null);
                 setReject(true);
               }}
             >
@@ -271,7 +285,10 @@ export function CandidateDetailModal({
                 stageBusy || !nextStage || application.stage === "Diterima"
               }
               onClick={() => {
-                if (nextStage) void changeStage(nextStage);
+                if (!nextStage) return;
+                setStageError("");
+                setReject(false);
+                setPendingStage(nextStage);
               }}
             >
               {stageBusy
@@ -300,6 +317,20 @@ export function CandidateDetailModal({
           error={stageError || (notes.status === "error" ? notes.error : "")}
           onClose={() => setReject(false)}
           onConfirm={() => void changeStage("Ditolak")}
+        />
+      )}
+
+      {pendingStage && (
+        <StageConfirmDialog
+          applicationName={application.full_name}
+          from={application.stage}
+          to={pendingStage}
+          busy={stageBusy}
+          error={stageError}
+          onClose={() => {
+            if (!stageBusy) setPendingStage(null);
+          }}
+          onConfirm={() => void changeStage(pendingStage)}
         />
       )}
     </>

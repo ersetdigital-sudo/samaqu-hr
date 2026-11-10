@@ -312,6 +312,39 @@ export function ConfirmDialog({
     </Modal>
   );
 }
+export function StageConfirmDialog({
+  applicationName,
+  from,
+  to,
+  busy,
+  error,
+  onConfirm,
+  onClose,
+}: {
+  applicationName: string;
+  from: string;
+  to: string;
+  busy: boolean;
+  error?: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  const finalNote =
+    to === "Diterima"
+      ? " Tahap Diterima bersifat final dan tidak bisa dibatalkan."
+      : "";
+  return (
+    <ConfirmDialog
+      title="Pindahkan tahap?"
+      description={`Pindahkan ${applicationName} dari ${from} ke ${to}?${finalNote}`}
+      confirmLabel="Ya, pindahkan"
+      busy={busy}
+      error={error}
+      onConfirm={onConfirm}
+      onClose={onClose}
+    />
+  );
+}
 export function ErrorBox({
   message,
   retry,
