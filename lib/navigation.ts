@@ -125,7 +125,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "laporan",
             label: "Laporan",
             href: "/recruitment/laporan",
-            status: "planned",
+            status: "live",
           },
         ],
       },

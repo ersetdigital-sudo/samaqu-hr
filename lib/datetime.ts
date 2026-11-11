@@ -178,3 +178,16 @@ export function formatDayLabelID(date: Date, now: Date): string {
     .toUpperCase();
   return `${day} ${Number(parts.day)}`;
 }
+
+/** Awal hari kalender WIB sebagai Date absolut. */
+export function startOfJakartaDay(value: Date = new Date()): Date {
+  const parts = jakartaParts(value);
+  if (!parts) return value;
+  return new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00+07:00`);
+}
+
+/** "2026-11-10" — tanggal kalender WIB untuk nama berkas. */
+export function isoDateJakarta(value: Date = new Date()): string {
+  const parts = jakartaParts(value);
+  return parts ? `${parts.year}-${parts.month}-${parts.day}` : "";
+}
