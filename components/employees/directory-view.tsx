@@ -50,6 +50,7 @@ export function DirectoryView({
   converted = false,
   conversion = null,
   conversionError = null,
+  todayIso,
 }: {
   initialEmployees: EmployeeSummary[];
   initialNextId: string;
@@ -61,6 +62,7 @@ export function DirectoryView({
     warning: string | null;
   } | null;
   conversionError?: string | null;
+  todayIso: string;
 }) {
   const { toast } = useRecruitment();
   const [rows, setRows] = useState<EmployeeSummary[]>(initialEmployees);
@@ -412,6 +414,7 @@ export function DirectoryView({
 
       <EmployeeDrawer
         employeeId={detailId}
+        todayIso={todayIso}
         preview={
           detailId
             ? rows.find((row) => row.id === detailId) ?? null

@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ALL_MODULES,
-  canAccess,
   findModuleByPath,
   isSubItemLive,
+  moduleVisibleFor,
   visibleSubItems,
 } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
@@ -30,7 +30,9 @@ export function MobileTabs({ user }: { user: SessionUser }) {
         className="flex gap-1 overflow-auto no-scrollbar px-3 py-2"
         id="mnav"
       >
-        {ALL_MODULES.filter((module) => canAccess(user.role, module)).map(
+        {ALL_MODULES.filter((module) =>
+          moduleVisibleFor(user.role, module, user.employeeId),
+        ).map(
           (module) =>
             module.external ? (
               <a

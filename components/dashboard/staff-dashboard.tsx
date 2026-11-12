@@ -7,6 +7,7 @@ import {
   ALL_MODULES,
   canAccess,
   isModuleLive,
+  moduleVisibleFor,
   type NavModule,
 } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
@@ -34,7 +35,7 @@ export function StaffDashboard({
     (module: NavModule) =>
       module.id !== "dashboard" &&
       !module.external &&
-      canAccess(user.role, module)
+      moduleVisibleFor(user.role, module, user.employeeId)
   );
   const externalModules = ALL_MODULES.filter(
     (module) => module.external && canAccess(user.role, module)

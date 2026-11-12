@@ -6,10 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import {
   NAV_GROUPS,
-  canAccess,
   findModuleByPath,
   isModuleLive,
   isSubItemLive,
+  moduleVisibleFor,
   visibleSubItems,
   type NavModule,
   type NavSubItem,
@@ -183,7 +183,7 @@ export function Sidebar({
       <div className={`${styles.navScroll} no-scrollbar`}>
         {NAV_GROUPS.map((group) => {
           const modules = group.modules.filter((module) =>
-            canAccess(user.role, module),
+            moduleVisibleFor(user.role, module, user.employeeId),
           );
           if (modules.length === 0) return null;
 

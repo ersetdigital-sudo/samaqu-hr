@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
+import { EmployeeDocumentsPanel } from "@/components/documents/employee-documents-panel";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { ini } from "@/lib/data";
@@ -40,12 +41,14 @@ function Section({
 export function EmployeeDrawer({
   employeeId,
   preview = null,
+  todayIso,
   onClose,
   onEdit,
   onChanged,
 }: {
   employeeId: string | null;
   preview?: EmployeeSummary | null;
+  todayIso: string;
   onClose: () => void;
   onEdit: (detail: EmployeeDetail) => void;
   onChanged: (message: string) => void;
@@ -303,6 +306,15 @@ export function EmployeeDrawer({
                       Kelola kontrak
                     </Link>
                   </div>
+                </Section>
+
+                <Section title="Dokumen & Berkas">
+                  <EmployeeDocumentsPanel
+                    employeeId={detail.id}
+                    todayIso={todayIso}
+                    showHeading={false}
+                    onMutated={(message) => onChanged(message)}
+                  />
                 </Section>
 
                 {detail.status === "Nonaktif" && (

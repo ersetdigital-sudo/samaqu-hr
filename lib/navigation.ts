@@ -34,6 +34,8 @@ export type NavModule = {
   /** `live` sudah punya halaman fungsional, `planned` masih kerangka. */
   status: "live" | "planned";
   roles: Role[];
+  /** Hanya tampil untuk akun karyawan yang tertaut ke data karyawan. */
+  employeeSelf?: boolean;
   items: NavSubItem[];
 };
 
@@ -56,6 +58,17 @@ export const NAV_GROUPS: NavGroup[] = [
         description: "Ringkasan lintas modul HRIS Samaqu.",
         status: "live",
         roles: ["admin", "hr_manager", "recruiter", "employee"],
+        items: [],
+      },
+      {
+        id: "dokumen-saya",
+        label: "Dokumen Saya",
+        icon: "file",
+        href: "/dokumen-saya",
+        description: "Dokumen pribadi karyawan yang diunggah HR.",
+        status: "live",
+        roles: ["employee"],
+        employeeSelf: true,
         items: [],
       },
       {
@@ -88,6 +101,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "dokumen",
             label: "Dokumen & Berkas",
             href: "/employees/dokumen",
+            status: "live",
           },
           {
             id: "mutasi",
@@ -331,6 +345,16 @@ export const canManageEmployees = (role: Role | null): boolean =>
 /** Role yang boleh membuka modul. */
 export function canAccess(role: Role | null, module: NavModule): boolean {
   return role !== null && (isSuperuser(role) || module.roles.includes(role));
+}
+
+/** Visibilitas modul di navigasi, termasuk modul pribadi karyawan tertaut. */
+export function moduleVisibleFor(
+  role: Role | null,
+  module: NavModule,
+  employeeId: string | null,
+): boolean {
+  if (module.employeeSelf) return role === "employee" && Boolean(employeeId);
+  return canAccess(role, module);
 }
 
 /** Submenu yang terlihat oleh role tertentu. */

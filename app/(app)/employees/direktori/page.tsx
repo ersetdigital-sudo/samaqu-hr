@@ -1,5 +1,6 @@
 import { DirectoryView } from "@/components/employees/directory-view";
 import { requireRole } from "@/lib/auth/session";
+import { isoDateJakarta } from "@/lib/datetime";
 import { buildEmployeePrefill } from "@/lib/employees/conversion";
 import {
   findEmployeeByNameAndBirthDate,
@@ -81,6 +82,7 @@ export default async function EmployeeDirectoryPage({
       converted={converted}
       conversion={conversion}
       conversionError={conversionError}
+      todayIso={isoDateJakarta()}
     />
   );
 }

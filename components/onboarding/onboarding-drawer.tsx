@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/recruitment-live/ui";
 import { formatDateID } from "@/lib/datetime";
@@ -23,6 +24,7 @@ function CheckIcon() {
 
 function ChecklistRow({
   item,
+  employeeId,
   busy,
   onToggle,
   onDateChange,
@@ -30,6 +32,7 @@ function ChecklistRow({
   onDelete,
 }: {
   item: OnboardingItem;
+  employeeId: string;
   busy: boolean;
   onToggle: (item: OnboardingItem) => void;
   onDateChange: (item: OnboardingItem, value: string) => void;
@@ -67,6 +70,15 @@ function ChecklistRow({
           >
             {item.label}
           </div>
+
+          {item.label === "Kelengkapan berkas" && (
+            <Link
+              className="text-[11px] font-semibold underline mt-1 inline-block"
+              href={`/employees/dokumen?employee=${encodeURIComponent(employeeId)}`}
+            >
+              Buka Dokumen &amp; Berkas
+            </Link>
+          )}
 
           {item.done && (
             <div className="flex items-center gap-2 mt-2">
@@ -308,6 +320,7 @@ export function OnboardingDrawer({
                 <ChecklistRow
                   key={item.id}
                   item={item}
+                  employeeId={entry.employeeId}
                   busy={busyId === item.id}
                   onToggle={(row) =>
                     void patchItem(
