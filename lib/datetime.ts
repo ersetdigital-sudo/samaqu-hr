@@ -95,6 +95,19 @@ export function formatClockID(value: Date | string): string {
   return parts ? `${parts.hour}:${parts.minute}` : "—";
 }
 
+/** "09:41:07" WIB — jam berjalan di halaman Absensi. */
+export function formatClockSecondsID(value: Date | string): string {
+  const date = toDate(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: APP_TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+}
+
 /** "13 Nov 2026, 09:41" WIB. */
 export function formatDateTimeID(
   value: Date | string | null | undefined
