@@ -6,6 +6,7 @@ import { DEPARTMENTS } from "@/lib/employees/types";
 import { requireRole } from "@/lib/auth/session";
 import {
   APPLICATION_STAGES,
+  type ApplicationContactInput,
   type ApplicationEmployeeSource,
   type ApplicationPage,
   type CandidateApplication,
@@ -15,6 +16,11 @@ import {
   type JobPosting,
   type JobSummary,
 } from "@/lib/recruitment/live/types";
+import {
+  contactFromApplication,
+  hasContactChanges,
+  normalizeContactInput,
+} from "./contact";
 import {
   effectiveStatus,
   recordOf,
@@ -302,6 +308,82 @@ export async function updateApplication(
   if (!data) throw new RecruitmentError("Pelamar tidak ditemukan", 404);
   return data as JobApplication;
 }
+export async function updateApplicationContact(
+  id: string,
+  input: ApplicationContactInput
+): Promise<ApplicationContactInput> {
+  assertId(id);
+  const db = await getServerSupabase();
+  const { data: current, error } = await db
+    .from("job_applications")
+    .select("full_name,whatsapp,email,city,employee_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) dbFailure(error);
+  if (!current) throw new RecruitmentError("Pelamar tidak ditemukan", 404);
+
+  const row = current as {
+    full_name: string;
+    whatsapp: string;
+    email: string;
+    city: string;
+    employee_id: string | null;
+  };
+
+  if (row.employee_id)
+    throw new RecruitmentError(
+      "Data sudah menjadi data karyawan, koreksi lewat Direktori Karyawan",
+      409
+    );
+
+  const normalized = normalizeContactInput(input);
+  if (!hasContactChanges(contactFromApplication(row), normalized))
+    throw new RecruitmentError("Tidak ada perubahan data", 400);
+
+  const { data, error: rpcError } = await db.rpc(
+    "update_application_contact",
+    {
+      p_application_id: id,
+      p_full_name: normalized.full_name,
+      p_whatsapp: normalized.whatsapp,
+      p_email: normalized.email,
+      p_city: normalized.city,
+    }
+  );
+
+  if (rpcError) {
+    if (rpcError.code === "42501")
+      throw new RecruitmentError("Akses ditolak", 403);
+    if (rpcError.code === "P0002")
+      throw new RecruitmentError("Pelamar tidak ditemukan", 404);
+    if (rpcError.code === "23514" || rpcError.code === "P0001") {
+      const message = rpcError.message?.replace(/^.*?:\s*/, "") ?? "";
+      throw new RecruitmentError(
+        message || "Data pelamar tidak valid",
+        400
+      );
+    }
+    throw new RecruitmentError("Gagal menyimpan data pelamar", 500);
+  }
+
+  const updated = data as {
+    full_name: string;
+    whatsapp: string;
+    email: string;
+    city: string;
+  } | null;
+  if (!updated)
+    throw new RecruitmentError("Data pelamar gagal dimuat ulang", 500);
+
+  return {
+    full_name: updated.full_name,
+    whatsapp: updated.whatsapp,
+    email: updated.email,
+    city: updated.city,
+  };
+}
+
 type ConversionRow = {
   id: string;
   full_name: string;

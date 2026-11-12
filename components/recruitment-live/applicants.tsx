@@ -37,6 +37,9 @@ import {
 } from "./employee-conversion";
 import { InterviewSection } from "./interview-section";
 import { StageHistory } from "./stage-history";
+import { ApplicationContactForm } from "./application-contact-form";
+import { ApplicationDataHistory } from "./application-data-history";
+import { contactFromApplication } from "@/lib/recruitment/live/contact";
 import { useApplicationNotes } from "./use-application-notes";
 
 type Filter = { search: string; stage: string; page: number };
@@ -77,6 +80,7 @@ export function Applicants({
   const [stageError, setStageError] = useState("");
   const [stageBusy, setStageBusy] = useState(false);
   const [pendingStage, setPendingStage] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const stageBusyRef = useRef(false);
   const [reject, setReject] = useState<JobApplication | null>(null);
   const [conversionTarget, setConversionTarget] =
@@ -599,6 +603,28 @@ export function Applicants({
                 application={selected}
                 canConvert={canConvert}
               />
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-bold text-[13px]">Data Pelamar</span>
+                <button
+                  type="button"
+                  className="btn btn-g !py-1 !px-3 !text-[11px]"
+                  onClick={() => setEditOpen(true)}
+                  disabled={Boolean(selected.employee_id)}
+                  title={
+                    selected.employee_id
+                      ? "Data sudah menjadi data karyawan, koreksi lewat Direktori Karyawan"
+                      : "Ubah data pelamar"
+                  }
+                >
+                  Ubah Data
+                </button>
+              </div>
+              {selected.employee_id && (
+                <p className="text-[11px] sub">
+                  Data sudah menjadi data karyawan, koreksi lewat Direktori
+                  Karyawan.
+                </p>
+              )}
               <dl className="rl-details-grid">
                 {detail.map(([label, value, wide]) => (
                   <div key={label} className={wide ? "rl-span-two" : undefined}>
@@ -642,6 +668,10 @@ export function Applicants({
               <StageHistory
                 applicationId={selected.id}
                 stage={selected.stage}
+              />
+              <ApplicationDataHistory
+                applicationId={selected.id}
+                version={`${selected.full_name}|${selected.whatsapp}|${selected.email}|${selected.city}`}
               />
               <InterviewSection
                 applicationId={selected.id}
@@ -761,6 +791,19 @@ export function Applicants({
             if (!stageBusy) setPendingStage(null);
           }}
           onConfirm={() => void changeStage(selected, pendingStage)}
+        />
+      )}
+
+      {editOpen && selected && (
+        <ApplicationContactForm
+          applicationId={selected.id}
+          initial={contactFromApplication(selected)}
+          onClose={() => setEditOpen(false)}
+          onSaved={(contact) => {
+            mergeApplication(selected, contact);
+            setEditOpen(false);
+            toast("Data pelamar diperbarui");
+          }}
         />
       )}
     </div>

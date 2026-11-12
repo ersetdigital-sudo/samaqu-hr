@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   canAccess,
   findModuleByPath,
+  findSubItem,
   subItemAllowed,
   type Role,
 } from "@/lib/navigation";
@@ -27,21 +28,31 @@ export function AccessGuard({
 }) {
   const pathname = usePathname();
   const module = findModuleByPath(pathname);
+  const moduleAllowed = module ? canAccess(role, module) : true;
+  const subItem = findSubItem(module, pathname);
 
   const allowed =
-    !module || (canAccess(role, module) && subItemAllowed(role, module, pathname));
+    !module || (moduleAllowed && subItemAllowed(role, module, pathname));
 
   if (allowed) {
     return <>{children}</>;
   }
 
+  const pageTitle =
+    module && moduleAllowed && subItem
+      ? `Halaman ${subItem.label} dibatasi`
+      : module
+        ? `Modul ${module.label} dibatasi`
+        : "Akses dibatasi";
+  const scope = module && moduleAllowed && subItem ? "halaman" : "modul";
+
   return (
     <div className="card p-8 max-w-[560px]">
       <span className="tag t-bad">Akses ditolak</span>
-      <div className="h1 mt-4 text-[20px]">Modul {module.label} dibatasi</div>
+      <div className="h1 mt-4 text-[20px]">{pageTitle}</div>
       <div className="sub mt-2">
         Role aktif Anda adalah <b>{ROLE_LABELS[role]}</b>, yang tidak memiliki
-        akses ke modul ini. Hubungi administrator bila akses dibutuhkan.
+        akses ke {scope} ini. Hubungi administrator bila akses dibutuhkan.
       </div>
       <Link className="btn btn-p mt-5" href="/">
         Kembali ke Dashboard

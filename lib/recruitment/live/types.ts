@@ -202,6 +202,23 @@ export type StageHistoryEntry = {
   changedByName: string;
 };
 
+export type ApplicationContactInput = {
+  full_name: string;
+  whatsapp: string;
+  email: string;
+  city: string;
+};
+
+export type ApplicationDataHistoryEntry = {
+  id: number;
+  applicationId: string;
+  column: string;
+  oldValue: string | null;
+  newValue: string | null;
+  changedAt: string;
+  changedByName: string;
+};
+
 export type InterviewSchedule = {
   id: string;
   application_id: string;

@@ -113,6 +113,24 @@ export function validateJob(value: unknown): FieldErrors {
   }
   return errors;
 }
+export function validateApplicationContact(value: unknown): FieldErrors {
+  const input = recordOf(value);
+  const errors: FieldErrors = {};
+  field(errors, input, "full_name", "Nama lengkap", 150);
+  field(errors, input, "city", "Kota", 100);
+  if (
+    typeof input.whatsapp !== "string" ||
+    !/^628\d{7,11}$/.test(normalizeWhatsapp(input.whatsapp))
+  )
+    errors.whatsapp = "Isi nomor WhatsApp Indonesia yang valid";
+  if (
+    typeof input.email !== "string" ||
+    input.email.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim())
+  )
+    errors.email = "Isi alamat email yang valid";
+  return errors;
+}
 export function validateApplicationStep(
   value: unknown,
   step: number,

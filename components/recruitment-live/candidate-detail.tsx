@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRecruitment } from "@/components/recruitment-provider";
 import type {
@@ -35,6 +35,9 @@ import {
 } from "./employee-conversion";
 import { InterviewSection } from "./interview-section";
 import { StageHistory } from "./stage-history";
+import { ApplicationContactForm } from "./application-contact-form";
+import { ApplicationDataHistory } from "./application-data-history";
+import { contactFromApplication } from "@/lib/recruitment/live/contact";
 
 /** Detail pelamar lintas lowongan: CV, catatan, dan perubahan tahap. */
 export function CandidateDetailModal({
@@ -53,9 +56,14 @@ export function CandidateDetailModal({
   const [stageBusy, setStageBusy] = useState(false);
   const [stageError, setStageError] = useState("");
   const [pendingStage, setPendingStage] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [reject, setReject] = useState(false);
   const [conversionTarget, setConversionTarget] =
     useState<JobApplication | null>(null);
+
+  useEffect(() => {
+    setEditOpen(false);
+  }, [application.id]);
   const notes = useApplicationNotes((id, note) => {
     onPatch(id, { internal_note: note });
   });
@@ -189,6 +197,29 @@ export function CandidateDetailModal({
             canConvert={canConvert}
           />
 
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-bold text-[13px]">Data Pelamar</span>
+            <button
+              type="button"
+              className="btn btn-g !py-1 !px-3 !text-[11px]"
+              onClick={() => setEditOpen(true)}
+              disabled={Boolean(application.employee_id)}
+              title={
+                application.employee_id
+                  ? "Data sudah menjadi data karyawan, koreksi lewat Direktori Karyawan"
+                  : "Ubah data pelamar"
+              }
+            >
+              Ubah Data
+            </button>
+          </div>
+          {application.employee_id && (
+            <p className="text-[11px] sub">
+              Data sudah menjadi data karyawan, koreksi lewat Direktori
+              Karyawan.
+            </p>
+          )}
+
           <dl className="rl-details-grid">
             {detail.map(([label, value, wide]) => (
               <div key={label} className={wide ? "rl-span-two" : undefined}>
@@ -235,6 +266,11 @@ export function CandidateDetailModal({
           <StageHistory
             applicationId={application.id}
             stage={application.stage}
+          />
+
+          <ApplicationDataHistory
+            applicationId={application.id}
+            version={`${application.full_name}|${application.whatsapp}|${application.email}|${application.city}`}
           />
 
           <InterviewSection applicationId={application.id} onFlowSaved={close} />
@@ -338,6 +374,19 @@ export function CandidateDetailModal({
             if (!stageBusy) setPendingStage(null);
           }}
           onConfirm={() => void changeStage(pendingStage)}
+        />
+      )}
+
+      {editOpen && (
+        <ApplicationContactForm
+          applicationId={application.id}
+          initial={contactFromApplication(application)}
+          onClose={() => setEditOpen(false)}
+          onSaved={(contact) => {
+            onPatch(application.id, contact);
+            setEditOpen(false);
+            toast("Data pelamar diperbarui");
+          }}
         />
       )}
     </>
