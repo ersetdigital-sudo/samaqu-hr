@@ -5,6 +5,8 @@ import { ErrorBox, Modal } from "@/components/recruitment-live/ui";
 import {
   DOCUMENT_ACCEPT,
   DOCUMENT_MAX_TITLE,
+  DOCUMENT_SIZE_ERROR,
+  MAX_DOCUMENT_SIZE_LABEL,
   validateDocumentFileMeta,
   validateDocumentMeta,
 } from "@/lib/documents/validation";
@@ -121,15 +123,21 @@ export function DocumentFormModal({
         mode === "create" ? "/api/documents" : `/api/documents/${document?.id}`,
         { method: mode === "create" ? "POST" : "PATCH", body: form }
       );
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-        errors?: DocumentFieldErrors;
-        warning?: string | null;
-      } | null;
+      const contentType = response.headers.get("content-type") ?? "";
+      const data = contentType.includes("application/json")
+        ? ((await response.json().catch(() => null)) as {
+            error?: string;
+            errors?: DocumentFieldErrors;
+            warning?: string | null;
+          } | null)
+        : null;
 
       if (!response.ok) {
-        if (data?.errors) setErrors(data.errors);
-        throw new Error(data?.error ?? "Gagal menyimpan dokumen");
+        if (response.status === 413 || !data) {
+          throw new Error(DOCUMENT_SIZE_ERROR);
+        }
+        if (data.errors) setErrors(data.errors);
+        throw new Error(data.error ?? "Gagal menyimpan dokumen");
       }
 
       const message =
@@ -239,7 +247,7 @@ export function DocumentFormModal({
         </div>
 
         <p className="sub text-[11px] mt-3">
-          PDF, JPG, atau PNG. Maksimal 5 MB.
+          PDF, JPG, atau PNG. Maksimal {MAX_DOCUMENT_SIZE_LABEL}.
           {mode === "replace"
             ? " Kosongkan file jika hanya ingin mengubah jenis, judul, atau tanggal berlaku."
             : ""}

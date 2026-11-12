@@ -8,7 +8,9 @@ import {
 } from "@/lib/documents/types";
 
 export const DOCUMENT_BUCKET = "employee-documents";
-export const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
+export const MAX_DOCUMENT_BYTES = 4 * 1024 * 1024;
+export const MAX_DOCUMENT_SIZE_LABEL = `${MAX_DOCUMENT_BYTES / (1024 * 1024)} MB`;
+export const DOCUMENT_SIZE_ERROR = `File terlalu besar, maksimal ${MAX_DOCUMENT_SIZE_LABEL}`;
 export const DOCUMENT_MAX_TITLE = 150;
 export const DOCUMENT_ACCEPT = ".pdf,.jpg,.jpeg,.png";
 
@@ -99,7 +101,7 @@ export function validateDocumentFileMeta(file: {
 }): string | null {
   if (file.size <= 0) return "Pilih file dokumen";
   if (file.size > MAX_DOCUMENT_BYTES) {
-    return "Ukuran file maksimal 5 MB";
+    return DOCUMENT_SIZE_ERROR;
   }
 
   const extension = extensionOf(file.name);

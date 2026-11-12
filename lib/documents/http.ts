@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { requireApiRole } from "@/lib/auth/guard";
 import { DocumentDataError } from "@/lib/documents/repository";
 import {
+  DOCUMENT_SIZE_ERROR,
   MAX_DOCUMENT_BYTES,
   validateDocumentFileBytes,
   validateDocumentFileMeta,
@@ -54,7 +55,7 @@ export function assertDocumentId(id: string) {
 export async function readDocumentForm(request: Request): Promise<FormData> {
   const limit = MAX_DOCUMENT_BYTES + 131_072;
   if (Number(request.headers.get("content-length")) > limit) {
-    throw new DocumentDataError("Ukuran unggahan maksimal 5 MB", 413);
+    throw new DocumentDataError(DOCUMENT_SIZE_ERROR, 413);
   }
 
   const reader = request.body?.getReader();
@@ -68,7 +69,7 @@ export async function readDocumentForm(request: Request): Promise<FormData> {
     bytes += chunk.value.length;
     if (bytes > limit) {
       await reader.cancel();
-      throw new DocumentDataError("Ukuran unggahan maksimal 5 MB", 413);
+      throw new DocumentDataError(DOCUMENT_SIZE_ERROR, 413);
     }
     chunks.push(chunk.value);
   }
