@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmployeeDocumentsPanel } from "@/components/documents/employee-documents-panel";
 import { EmployeePositionHistory } from "@/components/position-history/employee-position-history";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { InfoGrid, InfoItem } from "@/components/ui/detail-info";
+import { FormSection, FormSectionNav } from "@/components/ui/form-section";
+import {
+  useDrawerSectionNav,
+  type DrawerNavSection,
+} from "@/components/ui/use-drawer-section-nav";
 import { ini } from "@/lib/data";
 import { formatIsoDateID } from "@/lib/employees/format";
 import {
@@ -17,29 +22,21 @@ import {
 } from "@/lib/employees/detail-cache";
 import type { EmployeeDetail, EmployeeSummary } from "@/lib/employees/types";
 
-function Info({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="p-3 rounded-xl" style={{ background: "#FAF7F5" }}>
-      <div className="sub text-[11px]">{label}</div>
-      <div className="font-semibold text-[13px] break-words">{value}</div>
-    </div>
-  );
-}
+const EMPLOYEE_SECTIONS: DrawerNavSection[] = [
+  { id: "employee-summary", label: "Karyawan" },
+  { id: "employee-identity", label: "Identitas" },
+  { id: "employee-work", label: "Pekerjaan" },
+  { id: "employee-contact", label: "Kontak" },
+  { id: "employee-probation", label: "Probation" },
+  { id: "employee-contract", label: "Kontrak" },
+  { id: "employee-position", label: "Riwayat Jabatan" },
+  { id: "employee-documents", label: "Dokumen" },
+];
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="mb-6">
-      <div className="font-bold mb-3">{title}</div>
-      {children}
-    </div>
-  );
-}
+const EMPLOYEE_STATUS_SECTION: DrawerNavSection = {
+  id: "employee-status",
+  label: "Status",
+};
 
 export function EmployeeDrawer({
   employeeId,
@@ -176,277 +173,345 @@ export function EmployeeDrawer({
 
   const summary = detail ?? preview;
 
+  const sections = useMemo(
+    () =>
+      detail?.status === "Nonaktif"
+        ? [...EMPLOYEE_SECTIONS, EMPLOYEE_STATUS_SECTION]
+        : EMPLOYEE_SECTIONS,
+    [detail?.status]
+  );
+  const { bodyRef, activeId, scrollToSection } = useDrawerSectionNav(
+    sections,
+    Boolean(detail)
+  );
+
+  const footer = detail ? (
+    <>
+      <button
+        type="button"
+        className="btn btn-p"
+        onClick={() => onEdit(detail)}
+      >
+        <Icon name="file" /> Edit Data
+      </button>
+      {detail.status === "Nonaktif" ? (
+        !reactivating && (
+          <button
+            type="button"
+            className="btn btn-g"
+            onClick={() => {
+              setReactivating(true);
+              requestAnimationFrame(() => {
+                document
+                  .getElementById("employee-status")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              });
+            }}
+            disabled={updating}
+          >
+            Reaktivasi
+          </button>
+        )
+      ) : (
+        <button
+          type="button"
+          className="btn btn-d"
+          onClick={() => void deactivate()}
+          disabled={updating}
+        >
+          {updating ? "Menyimpan…" : "Nonaktifkan"}
+        </button>
+      )}
+    </>
+  ) : undefined;
+
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.md} ${
-        employeeId ? "show" : ""
-      }`}
-      id="empDrawer"
+    <DetailDrawer
+      open={Boolean(employeeId)}
+      title="Detail Karyawan"
+      description="Informasi lengkap data karyawan dari Direktori."
+      size="md"
+      onClose={onClose}
+      footer={footer}
+      bodyRef={bodyRef}
+      subnav={
+        <FormSectionNav
+          items={sections}
+          activeId={activeId}
+          onSelect={scrollToSection}
+        />
+      }
     >
-      {employeeId && (
-        <>
-          <DrawerHeader
-            title="Detail Karyawan"
-            onClose={onClose}
-            closeLabel="Tutup detail karyawan"
-          />
+      <div className="flex flex-col gap-4">
+        {summary && (
+          <FormSection
+            sectionId="employee-summary"
+            icon="users"
+            title="Karyawan"
+            description="Ringkasan identitas dan status kepegawaian."
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className="av"
+                style={{ width: 56, height: 56, fontSize: 18 }}
+              >
+                {ini(summary.fullName)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[17px] leading-tight break-words">
+                  {summary.fullName}
+                </div>
+                <div className="sub text-[12px] break-words">
+                  {summary.position}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span
+                    className={`tag ${employeeStatusTone(summary.status)}`}
+                  >
+                    {summary.status}
+                  </span>
+                  <span className="tag t-mute">{summary.employmentType}</span>
+                  <span className="tag t-mute">{summary.id}</span>
+                </div>
+              </div>
+            </div>
+          </FormSection>
+        )}
 
-          <div className="p-6">
-            {summary && (
-              <div className="flex items-center gap-4 mb-5">
-                <div
-                  className="av"
-                  style={{ width: 56, height: 56, fontSize: 18 }}
+        {loading && !detail && (
+          <div className="sub text-[13px]">Melengkapi detail karyawan…</div>
+        )}
+
+        {error && <div className="tag t-bad w-full justify-center">{error}</div>}
+
+        {detail && (
+          <>
+            <FormSection
+              sectionId="employee-identity"
+              icon="users"
+              title="Identitas"
+              description="Data diri dan dokumen identitas."
+            >
+              <InfoGrid>
+                <InfoItem label="Tempat lahir" value={detail.birthPlace} />
+                <InfoItem
+                  label="Tanggal lahir"
+                  value={formatIsoDateID(detail.birthDate)}
+                />
+                <InfoItem label="Jenis kelamin" value={detail.gender} />
+                <InfoItem label="Alamat" value={detail.address} full />
+                <InfoItem
+                  label="NIK KTP (akses terbatas)"
+                  value={
+                    <span className="tracking-wide">{detail.nik}</span>
+                  }
+                  full
+                />
+              </InfoGrid>
+              <div className="text-[11px] sub mt-2">
+                NIK hanya tampil di detail identitas. Tidak disertakan pada
+                daftar, hasil pencarian, maupun ekspor.
+              </div>
+            </FormSection>
+
+            <FormSection
+              sectionId="employee-work"
+              icon="job"
+              title="Data Pekerjaan"
+              description="Posisi dan penempatan karyawan."
+            >
+              <InfoGrid>
+                <InfoItem label="Jabatan" value={detail.position} />
+                <InfoItem label="Departemen" value={detail.department} />
+                <InfoItem label="Lokasi kerja" value={detail.location} />
+                <InfoItem
+                  label="Atasan langsung"
+                  value={detail.managerName ?? "—"}
+                />
+                <InfoItem
+                  label="Tanggal bergabung"
+                  value={formatIsoDateID(detail.joinedAt)}
+                />
+                <InfoItem
+                  label="Hubungan kerja"
+                  value={detail.employmentType}
+                />
+              </InfoGrid>
+            </FormSection>
+
+            <FormSection
+              sectionId="employee-contact"
+              icon="mail"
+              title="Kontak"
+              description="Email dan nomor yang bisa dihubungi."
+            >
+              <InfoGrid>
+                <InfoItem
+                  label="Email pribadi"
+                  value={detail.personalEmail}
+                  full
+                />
+                <InfoItem label="Email kerja" value={detail.workEmail} full />
+                <InfoItem label="Nomor HP" value={detail.phone} />
+                <InfoItem
+                  label="Kontak darurat"
+                  value={`${detail.emergencyName} (${detail.emergencyRelation})`}
+                />
+                <InfoItem
+                  label="Nomor darurat"
+                  value={detail.emergencyPhone}
+                />
+              </InfoGrid>
+            </FormSection>
+
+            <FormSection
+              sectionId="employee-probation"
+              icon="clock"
+              title="Probation"
+              description="Masa percobaan karyawan."
+            >
+              <InfoGrid>
+                <InfoItem
+                  label="Mulai probation"
+                  value={formatIsoDateID(detail.probationStart)}
+                />
+                <InfoItem
+                  label="Berakhir probation"
+                  value={formatIsoDateID(detail.probationEnd)}
+                />
+              </InfoGrid>
+            </FormSection>
+
+            <FormSection
+              sectionId="employee-contract"
+              icon="job"
+              title="Kontrak"
+              description="Ringkasan dari modul Kontrak & Masa Kerja."
+            >
+              <InfoGrid single>
+                <InfoItem
+                  label="Berakhir kontrak aktif"
+                  value={formatIsoDateID(detail.currentContractEnd)}
+                />
+              </InfoGrid>
+              <div className="text-[11px] sub mt-2">
+                Sumber tunggal tanggal kontrak.{" "}
+                <Link
+                  className="font-semibold underline"
+                  href="/employees/kontrak"
                 >
-                  {ini(summary.fullName)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-[19px] leading-tight">
-                    {summary.fullName}
-                  </div>
-                  <div className="sub">{summary.position}</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span
-                      className={`tag ${employeeStatusTone(summary.status)}`}
-                    >
-                      {summary.status}
-                    </span>
-                    <span className="tag t-mute">{summary.employmentType}</span>
-                    <span className="tag t-mute">{summary.id}</span>
-                  </div>
-                </div>
+                  Kelola kontrak
+                </Link>
               </div>
-            )}
+            </FormSection>
 
-            {loading && !detail && (
-              <div className="sub text-[13px]">
-                Melengkapi detail karyawan…
-              </div>
-            )}
-
-            {error && (
-              <div className="tag t-bad mb-4 w-full justify-center">{error}</div>
-            )}
-
-            {detail && (
-              <>
-                <Section title="Identitas">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Info label="Tempat lahir" value={detail.birthPlace} />
-                    <Info
-                      label="Tanggal lahir"
-                      value={formatIsoDateID(detail.birthDate)}
-                    />
-                    <Info label="Jenis kelamin" value={detail.gender} />
-                    <Info label="Alamat" value={detail.address} />
-                  </div>
-                  <div
-                    className="mt-3 p-3 rounded-xl border"
-                    style={{ borderColor: "var(--line)" }}
+            <FormSection
+              sectionId="employee-position"
+              icon="clock"
+              title="Riwayat Jabatan"
+              description="Perubahan jabatan, departemen, atasan, dan lokasi kerja."
+              action={
+                detail.status !== "Nonaktif" ? (
+                  <button
+                    className="btn btn-g !py-1 !px-3"
+                    onClick={() => onRecordPosition(detail.id)}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="sub text-[11px]">NIK KTP</span>
-                      <span className="tag t-warn">Akses terbatas</span>
-                    </div>
-                    <div className="font-semibold text-[13px] mt-1 tracking-wide">
-                      {detail.nik}
-                    </div>
-                    <div className="text-[11px] sub mt-1">
-                      Hanya tampil di detail identitas. Tidak disertakan pada
-                      daftar, hasil pencarian, maupun ekspor.
-                    </div>
-                  </div>
-                </Section>
+                    Catat Perubahan
+                  </button>
+                ) : undefined
+              }
+            >
+              <EmployeePositionHistory
+                employeeId={detail.id}
+                refreshKey={positionHistoryVersion}
+              />
+              {detail.status === "Nonaktif" && (
+                <div className="text-[11px] sub mt-2">
+                  Karyawan Nonaktif tidak bisa dimutasi. Reaktivasi lebih dulu
+                  lewat aksi di footer.
+                </div>
+              )}
+            </FormSection>
 
-                <Section title="Data Pekerjaan">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Info label="Jabatan" value={detail.position} />
-                    <Info label="Departemen" value={detail.department} />
-                    <Info label="Lokasi kerja" value={detail.location} />
-                    <Info label="Atasan langsung" value={detail.managerName ?? "—"} />
-                    <Info
-                      label="Tanggal bergabung"
-                      value={formatIsoDateID(detail.joinedAt)}
-                    />
-                    <Info label="Hubungan kerja" value={detail.employmentType} />
-                  </div>
-                </Section>
+            <FormSection
+              sectionId="employee-documents"
+              icon="file"
+              title="Dokumen & Berkas"
+              description="Dokumen pribadi yang diunggah HR."
+            >
+              <EmployeeDocumentsPanel
+                employeeId={detail.id}
+                todayIso={todayIso}
+                showHeading={false}
+                onMutated={(message) => onChanged(message)}
+              />
+            </FormSection>
 
-                <Section title="Kontak">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Info label="Email pribadi" value={detail.personalEmail} />
-                    <Info label="Email kerja" value={detail.workEmail} />
-                    <Info label="Nomor HP" value={detail.phone} />
-                    <Info
-                      label="Kontak darurat"
-                      value={`${detail.emergencyName} (${detail.emergencyRelation})`}
+            {detail.status === "Nonaktif" && (
+              <FormSection
+                sectionId="employee-status"
+                icon="clock"
+                title="Status Karyawan"
+                description="Reaktivasi karyawan Nonaktif."
+              >
+                {reactivating ? (
+                  <>
+                    <label className="lbl">Alasan reaktivasi *</label>
+                    <textarea
+                      className="inp"
+                      rows={2}
+                      placeholder="cth. karyawan dipekerjakan kembali"
+                      value={reason}
+                      onChange={(event) => {
+                        setReason(event.target.value);
+                        setReasonError(null);
+                      }}
                     />
-                    <Info label="Nomor darurat" value={detail.emergencyPhone} />
-                  </div>
-                </Section>
-
-                <Section title="Probation">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Info
-                      label="Mulai probation"
-                      value={formatIsoDateID(detail.probationStart)}
-                    />
-                    <Info
-                      label="Berakhir probation"
-                      value={formatIsoDateID(detail.probationEnd)}
-                    />
-                  </div>
-                </Section>
-
-                <Section title="Kontrak">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Info
-                      label="Berakhir kontrak aktif"
-                      value={formatIsoDateID(detail.currentContractEnd)}
-                    />
-                  </div>
-                  <div className="text-[11px] sub mt-2">
-                    Ringkasan dari modul Kontrak &amp; Masa Kerja (sumber tunggal).{" "}
-                    <Link
-                      className="font-semibold underline"
-                      href="/employees/kontrak"
-                    >
-                      Kelola kontrak
-                    </Link>
-                  </div>
-                </Section>
-
-                <Section title="Riwayat Jabatan">
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="text-[11px] sub">
-                      Perubahan jabatan, departemen, atasan, dan lokasi kerja.
-                    </div>
-                    {detail.status !== "Nonaktif" && (
-                      <button
-                        className="btn btn-g !py-1 !px-3"
-                        onClick={() => onRecordPosition(detail.id)}
+                    {reasonError && (
+                      <div
+                        className="text-[11px] mt-1"
+                        style={{ color: "var(--bad)" }}
                       >
-                        Catat Perubahan
-                      </button>
-                    )}
-                  </div>
-                  <EmployeePositionHistory
-                    employeeId={detail.id}
-                    refreshKey={positionHistoryVersion}
-                  />
-                  {detail.status === "Nonaktif" && (
-                    <div className="text-[11px] sub mt-2">
-                      Karyawan Nonaktif tidak bisa dimutasi. Reaktivasi lebih
-                      dulu lewat aksi di bawah.
-                    </div>
-                  )}
-                </Section>
-
-                <Section title="Dokumen & Berkas">
-                  <EmployeeDocumentsPanel
-                    employeeId={detail.id}
-                    todayIso={todayIso}
-                    showHeading={false}
-                    onMutated={(message) => onChanged(message)}
-                  />
-                </Section>
-
-                {detail.status === "Nonaktif" && (
-                  <div
-                    className="mb-3 p-3 rounded-xl border"
-                    style={{ borderColor: "var(--line)" }}
-                  >
-                    {reactivating ? (
-                      <>
-                        <label className="lbl">Alasan reaktivasi *</label>
-                        <textarea
-                          className="inp"
-                          rows={2}
-                          placeholder="cth. karyawan dipekerjakan kembali"
-                          value={reason}
-                          onChange={(event) => {
-                            setReason(event.target.value);
-                            setReasonError(null);
-                          }}
-                        />
-                        {reasonError && (
-                          <div
-                            className="text-[11px] mt-1"
-                            style={{ color: "var(--bad)" }}
-                          >
-                            {reasonError}
-                          </div>
-                        )}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <button
-                            className="btn btn-p"
-                            onClick={() => void reactivate()}
-                            disabled={updating}
-                          >
-                            {updating ? "Menyimpan…" : "Reaktivasi"}
-                          </button>
-                          <button
-                            className="btn btn-g"
-                            onClick={() => {
-                              setReactivating(false);
-                              setReason("");
-                              setReasonError(null);
-                            }}
-                            disabled={updating}
-                          >
-                            Batal
-                          </button>
-                        </div>
-                        <div className="text-[11px] sub mt-2">
-                          Reaktivasi tidak membuat kontrak otomatis dan tidak
-                          mengubah Employee ID, jenis hubungan kerja, maupun
-                          probation.
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <div className="text-[12px] font-semibold">
-                            Karyawan Nonaktif
-                          </div>
-                          <div className="text-[11px] sub">
-                            Reaktivasi butuh alasan dan tercatat di audit.
-                          </div>
-                        </div>
-                        <button
-                          className="btn btn-g"
-                          onClick={() => setReactivating(true)}
-                          disabled={updating}
-                        >
-                          Reaktivasi
-                        </button>
+                        {reasonError}
                       </div>
                     )}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <button
+                        className="btn btn-p"
+                        onClick={() => void reactivate()}
+                        disabled={updating}
+                      >
+                        {updating ? "Menyimpan…" : "Reaktivasi"}
+                      </button>
+                      <button
+                        className="btn btn-g"
+                        onClick={() => {
+                          setReactivating(false);
+                          setReason("");
+                          setReasonError(null);
+                        }}
+                        disabled={updating}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                    <div className="text-[11px] sub mt-2">
+                      Reaktivasi tidak membuat kontrak otomatis dan tidak
+                      mengubah Employee ID, jenis hubungan kerja, maupun
+                      probation.
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-[12px] sub">
+                    Karyawan berstatus Nonaktif. Gunakan tombol Reaktivasi di
+                    footer; alasan wajib diisi dan tercatat di audit.
                   </div>
                 )}
-
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="btn btn-p"
-                    onClick={() => onEdit(detail)}
-                  >
-                    <Icon name="file" /> Edit Data
-                  </button>
-                  {detail.status !== "Nonaktif" && (
-                    <button
-                      className="btn btn-d"
-                      onClick={() => void deactivate()}
-                      disabled={updating}
-                    >
-                      {updating ? "Menyimpan…" : "Nonaktifkan"}
-                    </button>
-                  )}
-                </div>
-              </>
+              </FormSection>
             )}
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </DetailDrawer>
   );
 }

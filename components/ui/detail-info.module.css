@@ -1,0 +1,81 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.item {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #faf7f5;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.label {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--mute);
+}
+
+.value {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.compare {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #faf7f5;
+}
+
+.compareHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.compareLabel {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--mute);
+}
+
+.unchanged {
+  font-size: 10px;
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+.compareValue {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.before {
+  color: var(--mute);
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

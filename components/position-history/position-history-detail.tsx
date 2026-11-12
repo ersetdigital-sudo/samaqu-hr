@@ -1,9 +1,9 @@
+"use client";
+
+import { CompareItem, InfoGrid, InfoItem } from "@/components/ui/detail-info";
 import { formatDateID, formatDateTimeID } from "@/lib/datetime";
 import { positionChangeTone } from "@/lib/position-history/query";
-import {
-  POSITION_FIELD_LABELS,
-  positionChangeDiff,
-} from "@/lib/position-history/rules";
+import { POSITION_FIELD_LABELS } from "@/lib/position-history/rules";
 import type { PositionHistoryEntry } from "@/lib/position-history/types";
 
 export function PositionHistoryDetail({
@@ -18,9 +18,6 @@ export function PositionHistoryDetail({
     return id;
   };
 
-  const diffs = positionChangeDiff(entry, managerName);
-  const changed = new Set(diffs.map((diff) => diff.field));
-
   const rows = [
     {
       field: "position" as const,
@@ -34,8 +31,8 @@ export function PositionHistoryDetail({
     },
     {
       field: "manager" as const,
-      before: entry.oldManagerName ?? "—",
-      after: entry.newManagerName ?? "—",
+      before: managerName(entry.oldManagerId),
+      after: managerName(entry.newManagerId),
     },
     {
       field: "location" as const,
@@ -57,43 +54,26 @@ export function PositionHistoryDetail({
 
       <div className="flex flex-col gap-2 mt-4">
         {rows.map((row) => (
-          <div
-            className="p-3 rounded-xl"
-            style={{ background: "#FAF7F5" }}
+          <CompareItem
             key={row.field}
-          >
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-              <span className="text-[11px] sub">
-                {POSITION_FIELD_LABELS[row.field]}
-              </span>
-              {!changed.has(row.field) && (
-                <span className="text-[10px] sub whitespace-nowrap">
-                  Tidak berubah
-                </span>
-              )}
-            </div>
-            <div className="text-[13px] mt-0.5 break-words">
-              {changed.has(row.field) ? (
-                <>
-                  <span className="sub">{row.before}</span> →{" "}
-                  <b>{row.after}</b>
-                </>
-              ) : (
-                row.before
-              )}
-            </div>
-          </div>
+            label={POSITION_FIELD_LABELS[row.field]}
+            before={row.before}
+            after={row.after}
+            changed={row.before !== row.after}
+          />
         ))}
       </div>
 
       <div className="mt-4">
-        <div className="text-[11px] sub">Alasan</div>
-        <div className="text-[13px] mt-1 break-words">{entry.reason}</div>
-      </div>
-
-      <div className="text-[11px] sub mt-4">
-        Dicatat {formatDateTimeID(entry.recordedAt)} ·{" "}
-        {entry.recordedByName ?? "HR"}
+        <InfoGrid single>
+          <InfoItem label="Alasan" value={entry.reason} />
+          <InfoItem
+            label="Dicatat"
+            value={`${formatDateTimeID(entry.recordedAt)} · ${
+              entry.recordedByName ?? "HR"
+            }`}
+          />
+        </InfoGrid>
       </div>
     </>
   );

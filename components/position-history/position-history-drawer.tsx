@@ -1,8 +1,8 @@
 "use client";
 
 import { PositionHistoryDetail } from "@/components/position-history/position-history-detail";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { FormSection } from "@/components/ui/form-section";
 import { ini } from "@/lib/data";
 import type { PositionHistoryEntry } from "@/lib/position-history/types";
 
@@ -14,19 +14,21 @@ export function PositionHistoryDrawer({
   onClose: () => void;
 }) {
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.sm} ${entry ? "show" : ""}`}
+    <DetailDrawer
+      open={Boolean(entry)}
+      title="Detail Perubahan"
+      description="Ringkasan perubahan posisi karyawan."
+      size="sm"
+      onClose={onClose}
     >
       {entry && (
-        <>
-          <DrawerHeader
-            title="Detail Perubahan"
-            onClose={onClose}
-            closeLabel="Tutup detail perubahan"
-          />
-
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-5">
+        <div className="flex flex-col gap-4">
+          <FormSection
+            icon="users"
+            title="Karyawan"
+            description="Karyawan yang mengalami perubahan."
+          >
+            <div className="flex items-center gap-4">
               <div
                 className="av"
                 style={{ width: 56, height: 56, fontSize: 18 }}
@@ -34,17 +36,23 @@ export function PositionHistoryDrawer({
                 {ini(entry.employeeName)}
               </div>
               <div className="min-w-0">
-                <div className="font-bold text-[19px] leading-tight break-words">
+                <div className="font-bold text-[17px] leading-tight break-words">
                   {entry.employeeName}
                 </div>
-                <div className="sub text-[13px]">{entry.employeeId}</div>
+                <div className="sub text-[12px]">{entry.employeeId}</div>
               </div>
             </div>
+          </FormSection>
 
+          <FormSection
+            icon="clock"
+            title="Perubahan"
+            description="Nilai sebelum dan sesudah perubahan."
+          >
             <PositionHistoryDetail entry={entry} />
-          </div>
-        </>
+          </FormSection>
+        </div>
       )}
-    </div>
+    </DetailDrawer>
   );
 }

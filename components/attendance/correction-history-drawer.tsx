@@ -1,7 +1,8 @@
 "use client";
 
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { CompareItem, InfoGrid, InfoItem } from "@/components/ui/detail-info";
+import { FormSection } from "@/components/ui/form-section";
 import { formatClockID, formatDateID, formatDateTimeID } from "@/lib/datetime";
 import type {
   AttendanceCorrection,
@@ -20,29 +21,36 @@ export function CorrectionHistoryDrawer({
   onClose: () => void;
 }) {
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.md} ${target ? "show" : ""}`}
+    <DetailDrawer
+      open={Boolean(target)}
+      title="Riwayat Koreksi"
+      description="Jejak koreksi kehadiran yang dicatat HR."
+      size="md"
+      onClose={onClose}
     >
       {target && (
-        <>
-          <DrawerHeader
-            title="Riwayat Koreksi"
-            onClose={onClose}
-            closeLabel="Tutup riwayat koreksi"
-          />
+        <div className="flex flex-col gap-4">
+          <FormSection
+            icon="users"
+            title="Karyawan"
+            description="Karyawan dan tanggal yang dikoreksi."
+          >
+            <InfoGrid>
+              <InfoItem label="Nama" value={target.employee.fullName} />
+              <InfoItem label="Nomor karyawan" value={target.employee.id} />
+              <InfoItem label="Tanggal" value={formatDateID(target.date)} />
+            </InfoGrid>
+          </FormSection>
 
-          <div className="p-6">
-            <div className="font-bold text-[16px]">
-              {target.employee.fullName}
-            </div>
-            <div className="sub text-[12px]">
-              {target.employee.id} · {formatDateID(target.date)}
-            </div>
-
-            <div className="flex flex-col gap-4 mt-5">
+          <FormSection
+            icon="clock"
+            title="Koreksi"
+            description="Perubahan jam dan alasan koreksi."
+          >
+            <div className="flex flex-col gap-3">
               {target.corrections.map((correction) => (
                 <div
-                  className="p-3 rounded-xl border"
+                  className="flex flex-col gap-2 pb-3 border-b last:border-b-0"
                   style={{ borderColor: "var(--line)" }}
                   key={correction.id}
                 >
@@ -52,25 +60,42 @@ export function CorrectionHistoryDrawer({
                   <div className="text-[11px] sub">
                     oleh {correction.correctedByName ?? "HR"}
                   </div>
-                  <div className="text-[12px] mt-2">“{correction.reason}”</div>
-                  <div className="text-[11px] sub mt-2">
-                    Masuk:{" "}
-                    {correction.oldCheckInAt
-                      ? formatClockID(correction.oldCheckInAt)
-                      : "—"}{" "}
-                    →{" "}
-                    {correction.newCheckInAt
-                      ? formatClockID(correction.newCheckInAt)
-                      : "—"}
-                    <br />
-                    Pulang:{" "}
-                    {correction.oldCheckOutAt
-                      ? formatClockID(correction.oldCheckOutAt)
-                      : "—"}{" "}
-                    →{" "}
-                    {correction.newCheckOutAt
-                      ? formatClockID(correction.newCheckOutAt)
-                      : "—"}
+                  <div className="text-[12px] break-words">
+                    “{correction.reason}”
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <CompareItem
+                      label="Jam masuk"
+                      before={
+                        correction.oldCheckInAt
+                          ? formatClockID(correction.oldCheckInAt)
+                          : "—"
+                      }
+                      after={
+                        correction.newCheckInAt
+                          ? formatClockID(correction.newCheckInAt)
+                          : "—"
+                      }
+                      changed={
+                        correction.oldCheckInAt !== correction.newCheckInAt
+                      }
+                    />
+                    <CompareItem
+                      label="Jam pulang"
+                      before={
+                        correction.oldCheckOutAt
+                          ? formatClockID(correction.oldCheckOutAt)
+                          : "—"
+                      }
+                      after={
+                        correction.newCheckOutAt
+                          ? formatClockID(correction.newCheckOutAt)
+                          : "—"
+                      }
+                      changed={
+                        correction.oldCheckOutAt !== correction.newCheckOutAt
+                      }
+                    />
                   </div>
                 </div>
               ))}
@@ -80,9 +105,9 @@ export function CorrectionHistoryDrawer({
                 </div>
               )}
             </div>
-          </div>
-        </>
+          </FormSection>
+        </div>
       )}
-    </div>
+    </DetailDrawer>
   );
 }

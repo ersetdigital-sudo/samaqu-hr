@@ -1,8 +1,8 @@
 "use client";
 
 import { EmployeeDocumentsPanel } from "@/components/documents/employee-documents-panel";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { FormSection } from "@/components/ui/form-section";
 
 export function DocumentsDrawer({
   employeeId,
@@ -16,29 +16,28 @@ export function DocumentsDrawer({
   onMutated: (message: string) => void;
 }) {
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.md} ${
-        employeeId ? "show" : ""
-      }`}
+    <DetailDrawer
+      open={Boolean(employeeId)}
+      title="Dokumen Karyawan"
+      description="Dokumen pribadi dan riwayat perubahannya."
+      size="md"
+      onClose={onClose}
     >
       {employeeId && (
-        <>
-          <DrawerHeader
-            title="Dokumen Karyawan"
-            onClose={onClose}
-            closeLabel="Tutup dokumen karyawan"
+        <FormSection
+          icon="file"
+          title="Dokumen & Berkas"
+          description="Dokumen pribadi yang diunggah HR."
+        >
+          <EmployeeDocumentsPanel
+            employeeId={employeeId}
+            todayIso={todayIso}
+            showEmployeeHeader
+            showHeading={false}
+            onMutated={onMutated}
           />
-
-          <div className="p-6">
-            <EmployeeDocumentsPanel
-              employeeId={employeeId}
-              todayIso={todayIso}
-              showEmployeeHeader
-              onMutated={onMutated}
-            />
-          </div>
-        </>
+        </FormSection>
       )}
-    </div>
+    </DetailDrawer>
   );
 }

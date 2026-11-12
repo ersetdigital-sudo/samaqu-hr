@@ -13,6 +13,20 @@
   padding: 12px 16px;
 }
 
+.headerMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.headerAction {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+}
+
 .iconWrap {
   width: 30px;
   height: 30px;

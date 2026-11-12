@@ -186,8 +186,8 @@ export function EmployeeDocumentsPanel({
               return (
                 <div
                   key={document.id}
-                  className="p-3 rounded-xl border"
-                  style={{ borderColor: "var(--line)" }}
+                  className="p-3 rounded-xl"
+                  style={{ background: "#FAF7F5" }}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">

@@ -11,12 +11,14 @@ export function FormSection({
   icon,
   title,
   description,
+  action,
   children,
 }: {
   sectionId?: string;
   icon: IconName;
   title: string;
   description?: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -26,15 +28,18 @@ export function FormSection({
       data-form-section={sectionId}
     >
       <div className={styles.sectionHeader}>
-        <span className={styles.iconWrap} aria-hidden="true">
-          <Icon name={icon} style={{ width: 17, height: 17 }} />
-        </span>
-        <div className="min-w-0">
-          <div className={styles.sectionTitle}>{title}</div>
-          {description && (
-            <div className={styles.sectionDescription}>{description}</div>
-          )}
+        <div className={styles.headerMain}>
+          <span className={styles.iconWrap} aria-hidden="true">
+            <Icon name={icon} style={{ width: 17, height: 17 }} />
+          </span>
+          <div className="min-w-0">
+            <div className={styles.sectionTitle}>{title}</div>
+            {description && (
+              <div className={styles.sectionDescription}>{description}</div>
+            )}
+          </div>
         </div>
+        {action && <div className={styles.headerAction}>{action}</div>}
       </div>
       <div className={styles.divider} />
       <div className={styles.sectionBody}>{children}</div>
@@ -132,7 +137,7 @@ export function FormSectionNav({
   onSelect: (id: string) => void;
 }) {
   return (
-    <nav className={styles.nav} aria-label="Bagian formulir">
+    <nav className={styles.nav} aria-label="Navigasi bagian">
       {items.map((item) => {
         const active = item.id === activeId;
         return (

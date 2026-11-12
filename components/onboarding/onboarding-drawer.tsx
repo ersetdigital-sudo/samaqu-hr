@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/recruitment-live/ui";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { FormSection } from "@/components/ui/form-section";
 import { formatDateID } from "@/lib/datetime";
 import { ini } from "@/lib/data";
 import {
@@ -49,8 +49,8 @@ function ChecklistRow({
 
   return (
     <div
-      className="rounded-xl border p-3"
-      style={{ borderColor: "var(--line)" }}
+      className="rounded-xl p-3"
+      style={{ background: "#FAF7F5" }}
     >
       <div className="flex items-start gap-3">
         <button
@@ -83,7 +83,7 @@ function ChecklistRow({
           )}
 
           {item.done && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex flex-wrap items-center gap-2 mt-2">
               <label
                 className="text-[11px] sub"
                 htmlFor={`completed-${item.id}`}
@@ -93,7 +93,7 @@ function ChecklistRow({
               <input
                 id={`completed-${item.id}`}
                 type="date"
-                className="inp !h-8 !py-0 !text-[12px] max-w-[170px]"
+                className="inp max-w-[170px]"
                 value={item.completedOn ?? ""}
                 disabled={busy}
                 onChange={(event) => {
@@ -105,7 +105,7 @@ function ChecklistRow({
           )}
 
           <textarea
-            className="inp mt-2 !text-[12px]"
+            className="inp mt-2"
             rows={2}
             maxLength={500}
             placeholder="Catatan (opsional)"
@@ -265,96 +265,114 @@ export function OnboardingDrawer({
   }
 
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.md} ${entry ? "show" : ""}`}
-    >
-      {entry && progress && (
-        <>
-          <DrawerHeader
-            title="Checklist Onboarding"
-            onClose={onClose}
-            closeLabel="Tutup checklist onboarding"
-          />
-
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-5">
-              <div className="av" style={{ width: 56, height: 56, fontSize: 18 }}>
-                {ini(entry.employeeName)}
+    <>
+      <DetailDrawer
+        open={Boolean(entry)}
+        title="Checklist Onboarding"
+        description="Pantau kelengkapan onboarding dan progres karyawan."
+        size="md"
+        onClose={onClose}
+      >
+        {entry && progress && (
+          <div className="flex flex-col gap-4">
+            <FormSection
+              icon="onb"
+              title="Karyawan"
+              description="Ringkasan karyawan dan progres onboarding."
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div
+                  className="av"
+                  style={{ width: 56, height: 56, fontSize: 18 }}
+                >
+                  {ini(entry.employeeName)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-[17px] leading-tight break-words">
+                    {entry.employeeName}
+                  </div>
+                  <div className="sub text-[12px]">
+                    {entry.employeeId} · {entry.position}
+                  </div>
+                  <div className="sub text-[11px]">
+                    {entry.department} · Bergabung{" "}
+                    {formatDateID(entry.joinedAt)}
+                  </div>
+                </div>
+                <span
+                  className={`tag ${
+                    progress.status === "Selesai" ? "t-ok" : "t-warn"
+                  }`}
+                >
+                  {progress.status}
+                </span>
               </div>
-              <div className="min-w-0">
-                <div className="font-bold text-[19px] leading-tight">
-                  {entry.employeeName}
-                </div>
-                <div className="sub text-[13px]">
-                  {entry.employeeId} · {entry.position}
-                </div>
-                <div className="sub text-[12px]">
-                  {entry.department} · Bergabung {formatDateID(entry.joinedAt)}
-                </div>
+
+              <div className="flex justify-between text-[12px] mb-1">
+                <span className="sub">
+                  {progress.done} dari {progress.total} selesai
+                </span>
+                <b>{progress.percent}%</b>
               </div>
-              <span
-                className={`tag ml-auto ${
-                  progress.status === "Selesai" ? "t-ok" : "t-warn"
-                }`}
-              >
-                {progress.status}
-              </span>
-            </div>
+              <div className="bar">
+                <i style={{ width: `${progress.percent}%` }} />
+              </div>
+            </FormSection>
 
-            <div className="flex justify-between text-[12px] mb-1">
-              <span className="sub">
-                {progress.done} dari {progress.total} selesai
-              </span>
-              <b>{progress.percent}%</b>
-            </div>
-            <div className="bar mb-6">
-              <i style={{ width: `${progress.percent}%` }} />
-            </div>
+            <FormSection
+              icon="clock"
+              title="Checklist"
+              description="Item onboarding untuk karyawan ini."
+            >
+              <div className="flex flex-col gap-3">
+                {entry.items.map((item) => (
+                  <ChecklistRow
+                    key={item.id}
+                    item={item}
+                    employeeId={entry.employeeId}
+                    busy={busyId === item.id}
+                    onToggle={(row) =>
+                      void patchItem(
+                        row,
+                        { done: !row.done },
+                        !row.done
+                          ? "Item ditandai selesai"
+                          : "Centang item dibatalkan",
+                      )
+                    }
+                    onDateChange={(row, value) =>
+                      void patchItem(
+                        row,
+                        { completedOn: value },
+                        "Tanggal selesai diperbarui",
+                      )
+                    }
+                    onNotesSave={(row, value) =>
+                      void patchItem(row, { notes: value })
+                    }
+                    onDelete={(row) => {
+                      setDeleteError("");
+                      setDeleteTarget(row);
+                    }}
+                  />
+                ))}
+                {entry.items.length === 0 && (
+                  <div className="sub text-[13px]">
+                    Belum ada item. Tambahkan item baru di bawah.
+                  </div>
+                )}
+              </div>
+            </FormSection>
 
-            <div className="flex flex-col gap-3">
-              {entry.items.map((item) => (
-                <ChecklistRow
-                  key={item.id}
-                  item={item}
-                  employeeId={entry.employeeId}
-                  busy={busyId === item.id}
-                  onToggle={(row) =>
-                    void patchItem(
-                      row,
-                      { done: !row.done },
-                      !row.done
-                        ? "Item ditandai selesai"
-                        : "Centang item dibatalkan",
-                    )
-                  }
-                  onDateChange={(row, value) =>
-                    void patchItem(
-                      row,
-                      { completedOn: value },
-                      "Tanggal selesai diperbarui",
-                    )
-                  }
-                  onNotesSave={(row, value) =>
-                    void patchItem(row, { notes: value })
-                  }
-                  onDelete={(row) => {
-                    setDeleteError("");
-                    setDeleteTarget(row);
-                  }}
-                />
-              ))}
-              {entry.items.length === 0 && (
-                <div className="sub text-[13px]">
-                  Belum ada item. Tambahkan item baru di bawah.
-                </div>
-              )}
-            </div>
-
-            <div className="mt-6">
+            <FormSection
+              icon="plus"
+              title="Tambah Item"
+              description="Item baru hanya berlaku untuk karyawan ini."
+            >
               <label className="lbl" htmlFor="onboarding-add-item">
-                Tambah item
+                Nama item
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <input
                   id="onboarding-add-item"
                   className="inp"
@@ -383,10 +401,10 @@ export function OnboardingDrawer({
                 Item hanya berlaku untuk karyawan ini; template standar tidak
                 berubah.
               </p>
-            </div>
+            </FormSection>
           </div>
-        </>
-      )}
+        )}
+      </DetailDrawer>
 
       {deleteTarget && (
         <div className="rl">
@@ -402,6 +420,6 @@ export function OnboardingDrawer({
           />
         </div>
       )}
-    </div>
+    </>
   );
 }

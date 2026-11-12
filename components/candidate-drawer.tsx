@@ -3,9 +3,24 @@
 import { Icon } from "@/components/icons";
 import { useRecruitment } from "@/components/recruitment-provider";
 import { StageTag } from "@/components/stage-tag";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { InfoGrid, InfoItem } from "@/components/ui/detail-info";
+import { FormSection, FormSectionNav } from "@/components/ui/form-section";
+import {
+  useDrawerSectionNav,
+  type DrawerNavSection,
+} from "@/components/ui/use-drawer-section-nav";
 import { STAGES, ini } from "@/lib/data";
+
+const CANDIDATE_SECTIONS: DrawerNavSection[] = [
+  { id: "candidate-summary", label: "Kandidat" },
+  { id: "candidate-details", label: "Detail" },
+  { id: "candidate-documents", label: "Dokumen" },
+  { id: "candidate-history", label: "Riwayat" },
+  { id: "candidate-interview", label: "Wawancara" },
+  { id: "candidate-notes", label: "Catatan" },
+  { id: "candidate-stage", label: "Ubah Status" },
+];
 
 const DETAILS = [
   ["Email", "kandidat@mail.com"],
@@ -19,69 +34,100 @@ const DOCUMENTS = [
   "Portofolio.pdf · 1,2 MB",
 ];
 
-const HISTORY_DATES = ["10 Okt", "12 Okt", "15 Okt", "18 Okt", "20 Okt", "24 Okt"];
+const HISTORY_DATES = [
+  "10 Okt",
+  "12 Okt",
+  "15 Okt",
+  "18 Okt",
+  "20 Okt",
+  "24 Okt",
+];
 
 export function CandidateDrawer() {
   const { candidates, drawerId, closeD, moveC, toast } = useRecruitment();
   const candidate = candidates.find((item) => item.id === drawerId) ?? null;
   const history = STAGES.slice(0, 6);
+  const { bodyRef, activeId, scrollToSection } = useDrawerSectionNav(
+    CANDIDATE_SECTIONS,
+    Boolean(candidate)
+  );
 
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.md} ${
-        drawerId !== null ? "show" : ""
-      }`}
-      id="drawer"
+    <DetailDrawer
+      open={Boolean(candidate)}
+      title="Detail Kandidat"
+      description="Ringkasan kandidat, dokumen, dan riwayat proses."
+      size="md"
+      onClose={closeD}
+      bodyRef={bodyRef}
+      subnav={
+        <FormSectionNav
+          items={CANDIDATE_SECTIONS}
+          activeId={activeId}
+          onSelect={scrollToSection}
+        />
+      }
     >
-      {candidate ? (
-        <>
-          <DrawerHeader
-            title="Detail Kandidat"
-            onClose={closeD}
-            closeLabel="Tutup detail kandidat"
-          />
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-5">
+      {candidate && (
+        <div className="flex flex-col gap-4">
+          <FormSection
+            sectionId="candidate-summary"
+            icon="users"
+            title="Kandidat"
+            description="Identitas utama dan tahap saat ini."
+          >
+            <div className="flex items-center gap-4">
               <div
                 className="av"
                 style={{ width: 56, height: 56, fontSize: 18 }}
               >
                 {ini(candidate.name)}
               </div>
-              <div className="flex-1">
-                <div className="font-bold text-[19px]">{candidate.name}</div>
-                <div className="sub">{candidate.pos}</div>
-                <div className="mt-2 flex gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[17px] break-words">
+                  {candidate.name}
+                </div>
+                <div className="sub text-[12px]">{candidate.pos}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
                   <StageTag stage={candidate.stage} />
                   <span className="tag t-mute">{candidate.src}</span>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-[13px] mb-6">
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-details"
+            icon="file"
+            title="Detail Kandidat"
+            description="Informasi kontak dan latar belakang."
+          >
+            <InfoGrid>
               {DETAILS.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="p-3 rounded-xl"
-                  style={{ background: "#FAF7F5" }}
-                >
-                  <div className="sub text-[12px]">{label}</div>
-                  <div className="font-semibold">{value}</div>
-                </div>
+                <InfoItem key={label} label={label} value={value} />
               ))}
-            </div>
-            <div className="font-bold mb-3">Dokumen</div>
-            <div className="flex flex-col gap-2 mb-6">
+            </InfoGrid>
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-documents"
+            icon="file"
+            title="Dokumen"
+            description="Berkas yang dilampirkan kandidat."
+          >
+            <div className="flex flex-col gap-2">
               {DOCUMENTS.map((document) => (
                 <div
                   key={document}
-                  className="flex items-center gap-3 p-3 rounded-xl border"
-                  style={{ borderColor: "var(--line)" }}
+                  className="flex items-center gap-3 p-3 rounded-xl"
+                  style={{ background: "#FAF7F5" }}
                 >
                   <Icon name="file" style={{ color: "var(--pink)" }} />
                   <span className="flex-1 text-[13px] font-medium">
                     {document}
                   </span>
                   <button
+                    type="button"
                     className="btn btn-g !py-1 !px-3"
                     onClick={() => toast("Pratinjau dokumen")}
                   >
@@ -90,8 +136,15 @@ export function CandidateDrawer() {
                 </div>
               ))}
             </div>
-            <div className="font-bold mb-3">Riwayat Tahapan</div>
-            <div className="mb-6">
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-history"
+            icon="clock"
+            title="Riwayat Tahapan"
+            description="Perjalanan kandidat sampai tahap saat ini."
+          >
+            <div>
               {history.map((stage, i) => {
                 const idx = STAGES.indexOf(candidate.stage);
                 const done =
@@ -126,10 +179,17 @@ export function CandidateDrawer() {
                 );
               })}
             </div>
-            <div className="font-bold mb-3">Jadwal Wawancara</div>
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-interview"
+            icon="vid"
+            title="Jadwal Wawancara"
+            description="Jadwal wawancara berikutnya."
+          >
             <div
-              className="p-4 rounded-xl border mb-6 flex items-center gap-3"
-              style={{ borderColor: "var(--line)" }}
+              className="p-4 rounded-xl flex items-center gap-3"
+              style={{ background: "#FAF7F5" }}
             >
               <Icon name="vid" style={{ color: "var(--pink)" }} />
               <div className="flex-1 text-[13px]">
@@ -140,14 +200,19 @@ export function CandidateDrawer() {
                 <div className="sub">Interviewer: Budi Santoso, Ardo</div>
               </div>
             </div>
-            <div className="font-bold mb-3">
-              Catatan &amp; Evaluasi Interviewer
-            </div>
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-notes"
+            icon="book"
+            title="Catatan & Evaluasi"
+            description="Catatan interviewer dan catatan internal."
+          >
             <div
-              className="p-4 rounded-xl mb-3 text-[13px]"
+              className="p-4 rounded-xl text-[13px]"
               style={{ background: "#FAF7F5" }}
             >
-              <div className="flex justify-between mb-1">
+              <div className="flex justify-between gap-2 mb-1">
                 <b>Budi Santoso</b>
                 <span className="tag t-ok">Skor 4,3 / 5</span>
               </div>
@@ -157,11 +222,18 @@ export function CandidateDrawer() {
               </div>
             </div>
             <textarea
-              className="inp mb-6"
+              className="inp mt-3"
               rows={2}
               placeholder="Tambah catatan internal…"
             />
-            <div className="font-bold mb-3">Ubah Status</div>
+          </FormSection>
+
+          <FormSection
+            sectionId="candidate-stage"
+            icon="pipe"
+            title="Ubah Status"
+            description="Pilih tahap baru kandidat."
+          >
             <div className="flex flex-wrap gap-2">
               {STAGES.map((stage) => (
                 <button
@@ -179,9 +251,9 @@ export function CandidateDrawer() {
               Perubahan status hanya tersimpan di sesi browser ini dan belum
               ada notifikasi yang dikirim ke kandidat.
             </div>
-          </div>
-        </>
-      ) : null}
-    </div>
+          </FormSection>
+        </div>
+      )}
+    </DetailDrawer>
   );
 }

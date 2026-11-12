@@ -22,6 +22,7 @@ export function FormDrawer({
   title,
   description,
   size = "md",
+  modal = true,
   busy = false,
   onRequestClose,
   footer,
@@ -34,9 +35,11 @@ export function FormDrawer({
   title: string;
   description?: string;
   size?: DrawerSize;
+  /** Mode form: backdrop, scroll lock, dan focus trap. Detail memakai false. */
+  modal?: boolean;
   busy?: boolean;
   onRequestClose: () => void;
-  footer: ReactNode;
+  footer?: ReactNode;
   footerStatus?: ReactNode;
   /** Baris navigasi seksi yang menempel di bawah header. */
   subnav?: ReactNode;
@@ -53,21 +56,23 @@ export function FormDrawer({
     if (!open) return;
 
     previousFocusRef.current = document.activeElement as HTMLElement | null;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const originalOverflow = modal ? document.body.style.overflow : null;
+    if (modal) document.body.style.overflow = "hidden";
 
     const frame = requestAnimationFrame(() => panelRef.current?.focus());
 
     return () => {
       cancelAnimationFrame(frame);
-      document.body.style.overflow = originalOverflow;
+      if (originalOverflow !== null) {
+        document.body.style.overflow = originalOverflow;
+      }
       const previous = previousFocusRef.current;
       if (previous?.isConnected) previous.focus();
     };
-  }, [open]);
+  }, [open, modal]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !modal) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       // Dialog konfirmasi/bawaan browser memakai top layer dan mengelola
@@ -124,13 +129,12 @@ export function FormDrawer({
 
   if (!open) return null;
 
-  return (
-    <div className={styles.overlay} role="presentation">
+  const panel = (
       <div
         ref={panelRef}
         className={`${styles.panel} ${DRAWER_SIZE_CLASS[size]}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={modal ? "true" : undefined}
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
@@ -162,11 +166,26 @@ export function FormDrawer({
         <div className={styles.body} ref={bodyRef}>
           {children}
         </div>
-        <div className={styles.footer}>
-          <div className={styles.footerStatus}>{footerStatus}</div>
-          <div className={styles.footerActions}>{footer}</div>
-        </div>
+        {(footer || footerStatus) && (
+          <div className={styles.footer}>
+            <div className={styles.footerStatus}>{footerStatus}</div>
+            <div className={styles.footerActions}>{footer}</div>
+          </div>
+        )}
       </div>
+  );
+
+  if (!modal) {
+    return (
+      <div className={styles.standalone}>
+        {panel}
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.overlay} role="presentation">
+      {panel}
     </div>
   );
 }

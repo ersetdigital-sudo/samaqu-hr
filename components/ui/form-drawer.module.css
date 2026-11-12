@@ -8,6 +8,20 @@
   animation: fadeIn 0.18s ease-out;
 }
 
+/* Detail drawer: panel kanan tanpa backdrop dan tanpa mengunci halaman. */
+.standalone {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.standalone .panel {
+  pointer-events: auto;
+}
+
 .panel {
   width: min(var(--drawer-width, var(--drawer-lg)), 90vw);
   height: 100dvh;
@@ -132,6 +146,8 @@
 .footerActions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
   flex: none;
   margin-left: auto;

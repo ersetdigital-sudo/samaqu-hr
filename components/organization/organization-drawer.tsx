@@ -1,25 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { employeeStatusTone } from "@/components/employees/status-tone";
-import { DrawerHeader } from "@/components/ui/drawer-header";
-import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
+import { DetailDrawer } from "@/components/ui/detail-drawer";
+import { InfoGrid, InfoItem } from "@/components/ui/detail-info";
+import { FormSection } from "@/components/ui/form-section";
 import { ini } from "@/lib/data";
 import {
   ORGANIZATION_ISSUE_DESCRIPTIONS,
   ORGANIZATION_ISSUE_LABELS,
 } from "@/lib/organization/issues";
 import type { OrganizationNode } from "@/lib/organization/types";
-
-function Info({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="p-3 rounded-xl" style={{ background: "#FAF7F5" }}>
-      <div className="sub text-[11px]">{label}</div>
-      <div className="font-semibold text-[13px] break-words">{value}</div>
-    </div>
-  );
-}
 
 export function OrganizationDrawer({
   node,
@@ -33,19 +24,34 @@ export function OrganizationDrawer({
   onClose: () => void;
 }) {
   return (
-    <div
-      className={`drawer ${DRAWER_SIZE_CLASS.sm} ${node ? "show" : ""}`}
+    <DetailDrawer
+      open={Boolean(node)}
+      title="Ringkasan Karyawan"
+      description="Posisi singkat karyawan pada bagan organisasi."
+      size="sm"
+      onClose={onClose}
+      footer={
+        node && canOpenDirectory ? (
+          <Link
+            prefetch={false}
+            className="btn btn-p"
+            href={`/employees/direktori?employee=${encodeURIComponent(
+              node.id
+            )}`}
+          >
+            Buka di Direktori
+          </Link>
+        ) : undefined
+      }
     >
       {node && (
-        <>
-          <DrawerHeader
-            title="Ringkasan Karyawan"
-            onClose={onClose}
-            closeLabel="Tutup ringkasan karyawan"
-          />
-
-          <div className="p-6">
-            <div className="flex items-center gap-4 mb-5">
+        <div className="flex flex-col gap-4">
+          <FormSection
+            icon="users"
+            title="Karyawan"
+            description="Identitas dan posisi pada bagan."
+          >
+            <div className="flex items-center gap-4 mb-4">
               <div
                 className="av"
                 style={{ width: 56, height: 56, fontSize: 18 }}
@@ -53,10 +59,10 @@ export function OrganizationDrawer({
                 {ini(node.fullName)}
               </div>
               <div className="min-w-0">
-                <div className="font-bold text-[19px] leading-tight break-words">
+                <div className="font-bold text-[17px] leading-tight break-words">
                   {node.fullName}
                 </div>
-                <div className="sub text-[13px] break-words">
+                <div className="sub text-[12px] break-words">
                   {node.position}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -70,7 +76,7 @@ export function OrganizationDrawer({
 
             {showWarnings && node.issue && (
               <div
-                className="mb-4 p-3 rounded-xl border text-[12px]"
+                className="mb-3 p-3 rounded-xl border text-[12px]"
                 style={{
                   borderColor: "#E8D3B8",
                   background: "#FFF7E6",
@@ -86,37 +92,23 @@ export function OrganizationDrawer({
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <Info label="Nomor karyawan" value={node.id} />
-              <Info label="Departemen" value={node.department} />
-              <Info label="Jabatan" value={node.position} />
-              <Info
+            <InfoGrid>
+              <InfoItem label="Nomor karyawan" value={node.id} />
+              <InfoItem label="Departemen" value={node.department} />
+              <InfoItem label="Jabatan" value={node.position} />
+              <InfoItem
                 label="Bawahan langsung"
                 value={`${node.directReports} orang`}
               />
-              <Info
+              <InfoItem
                 label="Atasan di bagan"
                 value={node.managerName ?? "—"}
               />
-              <Info label="Tingkat" value={`Level ${node.depth + 1}`} />
-            </div>
-
-            {canOpenDirectory && (
-              <div className="flex flex-wrap gap-2 mt-5">
-                <Link
-                  prefetch={false}
-                  className="btn btn-p"
-                  href={`/employees/direktori?employee=${encodeURIComponent(
-                    node.id
-                  )}`}
-                >
-                  Buka di Direktori
-                </Link>
-              </div>
-            )}
-          </div>
-        </>
+              <InfoItem label="Tingkat" value={`Level ${node.depth + 1}`} />
+            </InfoGrid>
+          </FormSection>
+        </div>
       )}
-    </div>
+    </DetailDrawer>
   );
 }

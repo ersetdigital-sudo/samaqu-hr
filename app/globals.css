@@ -417,32 +417,12 @@ tbody tr:hover {
   align-items: flex-start;
   justify-content: center;
   padding: 48px 16px;
-  z-index: 50;
+  z-index: 80;
   overflow: auto;
 }
 
 .modal.show {
   display: flex;
-}
-
-.drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: min(var(--drawer-width, var(--drawer-md)), 90vw);
-  background: #fff;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
-  transform: translateX(100%);
-  transition: 0.25s;
-  z-index: 60;
-  overflow: auto;
-  visibility: hidden;
-}
-
-.drawer.show {
-  transform: none;
-  visibility: visible;
 }
 
 .drawer-sm {
@@ -455,12 +435,6 @@ tbody tr:hover {
 
 .drawer-lg {
   --drawer-width: var(--drawer-lg);
-}
-
-@media (max-width: 640px) {
-  .drawer {
-    width: 100%;
-  }
 }
 
 .star {
