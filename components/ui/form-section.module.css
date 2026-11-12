@@ -1,56 +1,56 @@
 .section {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid #e1d9d4;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(31, 26, 28, 0.03);
+  box-shadow: 0 2px 6px rgba(31, 26, 28, 0.05);
 }
 
 .sectionHeader {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px 18px;
+  gap: 10px;
+  padding: 12px 16px;
 }
 
 .iconWrap {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   flex: none;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 9px;
   background: var(--pink-50);
   color: var(--ink);
 }
 
 .sectionTitle {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   line-height: 1.35;
   color: var(--ink);
 }
 
 .sectionDescription {
-  margin-top: 2px;
-  font-size: 12px;
+  margin-top: 1px;
+  font-size: 11.5px;
   line-height: 1.5;
   color: var(--mute);
 }
 
 .divider {
   height: 1px;
-  background: var(--line);
+  background: #eee7e3;
 }
 
 .sectionBody {
-  padding: 16px 18px 18px;
+  padding: 14px 16px 16px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .field {
@@ -69,7 +69,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.4;
@@ -85,39 +85,55 @@
 }
 
 .hint {
-  margin-top: 4px;
-  font-size: 11px;
+  margin-top: 3px;
+  font-size: 10.5px;
   line-height: 1.45;
   color: var(--mute);
 }
 
 .error {
-  margin-top: 4px;
+  margin-top: 3px;
   font-size: 11px;
   line-height: 1.45;
   color: var(--bad);
 }
 
-/* Input di dalam kartu seksi: lebih tinggi, ring brand, border error merah. */
+/* Input di dalam kartu seksi: 44px, border medium, hover dan ring brand. */
 .section input,
 .section select,
 .section textarea {
   width: 100%;
+  height: 44px;
   min-height: 44px;
-  border: 1px solid var(--line);
+  border: 1px solid #d9d1cc;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 0 12px;
   background: #fff;
   color: var(--ink);
   font: inherit;
   font-size: 14px;
   outline: none;
+  box-shadow: 0 1px 1px rgba(31, 26, 28, 0.02);
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 .section textarea {
-  min-height: 76px;
+  height: auto;
+  min-height: 72px;
+  padding: 10px 12px;
   resize: vertical;
+}
+
+.section input::placeholder,
+.section textarea::placeholder {
+  color: #aea5a1;
+  opacity: 1;
+}
+
+.section input:hover:not(:focus):not(:disabled),
+.section select:hover:not(:focus):not(:disabled),
+.section textarea:hover:not(:focus):not(:disabled) {
+  border-color: #c4bab4;
 }
 
 .section input:focus,
@@ -153,11 +169,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
+  padding: 12px 16px;
+  border: 1px solid #e1d9d4;
   border-radius: 14px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(31, 26, 28, 0.03);
+  box-shadow: 0 2px 6px rgba(31, 26, 28, 0.05);
 }
 
 .infoLabel {
@@ -206,6 +222,59 @@
   flex: none;
 }
 
+.nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.navChip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.navChip:hover {
+  border-color: #c4bab4;
+  color: var(--ink);
+}
+
+.navChipActive {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #fff;
+}
+
+.navError {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--bad);
+  flex: none;
+}
+
+.navChipActive .navError {
+  background: #ff9b9b;
+}
+
 @media (max-width: 600px) {
   .section input,
   .section select,
@@ -224,11 +293,11 @@
   }
 
   .sectionHeader {
-    padding: 14px 15px;
+    padding: 11px 14px;
   }
 
   .sectionBody {
-    padding: 14px 15px 16px;
+    padding: 13px 14px 15px;
   }
 
   .infoStrip {

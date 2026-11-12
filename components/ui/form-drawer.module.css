@@ -77,13 +77,38 @@
   cursor: not-allowed;
 }
 
+.subnav {
+  flex: none;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
 .body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 20px 24px 24px;
-  background: var(--bg);
+  padding: 16px 20px 20px;
+  background: var(--pink-50);
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #d3cbc6 transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.body::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #d3cbc6;
+  background-clip: content-box;
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .footer {
@@ -137,7 +162,8 @@
 
   .header,
   .body,
-  .footer {
+  .footer,
+  .subnav {
     padding-left: 18px;
     padding-right: 18px;
   }

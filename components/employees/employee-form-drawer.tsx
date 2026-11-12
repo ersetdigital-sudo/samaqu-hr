@@ -8,6 +8,7 @@ import {
   FormGrid,
   FormInfoStrip,
   FormSection,
+  FormSectionNav,
   FormUnsavedIndicator,
 } from "@/components/ui/form-section";
 import {
@@ -93,18 +94,50 @@ const FIELD_ORDER: (keyof EmployeeInput)[] = [
   "birthDate",
   "nik",
   "address",
+  "personalEmail",
+  "workEmail",
+  "phone",
+  "emergencyPhone",
   "position",
   "department",
   "location",
   "joinedAt",
-  "personalEmail",
-  "workEmail",
-  "phone",
-  "emergencyName",
-  "emergencyRelation",
-  "emergencyPhone",
   "probationStart",
   "probationEnd",
+  "emergencyName",
+  "emergencyRelation",
+];
+
+const FORM_SECTIONS: {
+  id: string;
+  label: string;
+  fields: (keyof EmployeeInput)[];
+}[] = [
+  {
+    id: "employee-identitas",
+    label: "Identitas",
+    fields: ["fullName", "birthPlace", "birthDate", "nik", "address"],
+  },
+  {
+    id: "employee-kontak",
+    label: "Kontak",
+    fields: ["personalEmail", "workEmail", "phone", "emergencyPhone"],
+  },
+  {
+    id: "employee-pekerjaan",
+    label: "Pekerjaan",
+    fields: ["position", "department", "location", "joinedAt"],
+  },
+  {
+    id: "employee-probation",
+    label: "Probation",
+    fields: ["probationStart", "probationEnd"],
+  },
+  {
+    id: "employee-kontak-darurat",
+    label: "Kontak Darurat",
+    fields: ["emergencyName", "emergencyRelation"],
+  },
 ];
 
 export function EmployeeFormDrawer({
@@ -133,7 +166,9 @@ export function EmployeeFormDrawer({
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(FORM_SECTIONS[0].id);
   const baselineRef = useRef<EmployeeInput | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -148,7 +183,78 @@ export function EmployeeFormDrawer({
     setFormError(null);
     setSaving(false);
     setDiscardOpen(false);
+    setActiveSection(FORM_SECTIONS[0].id);
+    scrollRef.current?.scrollTo({ top: 0 });
   }, [open, initial, initialInput]);
+
+  useEffect(() => {
+    if (!open) return;
+    const root = scrollRef.current;
+    if (!root) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rootTop = root.getBoundingClientRect().top;
+      let current = FORM_SECTIONS[0].id;
+
+      for (const section of FORM_SECTIONS) {
+        const element = root.querySelector<HTMLElement>(
+          `[data-form-section="${section.id}"]`
+        );
+        if (!element) continue;
+        if (element.getBoundingClientRect().top - rootTop <= 20) {
+          current = section.id;
+        }
+      }
+
+      if (
+        root.scrollHeight > root.clientHeight + 2 &&
+        root.scrollTop + root.clientHeight >= root.scrollHeight - 2
+      ) {
+        current = FORM_SECTIONS[FORM_SECTIONS.length - 1].id;
+      }
+
+      setActiveSection((previous) =>
+        previous === current ? previous : current
+      );
+    };
+
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [open]);
+
+  const scrollToSection = (id: string) => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const element = root.querySelector<HTMLElement>(
+      `[data-form-section="${id}"]`
+    );
+    if (!element) return;
+
+    setActiveSection(id);
+    const top =
+      root.scrollTop +
+      element.getBoundingClientRect().top -
+      root.getBoundingClientRect().top -
+      10;
+
+    root.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  };
+
+  const navItems = FORM_SECTIONS.map((section) => ({
+    id: section.id,
+    label: section.label,
+    error: section.fields.some((field) => Boolean(errors[field])),
+  }));
 
   const dirty =
     baselineRef.current !== null &&
@@ -265,6 +371,14 @@ export function EmployeeFormDrawer({
         busy={saving}
         onRequestClose={requestClose}
         footerStatus={dirty ? <FormUnsavedIndicator /> : null}
+        bodyRef={scrollRef}
+        subnav={
+          <FormSectionNav
+            items={navItems}
+            activeId={activeSection}
+            onSelect={scrollToSection}
+          />
+        }
         footer={
           <>
             <button
@@ -317,6 +431,7 @@ export function EmployeeFormDrawer({
           />
 
           <FormSection
+            sectionId="employee-identitas"
             icon="users"
             title="Identitas"
             description="Data diri sesuai dokumen resmi."
@@ -331,6 +446,7 @@ export function EmployeeFormDrawer({
                   className="inp"
                   data-employee-field="fullName"
                   aria-invalid={Boolean(errors.fullName)}
+                  placeholder="cth. Salsabila Putri"
                   value={form.fullName}
                   onChange={(event) => set("fullName", event.target.value)}
                 />
@@ -361,6 +477,7 @@ export function EmployeeFormDrawer({
                   className="inp"
                   data-employee-field="birthPlace"
                   aria-invalid={Boolean(errors.birthPlace)}
+                  placeholder="cth. Bandung"
                   value={form.birthPlace}
                   onChange={(event) => set("birthPlace", event.target.value)}
                 />
@@ -395,6 +512,7 @@ export function EmployeeFormDrawer({
                   aria-invalid={Boolean(errors.nik)}
                   inputMode="numeric"
                   maxLength={16}
+                  placeholder="16 digit angka"
                   value={form.nik}
                   onChange={(event) => set("nik", event.target.value)}
                 />
@@ -406,6 +524,7 @@ export function EmployeeFormDrawer({
                   data-employee-field="address"
                   aria-invalid={Boolean(errors.address)}
                   rows={2}
+                  placeholder="cth. Jl. Merdeka No. 10, Bandung"
                   value={form.address}
                   onChange={(event) => set("address", event.target.value)}
                 />
@@ -414,6 +533,86 @@ export function EmployeeFormDrawer({
           </FormSection>
 
           <FormSection
+            sectionId="employee-kontak"
+            icon="mail"
+            title="Kontak"
+            description="Email dan nomor yang bisa dihubungi."
+          >
+            <FormGrid>
+              <FormField
+                label="Email pribadi"
+                required
+                span="half"
+                error={errors.personalEmail}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="personalEmail"
+                  aria-invalid={Boolean(errors.personalEmail)}
+                  type="email"
+                  placeholder="nama@email.com"
+                  value={form.personalEmail}
+                  onChange={(event) =>
+                    set("personalEmail", event.target.value)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Email kerja"
+                required
+                span="half"
+                error={errors.workEmail}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="workEmail"
+                  aria-invalid={Boolean(errors.workEmail)}
+                  type="email"
+                  placeholder="nama@samaqu.id"
+                  value={form.workEmail}
+                  onChange={(event) => set("workEmail", event.target.value)}
+                />
+              </FormField>
+
+              <FormField
+                label="Nomor HP"
+                required
+                span="half"
+                error={errors.phone}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="phone"
+                  aria-invalid={Boolean(errors.phone)}
+                  placeholder="cth. 0812 3456 7890"
+                  value={form.phone}
+                  onChange={(event) => set("phone", event.target.value)}
+                />
+              </FormField>
+
+              <FormField
+                label="Nomor kontak darurat"
+                required
+                span="half"
+                error={errors.emergencyPhone}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyPhone"
+                  aria-invalid={Boolean(errors.emergencyPhone)}
+                  placeholder="cth. 0812 3456 7890"
+                  value={form.emergencyPhone}
+                  onChange={(event) =>
+                    set("emergencyPhone", event.target.value)
+                  }
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            sectionId="employee-pekerjaan"
             icon="job"
             title="Pekerjaan"
             description="Posisi, penempatan, dan status kepegawaian."
@@ -428,6 +627,7 @@ export function EmployeeFormDrawer({
                   className="inp"
                   data-employee-field="position"
                   aria-invalid={Boolean(errors.position)}
+                  placeholder="cth. Customer Service"
                   value={form.position}
                   onChange={(event) => set("position", event.target.value)}
                 />
@@ -553,115 +753,7 @@ export function EmployeeFormDrawer({
           </FormSection>
 
           <FormSection
-            icon="mail"
-            title="Kontak"
-            description="Email dan nomor yang bisa dihubungi."
-          >
-            <FormGrid>
-              <FormField
-                label="Email pribadi"
-                required
-                error={errors.personalEmail}
-              >
-                <input
-                  className="inp"
-                  data-employee-field="personalEmail"
-                  aria-invalid={Boolean(errors.personalEmail)}
-                  type="email"
-                  value={form.personalEmail}
-                  onChange={(event) =>
-                    set("personalEmail", event.target.value)
-                  }
-                />
-              </FormField>
-
-              <FormField
-                label="Email kerja"
-                required
-                error={errors.workEmail}
-              >
-                <input
-                  className="inp"
-                  data-employee-field="workEmail"
-                  aria-invalid={Boolean(errors.workEmail)}
-                  type="email"
-                  value={form.workEmail}
-                  onChange={(event) => set("workEmail", event.target.value)}
-                />
-              </FormField>
-
-              <FormField label="Nomor HP" required error={errors.phone}>
-                <input
-                  className="inp"
-                  data-employee-field="phone"
-                  aria-invalid={Boolean(errors.phone)}
-                  value={form.phone}
-                  onChange={(event) => set("phone", event.target.value)}
-                />
-              </FormField>
-            </FormGrid>
-          </FormSection>
-
-          <FormSection
-            icon="phone"
-            title="Kontak Darurat"
-            description="Orang yang dihubungi jika terjadi keadaan darurat."
-          >
-            <FormGrid>
-              <FormField
-                label="Nama kontak darurat"
-                required
-                error={errors.emergencyName}
-              >
-                <input
-                  className="inp"
-                  data-employee-field="emergencyName"
-                  aria-invalid={Boolean(errors.emergencyName)}
-                  value={form.emergencyName}
-                  onChange={(event) =>
-                    set("emergencyName", event.target.value)
-                  }
-                />
-              </FormField>
-
-              <FormField
-                label="Hubungan keluarga"
-                required
-                span="half"
-                error={errors.emergencyRelation}
-              >
-                <input
-                  className="inp"
-                  data-employee-field="emergencyRelation"
-                  aria-invalid={Boolean(errors.emergencyRelation)}
-                  placeholder="cth. Istri, Ayah"
-                  value={form.emergencyRelation}
-                  onChange={(event) =>
-                    set("emergencyRelation", event.target.value)
-                  }
-                />
-              </FormField>
-
-              <FormField
-                label="Nomor kontak darurat"
-                required
-                span="half"
-                error={errors.emergencyPhone}
-              >
-                <input
-                  className="inp"
-                  data-employee-field="emergencyPhone"
-                  aria-invalid={Boolean(errors.emergencyPhone)}
-                  value={form.emergencyPhone}
-                  onChange={(event) =>
-                    set("emergencyPhone", event.target.value)
-                  }
-                />
-              </FormField>
-            </FormGrid>
-          </FormSection>
-
-          <FormSection
+            sectionId="employee-probation"
             icon="clock"
             title="Probation"
             description="Masa percobaan karyawan. Isi jika berlaku."
@@ -697,6 +789,51 @@ export function EmployeeFormDrawer({
                   value={form.probationEnd ?? ""}
                   onChange={(event) =>
                     set("probationEnd", event.target.value || null)
+                  }
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            sectionId="employee-kontak-darurat"
+            icon="phone"
+            title="Kontak Darurat"
+            description="Nama dan hubungan orang yang dihubungi saat darurat."
+          >
+            <FormGrid>
+              <FormField
+                label="Nama kontak darurat"
+                required
+                span="half"
+                error={errors.emergencyName}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyName"
+                  aria-invalid={Boolean(errors.emergencyName)}
+                  placeholder="cth. Budi Santoso"
+                  value={form.emergencyName}
+                  onChange={(event) =>
+                    set("emergencyName", event.target.value)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Hubungan keluarga"
+                required
+                span="half"
+                error={errors.emergencyRelation}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyRelation"
+                  aria-invalid={Boolean(errors.emergencyRelation)}
+                  placeholder="cth. Istri, Ayah"
+                  value={form.emergencyRelation}
+                  onChange={(event) =>
+                    set("emergencyRelation", event.target.value)
                   }
                 />
               </FormField>

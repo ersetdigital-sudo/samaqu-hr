@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import styles from "./form-drawer.module.css";
 
 const FOCUSABLE =
@@ -18,6 +24,8 @@ export function FormDrawer({
   onRequestClose,
   footer,
   footerStatus,
+  subnav,
+  bodyRef,
   children,
 }: {
   open: boolean;
@@ -27,6 +35,10 @@ export function FormDrawer({
   onRequestClose: () => void;
   footer: ReactNode;
   footerStatus?: ReactNode;
+  /** Baris navigasi seksi yang menempel di bawah header. */
+  subnav?: ReactNode;
+  /** Ref ke area isi yang bisa di-scroll (dipakai navigasi seksi). */
+  bodyRef?: RefObject<HTMLDivElement | null>;
   children: ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -142,7 +154,11 @@ export function FormDrawer({
           </button>
         </div>
 
-        <div className={styles.body}>{children}</div>
+        {subnav && <div className={styles.subnav}>{subnav}</div>}
+
+        <div className={styles.body} ref={bodyRef}>
+          {children}
+        </div>
         <div className={styles.footer}>
           <div className={styles.footerStatus}>{footerStatus}</div>
           <div className={styles.footerActions}>{footer}</div>

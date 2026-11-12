@@ -7,18 +7,24 @@ import styles from "./form-section.module.css";
 
 /** Kartu seksi form reusable: ikon, judul, deskripsi, dan pembatas. */
 export function FormSection({
+  sectionId,
   icon,
   title,
   description,
   children,
 }: {
+  sectionId?: string;
   icon: IconName;
   title: string;
   description?: string;
   children: ReactNode;
 }) {
   return (
-    <section className={styles.section}>
+    <section
+      className={styles.section}
+      id={sectionId}
+      data-form-section={sectionId}
+    >
       <div className={styles.sectionHeader}>
         <span className={styles.iconWrap} aria-hidden="true">
           <Icon name={icon} style={{ width: 17, height: 17 }} />
@@ -107,5 +113,45 @@ export function FormUnsavedIndicator({
       <span className={styles.unsavedDot} aria-hidden="true" />
       {label}
     </span>
+  );
+}
+
+export type FormNavItem = {
+  id: string;
+  label: string;
+  error?: boolean;
+};
+
+export function FormSectionNav({
+  items,
+  activeId,
+  onSelect,
+}: {
+  items: FormNavItem[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <nav className={styles.nav} aria-label="Bagian formulir">
+      {items.map((item) => {
+        const active = item.id === activeId;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            className={`${styles.navChip} ${
+              active ? styles.navChipActive : ""
+            }`}
+            aria-current={active ? "true" : undefined}
+            onClick={() => onSelect(item.id)}
+          >
+            {item.label}
+            {item.error && (
+              <span className={styles.navError} aria-hidden="true" />
+            )}
+          </button>
+        );
+      })}
+    </nav>
   );
 }
