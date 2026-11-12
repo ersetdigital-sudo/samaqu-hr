@@ -361,6 +361,7 @@ export function EmployeeFormDrawer({
       <FormDrawer
         open={open}
         title={initial ? "Edit Data Karyawan" : "Tambah Karyawan"}
+        size="lg"
         description={
           applicationId
             ? "Data dari lamaran sudah terisi. Lengkapi sisanya sebelum menyimpan."

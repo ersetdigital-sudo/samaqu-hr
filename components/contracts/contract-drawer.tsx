@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { contractStatusTone } from "@/lib/contracts/constants";
 import { contractDurationLabel, tenureLabel } from "@/lib/contracts/rules";
 import type {
@@ -94,18 +96,19 @@ export function ContractDrawer({
   };
 
   return (
-    <div className={`drawer ${employeeId ? "show" : ""}`} id="contractDrawer">
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.md} ${
+        employeeId ? "show" : ""
+      }`}
+      id="contractDrawer"
+    >
       {employeeId && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Kontrak & Masa Kerja</span>
-            <button className="btn btn-g !px-3" onClick={onClose}>
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Kontrak & Masa Kerja"
+            onClose={onClose}
+            closeLabel="Tutup kontrak"
+          />
 
           <div className="p-6">
             {loading && <div className="sub text-[13px]">Memuat kontrak…</div>}

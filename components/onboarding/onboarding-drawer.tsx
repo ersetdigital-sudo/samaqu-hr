@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/recruitment-live/ui";
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { formatDateID } from "@/lib/datetime";
 import { ini } from "@/lib/data";
 import {
@@ -263,22 +265,16 @@ export function OnboardingDrawer({
   }
 
   return (
-    <div className={`drawer ${entry ? "show" : ""}`}>
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.md} ${entry ? "show" : ""}`}
+    >
       {entry && progress && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Checklist Onboarding</span>
-            <button
-              className="btn btn-g !px-3"
-              onClick={onClose}
-              aria-label="Tutup checklist onboarding"
-            >
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Checklist Onboarding"
+            onClose={onClose}
+            closeLabel="Tutup checklist onboarding"
+          />
 
           <div className="p-6">
             <div className="flex items-center gap-4 mb-5">

@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import { DRAWER_SIZE_CLASS, type DrawerSize } from "./drawer-sizes";
 import styles from "./form-drawer.module.css";
 
 const FOCUSABLE =
@@ -20,6 +21,7 @@ export function FormDrawer({
   open,
   title,
   description,
+  size = "md",
   busy = false,
   onRequestClose,
   footer,
@@ -31,6 +33,7 @@ export function FormDrawer({
   open: boolean;
   title: string;
   description?: string;
+  size?: DrawerSize;
   busy?: boolean;
   onRequestClose: () => void;
   footer: ReactNode;
@@ -125,7 +128,7 @@ export function FormDrawer({
     <div className={styles.overlay} role="presentation">
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={`${styles.panel} ${DRAWER_SIZE_CLASS[size]}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

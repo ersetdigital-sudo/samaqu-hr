@@ -6,6 +6,8 @@ import { EmployeeDocumentsPanel } from "@/components/documents/employee-document
 import { EmployeePositionHistory } from "@/components/position-history/employee-position-history";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { ini } from "@/lib/data";
 import { formatIsoDateID } from "@/lib/employees/format";
 import {
@@ -175,18 +177,19 @@ export function EmployeeDrawer({
   const summary = detail ?? preview;
 
   return (
-    <div className={`drawer ${employeeId ? "show" : ""}`} id="empDrawer">
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.md} ${
+        employeeId ? "show" : ""
+      }`}
+      id="empDrawer"
+    >
       {employeeId && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Detail Karyawan</span>
-            <button className="btn btn-g !px-3" onClick={onClose}>
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Detail Karyawan"
+            onClose={onClose}
+            closeLabel="Tutup detail karyawan"
+          />
 
           <div className="p-6">
             {summary && (

@@ -1,6 +1,8 @@
 "use client";
 
 import { PositionHistoryDetail } from "@/components/position-history/position-history-detail";
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { ini } from "@/lib/data";
 import type { PositionHistoryEntry } from "@/lib/position-history/types";
 
@@ -12,22 +14,16 @@ export function PositionHistoryDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className={`drawer ${entry ? "show" : ""}`}>
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.sm} ${entry ? "show" : ""}`}
+    >
       {entry && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Detail Perubahan</span>
-            <button
-              className="btn btn-g !px-3"
-              onClick={onClose}
-              aria-label="Tutup detail perubahan"
-            >
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Detail Perubahan"
+            onClose={onClose}
+            closeLabel="Tutup detail perubahan"
+          />
 
           <div className="p-6">
             <div className="flex items-center gap-4 mb-5">

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { employeeStatusTone } from "@/components/employees/status-tone";
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { ini } from "@/lib/data";
 import {
   ORGANIZATION_ISSUE_DESCRIPTIONS,
@@ -31,22 +33,16 @@ export function OrganizationDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className={`drawer ${node ? "show" : ""}`}>
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.sm} ${node ? "show" : ""}`}
+    >
       {node && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Ringkasan Karyawan</span>
-            <button
-              className="btn btn-g !px-3"
-              onClick={onClose}
-              aria-label="Tutup ringkasan karyawan"
-            >
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Ringkasan Karyawan"
+            onClose={onClose}
+            closeLabel="Tutup ringkasan karyawan"
+          />
 
           <div className="p-6">
             <div className="flex items-center gap-4 mb-5">

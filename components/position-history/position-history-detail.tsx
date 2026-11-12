@@ -62,12 +62,14 @@ export function PositionHistoryDetail({
             style={{ background: "#FAF7F5" }}
             key={row.field}
           >
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <span className="text-[11px] sub">
                 {POSITION_FIELD_LABELS[row.field]}
               </span>
               {!changed.has(row.field) && (
-                <span className="text-[10px] sub">Tidak berubah</span>
+                <span className="text-[10px] sub whitespace-nowrap">
+                  Tidak berubah
+                </span>
               )}
             </div>
             <div className="text-[13px] mt-0.5 break-words">

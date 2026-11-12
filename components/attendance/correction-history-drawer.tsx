@@ -1,5 +1,7 @@
 "use client";
 
+import { DrawerHeader } from "@/components/ui/drawer-header";
+import { DRAWER_SIZE_CLASS } from "@/components/ui/drawer-sizes";
 import { formatClockID, formatDateID, formatDateTimeID } from "@/lib/datetime";
 import type {
   AttendanceCorrection,
@@ -18,22 +20,16 @@ export function CorrectionHistoryDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className={`drawer ${target ? "show" : ""}`}>
+    <div
+      className={`drawer ${DRAWER_SIZE_CLASS.md} ${target ? "show" : ""}`}
+    >
       {target && (
         <>
-          <div
-            className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <span className="font-bold">Riwayat Koreksi</span>
-            <button
-              className="btn btn-g !px-3"
-              onClick={onClose}
-              aria-label="Tutup riwayat koreksi"
-            >
-              ✕
-            </button>
-          </div>
+          <DrawerHeader
+            title="Riwayat Koreksi"
+            onClose={onClose}
+            closeLabel="Tutup riwayat koreksi"
+          />
 
           <div className="p-6">
             <div className="font-bold text-[16px]">

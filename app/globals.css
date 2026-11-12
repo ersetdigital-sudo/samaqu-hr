@@ -16,6 +16,11 @@
   --badb: #fdecec;
   --info: #2b6cb0;
   --infob: #eaf2fb;
+
+  /* Lebar standar drawer: kecil, sedang, besar. */
+  --drawer-sm: 420px;
+  --drawer-md: 480px;
+  --drawer-lg: 600px;
 }
 
 body {
@@ -425,7 +430,7 @@ tbody tr:hover {
   top: 0;
   right: 0;
   height: 100%;
-  width: min(560px, 100%);
+  width: min(var(--drawer-width, var(--drawer-md)), 90vw);
   background: #fff;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
   transform: translateX(100%);
@@ -438,6 +443,24 @@ tbody tr:hover {
 .drawer.show {
   transform: none;
   visibility: visible;
+}
+
+.drawer-sm {
+  --drawer-width: var(--drawer-sm);
+}
+
+.drawer-md {
+  --drawer-width: var(--drawer-md);
+}
+
+.drawer-lg {
+  --drawer-width: var(--drawer-lg);
+}
+
+@media (max-width: 640px) {
+  .drawer {
+    width: 100%;
+  }
 }
 
 .star {
