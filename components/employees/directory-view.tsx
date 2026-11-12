@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { EmployeeDrawer } from "@/components/employees/employee-drawer";
-import { EmployeeModal } from "@/components/employees/employee-modal";
+import { EmployeeFormDrawer } from "@/components/employees/employee-form-drawer";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
@@ -79,6 +79,7 @@ export function DirectoryView({
     employeeId: string | null;
   } | null>(null);
   const [positionHistoryVersion, setPositionHistoryVersion] = useState(0);
+  const formReturnName = useRef<string | null>(null);
 
   useEffect(() => {
     if (initialEmployeeId) setDetailId(initialEmployeeId);
@@ -138,13 +139,39 @@ export function DirectoryView({
     filters.employmentType !== "Semua";
 
   const openCreate = () => {
+    formReturnName.current = null;
     setEditing(null);
     setActiveConversion(null);
     setFormOpen(true);
   };
 
+  const closeEmployeeForm = () => {
+    const returnName = formReturnName.current;
+    formReturnName.current = null;
+
+    setFormOpen(false);
+    setEditing(null);
+    if (activeConversion) {
+      setActiveConversion(null);
+      window.history.replaceState(null, "", "/employees/direktori");
+    }
+
+    if (returnName) {
+      requestAnimationFrame(() => {
+        const target = Array.from(
+          document.querySelectorAll<HTMLElement>("button[aria-label]")
+        ).find(
+          (button) =>
+            button.getAttribute("aria-label") === `Lihat detail ${returnName}`
+        );
+        target?.focus();
+      });
+    }
+  };
+
   const handleSaved = (message: string, employee?: EmployeeSummary) => {
     const conversionActive = Boolean(activeConversion);
+    formReturnName.current = null;
     setFormOpen(false);
     setEditing(null);
     setActiveConversion(null);
@@ -431,6 +458,7 @@ export function DirectoryView({
           window.history.replaceState(null, "", "/employees/direktori");
         }}
         onEdit={(detail) => {
+          formReturnName.current = detail.fullName;
           setDetailId(null);
           setEditing(detail);
           setFormOpen(true);
@@ -441,7 +469,7 @@ export function DirectoryView({
         }
       />
 
-      <EmployeeModal
+      <EmployeeFormDrawer
         open={formOpen}
         initial={editing}
         initialInput={activeConversion?.prefill ?? null}
@@ -449,14 +477,7 @@ export function DirectoryView({
         applicationId={activeConversion?.applicationId ?? null}
         nextId={nextId}
         managers={rows}
-        onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
-          if (activeConversion) {
-            setActiveConversion(null);
-            window.history.replaceState(null, "", "/employees/direktori");
-          }
-        }}
+        onClose={closeEmployeeForm}
         onSaved={handleSaved}
       />
 

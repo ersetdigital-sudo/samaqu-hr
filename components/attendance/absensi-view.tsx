@@ -16,6 +16,7 @@ import {
   buildAttendanceMonthDays,
   computeAttendanceDay,
   formatDurationMinutes,
+  monthRange,
   shiftMonth,
   workDaysLabel,
 } from "@/lib/attendance/rules";
@@ -40,6 +41,9 @@ export function AbsensiView({
   const employee = data.employee;
   const todayIso = data.todayIso;
   const currentMonth = todayIso.slice(0, 7);
+  const monthBeforeJoining = Boolean(
+    employee?.joinedAt && monthRange(month).to < employee.joinedAt
+  );
 
   const todayHoliday = data.holidays.find(
     (holiday) => holiday.holidayDate === todayIso
@@ -341,7 +345,9 @@ export function AbsensiView({
                     Belum ada riwayat
                   </div>
                   <div className="sub text-[12px] mt-1">
-                    Tidak ada hari kerja pada bulan ini.
+                    {monthBeforeJoining
+                      ? "Belum bergabung pada bulan ini."
+                      : "Tidak ada hari kerja pada bulan ini."}
                   </div>
                 </div>
               )}
