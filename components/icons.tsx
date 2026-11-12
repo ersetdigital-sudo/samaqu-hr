@@ -81,6 +81,18 @@ const ICONS: Record<IconName, ReactNode> = {
       <path d="m20 20-3.5-3.5" />
     </>
   ),
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="m3.5 7 8.5 6 8.5-6" />
+    </>
+  ),
+  phone: (
+    <>
+      <rect x="7" y="2" width="10" height="20" rx="2.5" />
+      <path d="M11 18h2" />
+    </>
+  ),
   wallet: (
     <>
       <rect x="3" y="6" width="18" height="13" rx="2.5" />

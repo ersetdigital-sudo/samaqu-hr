@@ -14,6 +14,8 @@ export type IconName =
   | "book"
   | "bookSpine"
   | "search"
+  | "mail"
+  | "phone"
   | "wallet"
   | "target"
   | "settings"

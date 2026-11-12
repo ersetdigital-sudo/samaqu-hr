@@ -10,7 +10,7 @@
 
 .panel {
   width: min(600px, 100%);
-  height: 100%;
+  height: 100dvh;
   max-height: 100dvh;
   background: #fff;
   display: flex;
@@ -28,6 +28,53 @@
   gap: 16px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.headerTitle {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.headerDescription {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--mute);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.closeButton:hover {
+  background: var(--pink-50);
+  border-color: var(--pink-100);
+  color: var(--ink);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .body {
@@ -35,17 +82,34 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 20px 24px;
+  padding: 20px 24px 24px;
+  background: var(--bg);
 }
 
 .footer {
   flex: none;
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 16px 24px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
-  background: #fcfbfa;
+  background: #fff;
+  box-shadow: 0 -10px 24px rgba(31, 26, 28, 0.05);
+}
+
+.footerStatus {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
 }
 
 @keyframes slideIn {
@@ -76,6 +140,14 @@
   .footer {
     padding-left: 18px;
     padding-right: 18px;
+  }
+
+  .headerTitle {
+    font-size: 19px;
+  }
+
+  .footer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
 }
 

@@ -17,6 +17,7 @@ export function FormDrawer({
   busy = false,
   onRequestClose,
   footer,
+  footerStatus,
   children,
 }: {
   open: boolean;
@@ -25,6 +26,7 @@ export function FormDrawer({
   busy?: boolean;
   onRequestClose: () => void;
   footer: ReactNode;
+  footerStatus?: ReactNode;
   children: ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -120,18 +122,18 @@ export function FormDrawer({
       >
         <div className={styles.header}>
           <div className="min-w-0">
-            <div className="font-bold text-[17px]" id={titleId}>
+            <div className={styles.headerTitle} id={titleId}>
               {title}
             </div>
             {description && (
-              <div className="sub text-[13px] mt-0.5" id={descriptionId}>
+              <div className={styles.headerDescription} id={descriptionId}>
                 {description}
               </div>
             )}
           </div>
           <button
             type="button"
-            className="btn btn-g !px-3 shrink-0"
+            className={styles.closeButton}
             onClick={onRequestClose}
             disabled={busy}
             aria-label="Tutup"
@@ -141,7 +143,10 @@ export function FormDrawer({
         </div>
 
         <div className={styles.body}>{children}</div>
-        <div className={styles.footer}>{footer}</div>
+        <div className={styles.footer}>
+          <div className={styles.footerStatus}>{footerStatus}</div>
+          <div className={styles.footerActions}>{footer}</div>
+        </div>
       </div>
     </div>
   );

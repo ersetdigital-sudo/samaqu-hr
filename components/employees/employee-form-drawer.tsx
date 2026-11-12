@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/recruitment-live/ui";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import {
+  FormField,
+  FormGrid,
+  FormInfoStrip,
+  FormSection,
+  FormUnsavedIndicator,
+} from "@/components/ui/form-section";
+import {
   DEPARTMENTS,
   EMPLOYEE_STATUSES,
   EMPLOYMENT_TYPES,
@@ -84,8 +91,8 @@ const FIELD_ORDER: (keyof EmployeeInput)[] = [
   "fullName",
   "birthPlace",
   "birthDate",
-  "address",
   "nik",
+  "address",
   "position",
   "department",
   "location",
@@ -99,15 +106,6 @@ const FIELD_ORDER: (keyof EmployeeInput)[] = [
   "probationStart",
   "probationEnd",
 ];
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <div className="text-[11px] mt-1" style={{ color: "var(--bad)" }}>
-      {message}
-    </div>
-  );
-}
 
 export function EmployeeFormDrawer({
   open,
@@ -266,6 +264,7 @@ export function EmployeeFormDrawer({
         }
         busy={saving}
         onRequestClose={requestClose}
+        footerStatus={dirty ? <FormUnsavedIndicator /> : null}
         footer={
           <>
             <button
@@ -310,314 +309,399 @@ export function EmployeeFormDrawer({
           </div>
         )}
 
-        <div className="mb-5">
-          <label className="lbl">Employee ID</label>
-          <input
-            className="inp"
+        <div className="flex flex-col gap-4 mt-4">
+          <FormInfoStrip
+            label="Employee ID"
             value={initial ? initial.id : nextId}
-            readOnly
-            disabled
+            hint="Dibuat otomatis oleh sistem dan tidak bisa diubah manual."
           />
-          <div className="text-[11px] sub mt-1">
-            Tidak bisa diubah manual — dibuat berurutan oleh sistem.
-          </div>
-        </div>
 
-        <div className="font-bold text-[13px] mb-3">Identitas</div>
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="lbl">Nama lengkap *</label>
-            <input
-              className="inp"
-              data-employee-field="fullName"
-              value={form.fullName}
-              onChange={(event) => set("fullName", event.target.value)}
-            />
-            <FieldError message={errors.fullName} />
-          </div>
-          <div>
-            <label className="lbl">Jenis kelamin</label>
-            <select
-              className="inp"
-              data-employee-field="gender"
-              value={form.gender}
-              onChange={(event) => set("gender", event.target.value as Gender)}
-            >
-              {GENDERS.map((gender) => (
-                <option key={gender}>{gender}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="lbl">Tempat lahir *</label>
-            <input
-              className="inp"
-              data-employee-field="birthPlace"
-              value={form.birthPlace}
-              onChange={(event) => set("birthPlace", event.target.value)}
-            />
-            <FieldError message={errors.birthPlace} />
-          </div>
-          <div>
-            <label className="lbl">Tanggal lahir *</label>
-            <input
-              className="inp"
-              data-employee-field="birthDate"
-              type="date"
-              value={form.birthDate}
-              onChange={(event) => set("birthDate", event.target.value)}
-            />
-            <FieldError message={errors.birthDate} />
-          </div>
-          <div className="md:col-span-2">
-            <label className="lbl">Alamat *</label>
-            <textarea
-              className="inp"
-              data-employee-field="address"
-              rows={2}
-              value={form.address}
-              onChange={(event) => set("address", event.target.value)}
-            />
-            <FieldError message={errors.address} />
-          </div>
-          <div>
-            <label className="lbl">NIK KTP *</label>
-            <input
-              className="inp"
-              data-employee-field="nik"
-              inputMode="numeric"
-              maxLength={16}
-              value={form.nik}
-              onChange={(event) => set("nik", event.target.value)}
-            />
-            <FieldError message={errors.nik} />
-            <div className="text-[11px] sub mt-1">
-              Hanya tampil di detail identitas untuk role berhak.
-            </div>
-          </div>
-        </div>
-
-        <div className="font-bold text-[13px] mb-3">Data Pekerjaan</div>
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="lbl">Jabatan *</label>
-            <input
-              className="inp"
-              data-employee-field="position"
-              value={form.position}
-              onChange={(event) => set("position", event.target.value)}
-            />
-            <FieldError message={errors.position} />
-          </div>
-          <div>
-            <label className="lbl">Departemen *</label>
-            <select
-              className="inp"
-              data-employee-field="department"
-              value={form.department}
-              onChange={(event) => set("department", event.target.value)}
-            >
-              {DEPARTMENTS.map((department) => (
-                <option key={department}>{department}</option>
-              ))}
-            </select>
-            <FieldError message={errors.department} />
-          </div>
-          <div>
-            <label className="lbl">Lokasi kerja *</label>
-            <select
-              className="inp"
-              data-employee-field="location"
-              value={form.location}
-              onChange={(event) => set("location", event.target.value)}
-            >
-              {LOCATIONS.map((location) => (
-                <option key={location}>{location}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="lbl">Atasan langsung</label>
-            <select
-              className="inp"
-              data-employee-field="managerId"
-              value={form.managerId ?? ""}
-              onChange={(event) =>
-                set("managerId", event.target.value || null)
-              }
-            >
-              <option value="">— Tidak ada —</option>
-              {managers
-                .filter((manager) => manager.id !== initial?.id)
-                .map((manager) => (
-                  <option key={manager.id} value={manager.id}>
-                    {manager.fullName} · {manager.position}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div>
-            <label className="lbl">Tanggal bergabung *</label>
-            <input
-              className="inp"
-              data-employee-field="joinedAt"
-              type="date"
-              value={form.joinedAt}
-              onChange={(event) => set("joinedAt", event.target.value)}
-            />
-            <FieldError message={errors.joinedAt} />
-          </div>
-          <div>
-            <label className="lbl">Jenis hubungan kerja</label>
-            {initial ? (
-              <>
+          <FormSection
+            icon="users"
+            title="Identitas"
+            description="Data diri sesuai dokumen resmi."
+          >
+            <FormGrid>
+              <FormField
+                label="Nama lengkap"
+                required
+                error={errors.fullName}
+              >
                 <input
                   className="inp"
-                  data-employee-field="employmentType"
-                  value={form.employmentType}
-                  disabled
+                  data-employee-field="fullName"
+                  aria-invalid={Boolean(errors.fullName)}
+                  value={form.fullName}
+                  onChange={(event) => set("fullName", event.target.value)}
                 />
-                <div className="text-[11px] sub mt-1">
-                  Hanya bisa diubah lewat modul Kontrak &amp; Masa Kerja.
-                </div>
-              </>
-            ) : (
-              <>
+              </FormField>
+
+              <FormField label="Jenis kelamin" span="half">
                 <select
                   className="inp"
-                  data-employee-field="employmentType"
-                  value={form.employmentType}
+                  data-employee-field="gender"
+                  value={form.gender}
                   onChange={(event) =>
-                    set(
-                      "employmentType",
-                      event.target.value as EmploymentType
-                    )
+                    set("gender", event.target.value as Gender)
                   }
                 >
-                  {EMPLOYMENT_TYPES.map((type) => (
-                    <option key={type}>{type}</option>
+                  {GENDERS.map((gender) => (
+                    <option key={gender}>{gender}</option>
                   ))}
                 </select>
-                <div className="text-[11px] sub mt-1">
-                  Nilai awal sebelum kontrak pertama dibuat.
-                </div>
-              </>
-            )}
-          </div>
-          <div>
-            <label className="lbl">Status</label>
-            <select
-              className="inp"
-              data-employee-field="status"
-              value={form.status}
-              onChange={(event) =>
-                set("status", event.target.value as EmployeeStatus)
-              }
-            >
-              {EMPLOYEE_STATUSES.map((status) => (
-                <option key={status}>{status}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+              </FormField>
 
-        <div className="font-bold text-[13px] mb-3">Kontak</div>
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="lbl">Email pribadi *</label>
-            <input
-              className="inp"
-              data-employee-field="personalEmail"
-              type="email"
-              value={form.personalEmail}
-              onChange={(event) => set("personalEmail", event.target.value)}
-            />
-            <FieldError message={errors.personalEmail} />
-          </div>
-          <div>
-            <label className="lbl">Email kerja *</label>
-            <input
-              className="inp"
-              data-employee-field="workEmail"
-              type="email"
-              value={form.workEmail}
-              onChange={(event) => set("workEmail", event.target.value)}
-            />
-            <FieldError message={errors.workEmail} />
-          </div>
-          <div>
-            <label className="lbl">Nomor HP *</label>
-            <input
-              className="inp"
-              data-employee-field="phone"
-              value={form.phone}
-              onChange={(event) => set("phone", event.target.value)}
-            />
-            <FieldError message={errors.phone} />
-          </div>
-          <div>
-            <label className="lbl">Nama kontak darurat *</label>
-            <input
-              className="inp"
-              data-employee-field="emergencyName"
-              value={form.emergencyName}
-              onChange={(event) => set("emergencyName", event.target.value)}
-            />
-            <FieldError message={errors.emergencyName} />
-          </div>
-          <div>
-            <label className="lbl">Hubungan keluarga *</label>
-            <input
-              className="inp"
-              data-employee-field="emergencyRelation"
-              placeholder="cth. Istri, Ayah"
-              value={form.emergencyRelation}
-              onChange={(event) =>
-                set("emergencyRelation", event.target.value)
-              }
-            />
-            <FieldError message={errors.emergencyRelation} />
-          </div>
-          <div>
-            <label className="lbl">Nomor kontak darurat *</label>
-            <input
-              className="inp"
-              data-employee-field="emergencyPhone"
-              value={form.emergencyPhone}
-              onChange={(event) => set("emergencyPhone", event.target.value)}
-            />
-            <FieldError message={errors.emergencyPhone} />
-          </div>
-        </div>
+              <FormField
+                label="Tempat lahir"
+                required
+                span="half"
+                error={errors.birthPlace}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="birthPlace"
+                  aria-invalid={Boolean(errors.birthPlace)}
+                  value={form.birthPlace}
+                  onChange={(event) => set("birthPlace", event.target.value)}
+                />
+              </FormField>
 
-        <div className="font-bold text-[13px] mb-3">Probation</div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="lbl">Mulai probation</label>
-            <input
-              className="inp"
-              data-employee-field="probationStart"
-              type="date"
-              value={form.probationStart ?? ""}
-              onChange={(event) =>
-                set("probationStart", event.target.value || null)
-              }
-            />
-            <FieldError message={errors.probationStart} />
-          </div>
-          <div>
-            <label className="lbl">Berakhir probation</label>
-            <input
-              className="inp"
-              data-employee-field="probationEnd"
-              type="date"
-              value={form.probationEnd ?? ""}
-              onChange={(event) =>
-                set("probationEnd", event.target.value || null)
-              }
-            />
-            <FieldError message={errors.probationEnd} />
-          </div>
+              <FormField
+                label="Tanggal lahir"
+                required
+                span="half"
+                error={errors.birthDate}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="birthDate"
+                  aria-invalid={Boolean(errors.birthDate)}
+                  type="date"
+                  value={form.birthDate}
+                  onChange={(event) => set("birthDate", event.target.value)}
+                />
+              </FormField>
+
+              <FormField
+                label="NIK KTP"
+                required
+                span="half"
+                error={errors.nik}
+                hint="Hanya tampil di detail identitas untuk role berhak."
+              >
+                <input
+                  className="inp"
+                  data-employee-field="nik"
+                  aria-invalid={Boolean(errors.nik)}
+                  inputMode="numeric"
+                  maxLength={16}
+                  value={form.nik}
+                  onChange={(event) => set("nik", event.target.value)}
+                />
+              </FormField>
+
+              <FormField label="Alamat" required error={errors.address}>
+                <textarea
+                  className="inp"
+                  data-employee-field="address"
+                  aria-invalid={Boolean(errors.address)}
+                  rows={2}
+                  value={form.address}
+                  onChange={(event) => set("address", event.target.value)}
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            icon="job"
+            title="Pekerjaan"
+            description="Posisi, penempatan, dan status kepegawaian."
+          >
+            <FormGrid>
+              <FormField
+                label="Jabatan"
+                required
+                error={errors.position}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="position"
+                  aria-invalid={Boolean(errors.position)}
+                  value={form.position}
+                  onChange={(event) => set("position", event.target.value)}
+                />
+              </FormField>
+
+              <FormField
+                label="Departemen"
+                required
+                span="half"
+                error={errors.department}
+              >
+                <select
+                  className="inp"
+                  data-employee-field="department"
+                  aria-invalid={Boolean(errors.department)}
+                  value={form.department}
+                  onChange={(event) => set("department", event.target.value)}
+                >
+                  {DEPARTMENTS.map((department) => (
+                    <option key={department}>{department}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Lokasi kerja" required span="half">
+                <select
+                  className="inp"
+                  data-employee-field="location"
+                  value={form.location}
+                  onChange={(event) => set("location", event.target.value)}
+                >
+                  {LOCATIONS.map((location) => (
+                    <option key={location}>{location}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Atasan langsung">
+                <select
+                  className="inp"
+                  data-employee-field="managerId"
+                  value={form.managerId ?? ""}
+                  onChange={(event) =>
+                    set("managerId", event.target.value || null)
+                  }
+                >
+                  <option value="">— Tidak ada —</option>
+                  {managers
+                    .filter((manager) => manager.id !== initial?.id)
+                    .map((manager) => (
+                      <option key={manager.id} value={manager.id}>
+                        {manager.fullName} · {manager.position}
+                      </option>
+                    ))}
+                </select>
+              </FormField>
+
+              <FormField
+                label="Tanggal bergabung"
+                required
+                span="half"
+                error={errors.joinedAt}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="joinedAt"
+                  aria-invalid={Boolean(errors.joinedAt)}
+                  type="date"
+                  value={form.joinedAt}
+                  onChange={(event) => set("joinedAt", event.target.value)}
+                />
+              </FormField>
+
+              <FormField label="Status" span="half">
+                <select
+                  className="inp"
+                  data-employee-field="status"
+                  value={form.status}
+                  onChange={(event) =>
+                    set("status", event.target.value as EmployeeStatus)
+                  }
+                >
+                  {EMPLOYEE_STATUSES.map((status) => (
+                    <option key={status}>{status}</option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField
+                label="Jenis hubungan kerja"
+                hint={
+                  initial
+                    ? "Hanya bisa diubah lewat modul Kontrak & Masa Kerja."
+                    : "Nilai awal sebelum kontrak pertama dibuat."
+                }
+              >
+                {initial ? (
+                  <input
+                    className="inp"
+                    data-employee-field="employmentType"
+                    value={form.employmentType}
+                    disabled
+                  />
+                ) : (
+                  <select
+                    className="inp"
+                    data-employee-field="employmentType"
+                    value={form.employmentType}
+                    onChange={(event) =>
+                      set(
+                        "employmentType",
+                        event.target.value as EmploymentType
+                      )
+                    }
+                  >
+                    {EMPLOYMENT_TYPES.map((type) => (
+                      <option key={type}>{type}</option>
+                    ))}
+                  </select>
+                )}
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            icon="mail"
+            title="Kontak"
+            description="Email dan nomor yang bisa dihubungi."
+          >
+            <FormGrid>
+              <FormField
+                label="Email pribadi"
+                required
+                error={errors.personalEmail}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="personalEmail"
+                  aria-invalid={Boolean(errors.personalEmail)}
+                  type="email"
+                  value={form.personalEmail}
+                  onChange={(event) =>
+                    set("personalEmail", event.target.value)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Email kerja"
+                required
+                error={errors.workEmail}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="workEmail"
+                  aria-invalid={Boolean(errors.workEmail)}
+                  type="email"
+                  value={form.workEmail}
+                  onChange={(event) => set("workEmail", event.target.value)}
+                />
+              </FormField>
+
+              <FormField label="Nomor HP" required error={errors.phone}>
+                <input
+                  className="inp"
+                  data-employee-field="phone"
+                  aria-invalid={Boolean(errors.phone)}
+                  value={form.phone}
+                  onChange={(event) => set("phone", event.target.value)}
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            icon="phone"
+            title="Kontak Darurat"
+            description="Orang yang dihubungi jika terjadi keadaan darurat."
+          >
+            <FormGrid>
+              <FormField
+                label="Nama kontak darurat"
+                required
+                error={errors.emergencyName}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyName"
+                  aria-invalid={Boolean(errors.emergencyName)}
+                  value={form.emergencyName}
+                  onChange={(event) =>
+                    set("emergencyName", event.target.value)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Hubungan keluarga"
+                required
+                span="half"
+                error={errors.emergencyRelation}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyRelation"
+                  aria-invalid={Boolean(errors.emergencyRelation)}
+                  placeholder="cth. Istri, Ayah"
+                  value={form.emergencyRelation}
+                  onChange={(event) =>
+                    set("emergencyRelation", event.target.value)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Nomor kontak darurat"
+                required
+                span="half"
+                error={errors.emergencyPhone}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="emergencyPhone"
+                  aria-invalid={Boolean(errors.emergencyPhone)}
+                  value={form.emergencyPhone}
+                  onChange={(event) =>
+                    set("emergencyPhone", event.target.value)
+                  }
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            icon="clock"
+            title="Probation"
+            description="Masa percobaan karyawan. Isi jika berlaku."
+          >
+            <FormGrid>
+              <FormField
+                label="Mulai probation"
+                span="half"
+                error={errors.probationStart}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="probationStart"
+                  aria-invalid={Boolean(errors.probationStart)}
+                  type="date"
+                  value={form.probationStart ?? ""}
+                  onChange={(event) =>
+                    set("probationStart", event.target.value || null)
+                  }
+                />
+              </FormField>
+
+              <FormField
+                label="Berakhir probation"
+                span="half"
+                error={errors.probationEnd}
+              >
+                <input
+                  className="inp"
+                  data-employee-field="probationEnd"
+                  aria-invalid={Boolean(errors.probationEnd)}
+                  type="date"
+                  value={form.probationEnd ?? ""}
+                  onChange={(event) =>
+                    set("probationEnd", event.target.value || null)
+                  }
+                />
+              </FormField>
+            </FormGrid>
+          </FormSection>
         </div>
       </FormDrawer>
 
