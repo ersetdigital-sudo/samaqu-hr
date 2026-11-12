@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { EmployeeDocumentsPanel } from "@/components/documents/employee-documents-panel";
+import { EmployeePositionHistory } from "@/components/position-history/employee-position-history";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { ini } from "@/lib/data";
@@ -42,16 +43,20 @@ export function EmployeeDrawer({
   employeeId,
   preview = null,
   todayIso,
+  positionHistoryVersion,
   onClose,
   onEdit,
   onChanged,
+  onRecordPosition,
 }: {
   employeeId: string | null;
   preview?: EmployeeSummary | null;
   todayIso: string;
+  positionHistoryVersion: number;
   onClose: () => void;
   onEdit: (detail: EmployeeDetail) => void;
   onChanged: (message: string) => void;
+  onRecordPosition: (employeeId: string) => void;
 }) {
   const [detail, setDetail] = useState<EmployeeDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -102,7 +107,7 @@ export function EmployeeDrawer({
     return () => {
       active = false;
     };
-  }, [employeeId, reloadKey]);
+  }, [employeeId, reloadKey, positionHistoryVersion]);
 
   const deactivate = async () => {
     if (!detail) return;
@@ -306,6 +311,32 @@ export function EmployeeDrawer({
                       Kelola kontrak
                     </Link>
                   </div>
+                </Section>
+
+                <Section title="Riwayat Jabatan">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="text-[11px] sub">
+                      Perubahan jabatan, departemen, atasan, dan lokasi kerja.
+                    </div>
+                    {detail.status !== "Nonaktif" && (
+                      <button
+                        className="btn btn-g !py-1 !px-3"
+                        onClick={() => onRecordPosition(detail.id)}
+                      >
+                        Catat Perubahan
+                      </button>
+                    )}
+                  </div>
+                  <EmployeePositionHistory
+                    employeeId={detail.id}
+                    refreshKey={positionHistoryVersion}
+                  />
+                  {detail.status === "Nonaktif" && (
+                    <div className="text-[11px] sub mt-2">
+                      Karyawan Nonaktif tidak bisa dimutasi. Reaktivasi lebih
+                      dulu lewat aksi di bawah.
+                    </div>
+                  )}
                 </Section>
 
                 <Section title="Dokumen & Berkas">

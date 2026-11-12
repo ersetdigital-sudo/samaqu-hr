@@ -7,6 +7,7 @@ import { EmployeeModal } from "@/components/employees/employee-modal";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/page-head";
+import { PositionChangeDialog } from "@/components/position-history/position-change-dialog";
 import {
   DataTable,
   EllipsisText,
@@ -74,6 +75,10 @@ export function DirectoryView({
   const [activeConversion, setActiveConversion] = useState(conversion);
   const [showConverted, setShowConverted] = useState(converted);
   const [busy, setBusy] = useState(false);
+  const [positionDialog, setPositionDialog] = useState<{
+    employeeId: string | null;
+  } | null>(null);
+  const [positionHistoryVersion, setPositionHistoryVersion] = useState(0);
 
   useEffect(() => {
     if (initialEmployeeId) setDetailId(initialEmployeeId);
@@ -415,6 +420,7 @@ export function DirectoryView({
       <EmployeeDrawer
         employeeId={detailId}
         todayIso={todayIso}
+        positionHistoryVersion={positionHistoryVersion}
         preview={
           detailId
             ? rows.find((row) => row.id === detailId) ?? null
@@ -430,6 +436,9 @@ export function DirectoryView({
           setFormOpen(true);
         }}
         onChanged={(message) => void reload(message)}
+        onRecordPosition={(employeeId) =>
+          setPositionDialog({ employeeId })
+        }
       />
 
       <EmployeeModal
@@ -449,6 +458,21 @@ export function DirectoryView({
           }
         }}
         onSaved={handleSaved}
+      />
+
+      <PositionChangeDialog
+        open={positionDialog !== null}
+        employees={rows}
+        initialEmployeeId={positionDialog?.employeeId ?? null}
+        todayIso={todayIso}
+        onClose={() => setPositionDialog(null)}
+        onSaved={(message) => {
+          const employeeId = positionDialog?.employeeId;
+          if (employeeId) invalidateEmployeeDetail(employeeId);
+          setPositionDialog(null);
+          setPositionHistoryVersion((version) => version + 1);
+          void reload(message);
+        }}
       />
     </>
   );
