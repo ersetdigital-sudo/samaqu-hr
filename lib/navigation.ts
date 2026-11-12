@@ -36,6 +36,8 @@ export type NavModule = {
   roles: Role[];
   /** Hanya tampil untuk akun karyawan yang tertaut ke data karyawan. */
   employeeSelf?: boolean;
+  /** Hanya tampil untuk role Karyawan (tidak ikut terlihat oleh Admin). */
+  employeeOnly?: boolean;
   items: NavSubItem[];
 };
 
@@ -72,6 +74,17 @@ export const NAV_GROUPS: NavGroup[] = [
         items: [],
       },
       {
+        id: "organisasi",
+        label: "Struktur Organisasi",
+        icon: "users",
+        href: "/organisasi",
+        description: "Bagan atasan-bawahan dan sebaran karyawan per departemen.",
+        status: "live",
+        roles: ["employee"],
+        employeeOnly: true,
+        items: [],
+      },
+      {
         id: "employees",
         label: "Employee Management",
         icon: "users",
@@ -96,6 +109,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "organisasi",
             label: "Struktur Organisasi",
             href: "/employees/organisasi",
+            status: "live",
           },
           {
             id: "dokumen",
@@ -353,6 +367,7 @@ export function moduleVisibleFor(
   module: NavModule,
   employeeId: string | null,
 ): boolean {
+  if (module.employeeOnly) return role === "employee";
   if (module.employeeSelf) return role === "employee" && Boolean(employeeId);
   return canAccess(role, module);
 }
