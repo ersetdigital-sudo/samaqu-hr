@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ErrorBox, Modal } from "@/components/recruitment-live/ui";
+import { formatDateID } from "@/lib/datetime";
 import { overtimeFormulaLabel } from "@/lib/overtime/rules";
 import type { OvertimeRequest } from "@/lib/overtime/types";
 import "@/components/recruitment-live/live.css";
@@ -46,7 +47,11 @@ export function OvertimeDecisionDialog({
         : "Batalkan lembur disetujui";
   const description =
     mode === "approve"
-      ? `Ajukan ${request.employeeName} · ${request.requestDate}. Jam disetujui tidak boleh lebih dari ${request.requestedMinutes / 60} jam.`
+      ? `Pengajuan ${request.employeeName} tanggal ${formatDateID(
+          request.requestDate
+        )}. Jam disetujui tidak boleh lebih dari ${
+          request.requestedMinutes / 60
+        } jam.`
       : mode === "reject"
         ? "Pengajuan akan ditolak dan alasan terlihat oleh karyawan."
         : "Lembur yang sudah disetujui akan dibatalkan dan alasan tercatat di riwayat.";

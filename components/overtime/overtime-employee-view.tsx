@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { OvertimeApprovedCell } from "@/components/overtime/overtime-approved-cell";
 import { OvertimeDetailDrawer } from "@/components/overtime/overtime-detail-drawer";
 import { OvertimeFormDrawer } from "@/components/overtime/overtime-form-drawer";
 import { OvertimeDayTag, OvertimeStatusTag } from "@/components/overtime/overtime-tags";
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/data-table";
 import { formatDateID } from "@/lib/datetime";
 import {
-  overtimeDayTypeLabel,
   overtimeHoursLabel,
 } from "@/lib/overtime/rules";
 import type {
@@ -129,16 +129,7 @@ export function OvertimeEmployeeView({
       key: "approved",
       label: "Disetujui",
       width: "16%",
-      render: (request) => (
-        <TwoLineCell
-          primary={overtimeHoursLabel(request.approvedMinutes)}
-          secondary={
-            request.equivalentMinutes !== null
-              ? `${overtimeHoursLabel(request.equivalentMinutes)} ekuivalen`
-              : overtimeDayTypeLabel(request.dayType)
-          }
-        />
-      ),
+      render: (request) => <OvertimeApprovedCell request={request} />,
     },
     {
       key: "status",

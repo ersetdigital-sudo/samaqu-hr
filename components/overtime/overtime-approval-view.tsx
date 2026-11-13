@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@/components/icons";
+import { OvertimeApprovedCell } from "@/components/overtime/overtime-approved-cell";
 import { OvertimeDetailDrawer } from "@/components/overtime/overtime-detail-drawer";
 import { OvertimeDayTag, OvertimeStatusTag } from "@/components/overtime/overtime-tags";
 import { PageHead } from "@/components/page-head";
@@ -15,7 +16,6 @@ import { formatDateID } from "@/lib/datetime";
 import {
   buildOvertimeApprovalStats,
   filterOvertimeRequests,
-  overtimeDayTypeLabel,
   overtimeDepartmentOptions,
   overtimeHoursLabel,
 } from "@/lib/overtime/rules";
@@ -151,16 +151,7 @@ export function OvertimeApprovalView({
       key: "approved",
       label: "Disetujui",
       width: "16%",
-      render: (request) => (
-        <TwoLineCell
-          primary={overtimeHoursLabel(request.approvedMinutes)}
-          secondary={
-            request.equivalentMinutes !== null
-              ? `${overtimeHoursLabel(request.equivalentMinutes)} ekuivalen`
-              : overtimeDayTypeLabel(request.dayType)
-          }
-        />
-      ),
+      render: (request) => <OvertimeApprovedCell request={request} />,
     },
     {
       key: "status",
@@ -329,7 +320,9 @@ export function OvertimeApprovalView({
         rows={rows}
         rowKey={(request) => request.id}
         rowLabel={(request) =>
-          `Buka detail lembur ${request.employeeName} ${request.requestDate}`
+          `Buka detail lembur ${request.employeeName} ${formatDateID(
+            request.requestDate
+          )}`
         }
         onRowActivate={(request) => setSelectedId(request.id)}
         rowAction={{
