@@ -217,7 +217,7 @@ export const NAV_GROUPS: NavGroup[] = [
             href: "/attendance/shift",
             status: "live",
           },
-          { id: "rekap", label: "Rekap Kehadiran", href: "/attendance/rekap" },
+          { id: "rekap", label: "Rekap Kehadiran", href: "/attendance/rekap", status: "live" },
         ],
       },
       {
@@ -327,7 +327,7 @@ export const NAV_GROUPS: NavGroup[] = [
         status: "planned",
         roles: ["admin", "hr_manager"],
         items: [
-          { id: "umum", label: "Umum", href: "/settings/umum" },
+          { id: "umum", label: "Umum", href: "/settings/umum", status: "live" },
           {
             id: "pengguna",
             label: "Pengguna & Peran",

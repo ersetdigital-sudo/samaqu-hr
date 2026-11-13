@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AttendanceStatusTag } from "@/components/attendance/attendance-status-tag";
 import { MonthNavigation } from "@/components/attendance/month-navigation";
 import { useServerClock } from "@/components/attendance/use-server-clock";
 import { PageHead } from "@/components/page-head";
+import { MyRecapCard } from "@/components/recap/my-recap-card";
 import { useRecruitment } from "@/components/recruitment-provider";
 import {
   formatClockID,
@@ -21,6 +22,7 @@ import {
   workDaysLabel,
 } from "@/lib/attendance/rules";
 import type { AttendanceMonthData } from "@/lib/attendance/types";
+import type { MyRecapData } from "@/lib/recap/types";
 
 type AttendanceResponse = AttendanceMonthData & { error?: string };
 
@@ -36,6 +38,8 @@ export function AbsensiView({
   const [month, setMonth] = useState(initialMonth);
   const [loading, setLoading] = useState(false);
   const [action, setAction] = useState<"check-in" | "check-out" | null>(null);
+  const [recap, setRecap] = useState<MyRecapData | null>(null);
+  const [recapLoading, setRecapLoading] = useState(false);
   const clock = useServerClock(data.serverNow);
 
   const employee = data.employee;
@@ -138,6 +142,32 @@ export function AbsensiView({
     void loadMonth(next);
   };
 
+  const loadRecap = useCallback(async () => {
+    if (!data.linked) return;
+    setRecapLoading(true);
+    try {
+      const response = await fetch(
+        `/api/recap/me?month=${encodeURIComponent(currentMonth)}`,
+        { cache: "no-store" }
+      );
+      const body = (await response
+        .json()
+        .catch(() => null)) as (MyRecapData & { error?: string }) | null;
+      if (!response.ok || !body) {
+        throw new Error(body?.error ?? "Gagal memuat ringkasan rekap");
+      }
+      setRecap(body);
+    } catch {
+      setRecap(null);
+    } finally {
+      setRecapLoading(false);
+    }
+  }, [currentMonth, data.linked]);
+
+  useEffect(() => {
+    void loadRecap();
+  }, [loadRecap]);
+
   const runAction = async (kind: "check-in" | "check-out") => {
     setAction(kind);
     try {
@@ -156,6 +186,7 @@ export function AbsensiView({
         );
       }
       await loadMonth(month);
+      void loadRecap();
       toast(
         kind === "check-in" ? "Check-in berhasil" : "Check-out berhasil"
       );
@@ -215,7 +246,10 @@ export function AbsensiView({
         <button
           type="button"
           className="btn btn-g"
-          onClick={() => void loadMonth(month)}
+          onClick={() => {
+            void loadMonth(month);
+            void loadRecap();
+          }}
           disabled={loading}
         >
           {loading ? "Memuat…" : "Muat ulang"}
@@ -319,6 +353,8 @@ export function AbsensiView({
               <div className="text-[12px] sub mt-2">{disabledReason}</div>
             )}
           </div>
+
+          <MyRecapCard data={recap} loading={recapLoading} />
 
           <div className="card p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
