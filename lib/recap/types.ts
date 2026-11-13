@@ -8,6 +8,7 @@ import type {
 } from "@/lib/attendance/types";
 import type { EmployeeStatus } from "@/lib/employees/types";
 import type { LeaveDayStatus } from "@/lib/leave/types";
+import type { OvertimeRecapEntry } from "@/lib/overtime/types";
 
 export type RecapSettings = {
   periodStartDay: number;
@@ -58,6 +59,8 @@ export type RecapRow = {
   workMinutes: number;
   attendancePercent: number;
   problemDays: number;
+  overtimeApprovedMinutes: number;
+  overtimeEquivalentMinutes: number;
   days: AttendanceDay[];
 };
 
@@ -79,7 +82,8 @@ export type RecapSortKey =
   | "sakit"
   | "izin"
   | "workMinutes"
-  | "attendancePercent";
+  | "attendancePercent"
+  | "overtime";
 
 export type RecapSort = {
   key: RecapSortKey;
@@ -110,4 +114,5 @@ export type RecapInput = {
   holidays: HolidayEntry[];
   records: AttendanceRecord[];
   leaves: RecapLeave[];
+  overtime: OvertimeRecapEntry[];
 };

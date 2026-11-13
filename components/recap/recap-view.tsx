@@ -22,6 +22,9 @@ import {
   recapDepartmentOptions,
   sortRecapRows,
 } from "@/lib/recap/rules";
+import {
+  overtimeHoursLabel,
+} from "@/lib/overtime/rules";
 import type {
   RecapData,
   RecapFilters,
@@ -273,6 +276,19 @@ export function RecapView({ initialData }: { initialData: RecapData }) {
       ),
     },
     {
+      key: "overtime",
+      label: sortLabel("overtime", "Lembur"),
+      width: "10%",
+      render: (row) => (
+        <TwoLineCell
+          primary={overtimeHoursLabel(row.overtimeApprovedMinutes)}
+          secondary={`${overtimeHoursLabel(
+            row.overtimeEquivalentMinutes
+          )} ekuivalen`}
+        />
+      ),
+    },
+    {
       key: "attendancePercent",
       label: sortLabel("attendancePercent", "Kehadiran"),
       width: "9%",
@@ -328,7 +344,7 @@ export function RecapView({ initialData }: { initialData: RecapData }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 mb-5">
         {[
           {
             label: "Rata-rata Kehadiran",
@@ -349,6 +365,13 @@ export function RecapView({ initialData }: { initialData: RecapData }) {
             label: "Karyawan Lupa Check-out",
             value: summary.missingCheckoutEmployees,
             hint: "perlu dikoreksi sebelum payroll",
+          },
+          {
+            label: "Total Jam Lembur",
+            value: overtimeHoursLabel(summary.totalOvertimeApprovedMinutes),
+            hint: `${overtimeHoursLabel(
+              summary.totalOvertimeEquivalentMinutes
+            )} ekuivalen`,
           },
         ].map((card) => (
           <div className="card p-4" key={card.label}>
@@ -429,7 +452,7 @@ export function RecapView({ initialData }: { initialData: RecapData }) {
             ? "Belum ada karyawan pada periode ini."
             : "Tidak ada karyawan yang cocok dengan filter."
         }
-        minWidth={1180}
+        minWidth={1240}
       />
 
       <RecapEmployeeDrawer

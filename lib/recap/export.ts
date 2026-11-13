@@ -26,6 +26,8 @@ export const RECAP_EXPORT_HEADERS = [
   "Izin",
   "Total Jam Kerja",
   "Persentase Kehadiran (%)",
+  "Lembur Disetujui (jam)",
+  "Lembur Ekuivalen (jam)",
   "Keterangan Masa Aktif",
 ] as const;
 
@@ -68,6 +70,8 @@ export function buildRecapExportMatrix(
         row.izin,
         Number((row.workMinutes / 60).toFixed(2)),
         row.attendancePercent,
+        Number((row.overtimeApprovedMinutes / 60).toFixed(2)),
+        Number((row.overtimeEquivalentMinutes / 60).toFixed(2)),
         inactiveNote,
       ];
     }),

@@ -9,7 +9,7 @@ import type { RecapPeriod, RecapRow } from "@/lib/recap/types";
 
 const COLUMN_WIDTHS = [
   26, 14, 20, 24, 12, 16, 16, 16, 16, 11, 9, 16, 15, 18, 17, 15, 9, 9, 9, 9,
-  14, 22, 34,
+  14, 22, 18, 18, 34,
 ];
 
 export async function buildRecapXlsx(
@@ -49,6 +49,8 @@ export async function buildRecapXlsx(
     row.alignment = { vertical: "top", wrapText: true };
     row.getCell(21).numFmt = "0.00";
     row.getCell(22).numFmt = "0.0";
+    row.getCell(23).numFmt = "0.00";
+    row.getCell(24).numFmt = "0.00";
   });
 
   sheet.autoFilter = {

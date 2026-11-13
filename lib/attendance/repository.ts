@@ -21,6 +21,7 @@ import type {
   WorkSchedule,
 } from "@/lib/attendance/types";
 import type { EmployeeStatus } from "@/lib/employees/types";
+import type { OvertimeDailyMarker } from "@/lib/overtime/types";
 
 export class AttendanceDataError extends Error {
   readonly status: number;
@@ -109,6 +110,8 @@ const ATTENDANCE_COLUMNS =
 const EMPLOYEE_COLUMNS = "id, full_name, position, department, status, joined_at";
 const LEAVE_COLUMNS =
   "employee_id, start_date, end_date, leave_type_code, leave_types(category)";
+const OVERTIME_COLUMNS =
+  "employee_id, approved_minutes, equivalent_minutes";
 
 const normalizeTime = (value: string): string => value.slice(0, 5);
 
@@ -430,7 +433,7 @@ export async function getDailyAttendance(
   const todayIso = isoDateJakarta();
   const serverNow = new Date().toISOString();
 
-  const [schedule, holidayResult, employeeResult, attendanceResult, correctionResult, leaveResult] =
+  const [schedule, holidayResult, employeeResult, attendanceResult, correctionResult, leaveResult, overtimeResult] =
     await Promise.all([
       getActiveSchedule(),
       db
@@ -461,6 +464,11 @@ export async function getDailyAttendance(
         .eq("status", "Disetujui")
         .lte("start_date", dateIso)
         .gte("end_date", dateIso),
+      db
+        .from("overtime_requests")
+        .select(OVERTIME_COLUMNS)
+        .eq("status", "Disetujui")
+        .eq("request_date", dateIso),
     ]);
 
   if (holidayResult.error) {
@@ -478,6 +486,9 @@ export async function getDailyAttendance(
   if (leaveResult.error) {
     throw mapDbError(leaveResult.error, "memuat cuti karyawan");
   }
+  if (overtimeResult.error) {
+    throw mapDbError(overtimeResult.error, "memuat lembur karyawan");
+  }
 
   const correctionRows = (correctionResult.data ?? []) as CorrectionRow[];
   const actorNames = await loadActorNames(correctionRows);
@@ -487,6 +498,19 @@ export async function getDailyAttendance(
     employeeId: row.employee_id,
     status: leaveStatusOf(row),
   }));
+  const overtimeStatuses: OvertimeDailyMarker[] = (
+    (overtimeResult.data ?? []) as {
+      employee_id: string;
+      approved_minutes: number | null;
+      equivalent_minutes: number | null;
+    }[]
+  )
+    .filter((row) => row.approved_minutes !== null)
+    .map((row) => ({
+      employeeId: row.employee_id,
+      approvedMinutes: row.approved_minutes ?? 0,
+      equivalentMinutes: row.equivalent_minutes ?? 0,
+    }));
 
   return {
     date: dateIso,
@@ -502,6 +526,7 @@ export async function getDailyAttendance(
     ),
     corrections: correctionRows.map((row) => toCorrection(row, actorNames)),
     leaveStatuses,
+    overtimeStatuses,
   };
 }
 

@@ -2,6 +2,7 @@
 
 import type { EmployeeStatus } from "@/lib/employees/types";
 import type { LeaveDayStatus } from "@/lib/leave/types";
+import type { OvertimeDailyMarker } from "@/lib/overtime/types";
 
 export type AttendanceStatus =
   | "Hadir"
@@ -116,6 +117,8 @@ export type AttendanceDailyRow = {
   employee: AttendanceEmployee;
   day: AttendanceDay;
   corrections: AttendanceCorrection[];
+  overtimeApprovedMinutes: number;
+  overtimeEquivalentMinutes: number;
 };
 
 export type AttendanceDailyData = {
@@ -129,6 +132,8 @@ export type AttendanceDailyData = {
   corrections: AttendanceCorrection[];
   /** Karyawan dengan cuti Disetujui pada tanggal ini. */
   leaveStatuses: AttendanceLeaveStatus[];
+  /** Karyawan dengan lembur Disetujui pada tanggal ini. */
+  overtimeStatuses: OvertimeDailyMarker[];
 };
 
 export type ScheduleInput = {

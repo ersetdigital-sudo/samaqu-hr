@@ -13,6 +13,7 @@ import {
   formatWeekdayDateID,
 } from "@/lib/datetime";
 import { formatDurationMinutes } from "@/lib/attendance/rules";
+import { overtimeHoursLabel } from "@/lib/overtime/rules";
 import type { RecapPeriod, RecapRow } from "@/lib/recap/types";
 
 export function RecapEmployeeDrawer({
@@ -115,6 +116,14 @@ export function RecapEmployeeDrawer({
                 label="Total jam kerja"
                 value={formatDurationMinutes(row.workMinutes)}
                 full
+              />
+              <InfoItem
+                label="Lembur disetujui"
+                value={overtimeHoursLabel(row.overtimeApprovedMinutes)}
+              />
+              <InfoItem
+                label="Lembur ekuivalen"
+                value={overtimeHoursLabel(row.overtimeEquivalentMinutes)}
               />
             </InfoGrid>
             {row.problemDays > 0 && (

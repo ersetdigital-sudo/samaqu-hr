@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDateID } from "@/lib/datetime";
+import { overtimeHoursLabel } from "@/lib/overtime/rules";
 import type { MyRecapData } from "@/lib/recap/types";
 
 export function MyRecapCard({
@@ -69,6 +70,12 @@ export function MyRecapCard({
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="text-[11px] sub mt-3">
+        Lembur disetujui periode ini:{" "}
+        {overtimeHoursLabel(row.overtimeApprovedMinutes)} ·{" "}
+        {overtimeHoursLabel(row.overtimeEquivalentMinutes)} ekuivalen
       </div>
 
       {row.workdays === 0 && (

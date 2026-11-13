@@ -112,6 +112,7 @@ export const NAV_GROUPS: NavGroup[] = [
             status: "live",
           },
           { id: "cuti", label: "Cuti & Izin", href: "/absensi/cuti", status: "live" },
+          { id: "lembur", label: "Lembur", href: "/absensi/lembur", status: "live" },
         ],
       },
       {
@@ -210,7 +211,7 @@ export const NAV_GROUPS: NavGroup[] = [
             href: "/attendance/cuti/saldo",
             status: "live",
           },
-          { id: "lembur", label: "Lembur", href: "/attendance/lembur" },
+          { id: "lembur", label: "Lembur", href: "/attendance/lembur", status: "live" },
           {
             id: "shift",
             label: "Shift & Jadwal Kerja",

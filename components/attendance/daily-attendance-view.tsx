@@ -26,6 +26,7 @@ import {
   formatDurationMinutes,
   isoWeekday,
 } from "@/lib/attendance/rules";
+import { overtimeHoursLabel } from "@/lib/overtime/rules";
 import type {
   AttendanceDailyData,
   AttendanceDailyRow,
@@ -66,6 +67,7 @@ export function DailyAttendanceView({
         schedule: data.schedule,
         holiday: data.holiday,
         leaveStatuses: data.leaveStatuses,
+        overtimeStatuses: data.overtimeStatuses,
       }),
     [data]
   );
@@ -132,10 +134,22 @@ export function DailyAttendanceView({
       label: "Karyawan",
       width: "25%",
       render: (row) => (
-        <TwoLineCell
-          primary={row.employee.fullName}
-          secondary={`${row.employee.department} · ${row.employee.id}`}
-        />
+        <span className="flex flex-col items-start gap-1">
+          <TwoLineCell
+            primary={row.employee.fullName}
+            secondary={`${row.employee.department} · ${row.employee.id}`}
+          />
+          {row.overtimeApprovedMinutes > 0 && (
+            <span
+              className="tag t-info"
+              title={`Lembur disetujui ${overtimeHoursLabel(
+                row.overtimeApprovedMinutes
+              )}`}
+            >
+              Lembur
+            </span>
+          )}
+        </span>
       ),
     },
     {

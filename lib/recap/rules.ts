@@ -120,6 +120,7 @@ export function buildRecapRows({
   holidays,
   records,
   leaves,
+  overtime,
 }: RecapInput): RecapRow[] {
   const holidayByDate = new Map(
     holidays.map((holiday) => [holiday.holidayDate, holiday])
@@ -131,6 +132,10 @@ export function buildRecapRows({
   const leavesByEmployee = new Map<
     string,
     Map<string, LeaveDayStatus>
+  >();
+  const overtimeByEmployee = new Map<
+    string,
+    Map<string, { approved: number; equivalent: number }>
   >();
   const lastActivityByEmployee = new Map<string, string>();
 
@@ -160,6 +165,18 @@ export function buildRecapRows({
     }
   }
 
+  for (const entry of overtime) {
+    const byDate = overtimeByEmployee.get(entry.employeeId) ?? new Map();
+    const current = byDate.get(entry.requestDate) ?? {
+      approved: 0,
+      equivalent: 0,
+    };
+    current.approved += entry.approvedMinutes;
+    current.equivalent += entry.equivalentMinutes;
+    byDate.set(entry.requestDate, current);
+    overtimeByEmployee.set(entry.employeeId, byDate);
+  }
+
   return employees.map((employee) => {
     const schedule = resolveRecapSchedule(schedules, employee.id);
     const range = recapEmployeeRange(
@@ -170,6 +187,7 @@ export function buildRecapRows({
     );
     const employeeRecords = recordsByEmployee.get(employee.id);
     const employeeLeaves = leavesByEmployee.get(employee.id);
+    const employeeOvertime = overtimeByEmployee.get(employee.id);
     const days: AttendanceDay[] = [];
 
     let workdays = 0;
@@ -184,10 +202,18 @@ export function buildRecapRows({
     let sakit = 0;
     let izin = 0;
     let workMinutes = 0;
+    let overtimeApprovedMinutes = 0;
+    let overtimeEquivalentMinutes = 0;
 
     if (range) {
       let cursor = range.start;
       while (cursor <= range.end) {
+        const overtimeForDay = employeeOvertime?.get(cursor);
+        if (overtimeForDay) {
+          overtimeApprovedMinutes += overtimeForDay.approved;
+          overtimeEquivalentMinutes += overtimeForDay.equivalent;
+        }
+
         const day = computeAttendanceDay({
           date: cursor,
           todayIso,
@@ -246,6 +272,8 @@ export function buildRecapRows({
       workMinutes,
       attendancePercent: workdays > 0 ? round1((present / workdays) * 100) : 0,
       problemDays: alfa + missingCheckout,
+      overtimeApprovedMinutes,
+      overtimeEquivalentMinutes,
       days,
     };
   });
@@ -300,6 +328,8 @@ export function sortRecapRows(
         return row.workMinutes;
       case "attendancePercent":
         return row.attendancePercent;
+      case "overtime":
+        return row.overtimeApprovedMinutes;
     }
   };
 
@@ -318,6 +348,8 @@ export type RecapSummary = {
   totalAlfa: number;
   totalLateMinutes: number;
   missingCheckoutEmployees: number;
+  totalOvertimeApprovedMinutes: number;
+  totalOvertimeEquivalentMinutes: number;
 };
 
 export function buildRecapSummary(rows: RecapRow[]): RecapSummary {
@@ -337,6 +369,14 @@ export function buildRecapSummary(rows: RecapRow[]): RecapSummary {
     missingCheckoutEmployees: rows.filter(
       (row) => row.missingCheckout > 0
     ).length,
+    totalOvertimeApprovedMinutes: rows.reduce(
+      (sum, row) => sum + row.overtimeApprovedMinutes,
+      0
+    ),
+    totalOvertimeEquivalentMinutes: rows.reduce(
+      (sum, row) => sum + row.overtimeEquivalentMinutes,
+      0
+    ),
   };
 }
 

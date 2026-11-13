@@ -14,6 +14,7 @@ import type {
   HolidayEntry,
   WorkSchedule,
 } from "@/lib/attendance/types";
+import type { OvertimeDailyMarker } from "@/lib/overtime/types";
 
 export const ATTENDANCE_STATUS_VALUES: AttendanceStatus[] = [
   "Hadir",
@@ -56,6 +57,7 @@ export function buildAttendanceDailyRows({
   schedule,
   holiday,
   leaveStatuses = [],
+  overtimeStatuses = [],
 }: {
   date: string;
   todayIso: string;
@@ -65,12 +67,16 @@ export function buildAttendanceDailyRows({
   schedule: WorkSchedule | null;
   holiday: HolidayEntry | null;
   leaveStatuses?: AttendanceLeaveStatus[];
+  overtimeStatuses?: OvertimeDailyMarker[];
 }): AttendanceDailyRow[] {
   const recordByEmployee = new Map(
     attendance.map((record) => [record.employeeId, record])
   );
   const leaveByEmployee = new Map(
     leaveStatuses.map((entry) => [entry.employeeId, entry.status])
+  );
+  const overtimeByEmployee = new Map(
+    overtimeStatuses.map((entry) => [entry.employeeId, entry])
   );
   const correctionsByEmployee = new Map<string, AttendanceCorrection[]>();
 
@@ -92,6 +98,10 @@ export function buildAttendanceDailyRows({
       leaveStatus: leaveByEmployee.get(employee.id) ?? null,
     }),
     corrections: correctionsByEmployee.get(employee.id) ?? [],
+    overtimeApprovedMinutes:
+      overtimeByEmployee.get(employee.id)?.approvedMinutes ?? 0,
+    overtimeEquivalentMinutes:
+      overtimeByEmployee.get(employee.id)?.equivalentMinutes ?? 0,
   }));
 }
 

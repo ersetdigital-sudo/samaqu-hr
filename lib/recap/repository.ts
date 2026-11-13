@@ -92,6 +92,13 @@ type LeaveRow = {
     | null;
 };
 
+type OvertimeRow = {
+  employee_id: string;
+  request_date: string;
+  approved_minutes: number | null;
+  equivalent_minutes: number | null;
+};
+
 const SETTINGS_COLUMNS = "period_start_day, updated_by, updated_at";
 const EMPLOYEE_COLUMNS =
   "id, full_name, position, department, status, joined_at";
@@ -102,6 +109,8 @@ const ATTENDANCE_COLUMNS =
   "id, employee_id, work_date, check_in_at, check_out_at, source, notes, updated_at";
 const LEAVE_COLUMNS =
   "employee_id, start_date, end_date, leave_type_code, leave_types(category)";
+const OVERTIME_COLUMNS =
+  "employee_id, request_date, approved_minutes, equivalent_minutes";
 
 const DEFAULT_SETTINGS: RecapSettings = {
   periodStartDay: 1,
@@ -330,6 +339,37 @@ const loadLeaves = async (period: RecapPeriod): Promise<RecapLeave[]> => {
   }));
 };
 
+const loadOvertime = async (
+  period: RecapPeriod
+): Promise<
+  {
+    employeeId: string;
+    requestDate: string;
+    approvedMinutes: number;
+    equivalentMinutes: number;
+  }[]
+> => {
+  const { data, error } = await (await getServerSupabase())
+    .from("overtime_requests")
+    .select(OVERTIME_COLUMNS)
+    .eq("status", "Disetujui")
+    .gte("request_date", period.from)
+    .lte("request_date", period.to);
+
+  if (error) throw mapDbError(error, "memuat lembur");
+
+  return ((data ?? []) as OvertimeRow[])
+    .filter(
+      (row) => row.approved_minutes !== null && row.equivalent_minutes !== null
+    )
+    .map((row) => ({
+      employeeId: row.employee_id,
+      requestDate: row.request_date,
+      approvedMinutes: row.approved_minutes ?? 0,
+      equivalentMinutes: row.equivalent_minutes ?? 0,
+    }));
+};
+
 export async function getRecapData(
   month: string,
   employeeIds?: string[]
@@ -338,13 +378,14 @@ export async function getRecapData(
   const period = resolveRecapPeriod(month, settings.periodStartDay);
   const todayIso = isoDateJakarta();
 
-  const [employeeResult, schedules, holidays, records, leaves] =
+  const [employeeResult, schedules, holidays, records, leaves, overtime] =
     await Promise.all([
       loadEmployees(employeeIds),
       loadSchedules(),
       loadHolidays(period),
       loadRecords(period),
       loadLeaves(period),
+      loadOvertime(period),
     ]);
 
   const { rows, activeEndById } = employeeResult;
@@ -369,6 +410,7 @@ export async function getRecapData(
       holidays,
       records,
       leaves,
+      overtime,
     }),
   };
 }
