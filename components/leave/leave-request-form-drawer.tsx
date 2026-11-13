@@ -26,8 +26,8 @@ import {
 } from "@/lib/leave/validation";
 import {
   addDaysIso,
-  annualRemainingAfter,
   countLeaveDays,
+  leaveBalanceDisplay,
   leaveCategoryLabel,
   leaveTypeFor,
   needsDoctorNote,
@@ -86,6 +86,7 @@ export function LeaveRequestFormDrawer({
 
   const initialType = useMemo(() => defaultTypeCode(data), [data]);
   const type = leaveTypeFor(data.types, typeCode) ?? null;
+  const balanceView = leaveBalanceDisplay(data.balance, data.todayIso);
 
   useEffect(() => {
     if (!open) return;
@@ -312,9 +313,8 @@ export function LeaveRequestFormDrawer({
                 aria-invalid={Boolean(errors.leaveTypeCode)}
                 onChange={(event) => {
                   setTypeCode(event.target.value);
-                  clearError("leaveTypeCode");
-                  clearError("startDate");
-                  clearError("endDate");
+                  setErrors(fileError ? { attachment: fileError } : {});
+                  setFormError("");
                 }}
               >
                 {data.types
@@ -523,18 +523,25 @@ export function LeaveRequestFormDrawer({
                 <>
                   <InfoItem
                     label="Hak tahunan"
-                    value={`${data.balance?.entitlement ?? 0} hari`}
+                    value={`${balanceView?.entitlement ?? 0} hari`}
                   />
                   <InfoItem
                     label="Sisa setelah pengajuan"
-                    value={`${annualRemainingAfter(data.balance, days) ?? 0} hari`}
+                    value={`${Math.max(
+                      (balanceView?.remaining ?? 0) - days,
+                      0
+                    )} hari`}
                   />
                   <InfoItem
                     label="Status hak"
                     value={
-                      data.balance?.eligible
-                        ? "Aktif"
-                        : `Aktif ${formatDateID(data.balance?.eligibleDate)}`
+                      balanceView
+                        ? `${balanceView.statusLabel}${
+                            balanceView.activeDateLabel
+                              ? ` · aktif ${balanceView.activeDateLabel}`
+                              : ""
+                          }`
+                        : "—"
                     }
                     full
                   />

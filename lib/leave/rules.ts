@@ -7,6 +7,7 @@
 
 import { isoWeekday, isValidIsoDate } from "@/lib/attendance/rules";
 import type { HolidayEntry, WorkSchedule } from "@/lib/attendance/types";
+import { formatDateID } from "@/lib/datetime";
 import type {
   LeaveBalance,
   LeaveCategory,
@@ -62,6 +63,88 @@ export function leaveTypeFor(
   code: string
 ): LeaveType | null {
   return types.find((type) => type.code === code) ?? null;
+}
+
+export type LeaveBalanceDisplay = {
+  eligible: boolean;
+  entitlement: number;
+  used: number;
+  remaining: number;
+  statusLabel: "Hak aktif" | "Belum berhak" | "Probation" | "Nonaktif";
+  statusTone: "t-ok" | "t-warn" | "t-mute";
+  activeDateLabel: string | null;
+  note: string;
+};
+
+/**
+ * Tampilan saldo yang konsisten untuk HR dan karyawan.
+ * Data mentah tetap dari RPC; hanya nilai tampilan yang dinormalkan saat
+ * karyawan belum berhak agar tidak terlihat memiliki kuota.
+ */
+export function leaveBalanceDisplay(
+  balance: LeaveBalance | null,
+  todayIso: string
+): LeaveBalanceDisplay | null {
+  if (!balance) return null;
+
+  if (balance.eligible) {
+    return {
+      eligible: true,
+      entitlement: balance.entitlement,
+      used: balance.used,
+      remaining: balance.remaining,
+      statusLabel: "Hak aktif",
+      statusTone: "t-ok",
+      activeDateLabel: null,
+      note: "Hak cuti tahunan aktif. Cuti tahunan tidak dapat dibawa ke tahun berikutnya.",
+    };
+  }
+
+  const futureDate =
+    balance.eligibleDate > todayIso
+      ? formatDateID(balance.eligibleDate)
+      : null;
+
+  if (balance.status === "Nonaktif") {
+    return {
+      eligible: false,
+      entitlement: 0,
+      used: balance.used,
+      remaining: 0,
+      statusLabel: "Nonaktif",
+      statusTone: "t-mute",
+      activeDateLabel: null,
+      note: "Karyawan Nonaktif tidak memiliki hak cuti tahunan.",
+    };
+  }
+
+  if (balance.status === "Probation") {
+    return {
+      eligible: false,
+      entitlement: 0,
+      used: balance.used,
+      remaining: 0,
+      statusLabel: "Probation",
+      statusTone: "t-warn",
+      activeDateLabel: futureDate,
+      note: futureDate
+        ? `Status masih Probation. Hak cuti tahunan aktif setelah status Aktif dan 12 bulan masa kerja (${futureDate}).`
+        : "Status masih Probation. Hak cuti tahunan aktif setelah status Aktif dan 12 bulan masa kerja.",
+    };
+  }
+
+  return {
+    eligible: false,
+    entitlement: 0,
+    used: balance.used,
+    remaining: 0,
+    statusLabel: "Belum berhak",
+    statusTone: "t-mute",
+    activeDateLabel: futureDate,
+    note: futureDate
+      ? `Hak cuti tahunan aktif setelah 12 bulan masa kerja (${futureDate}).`
+      : "Hak cuti tahunan belum aktif.",
+  };
 }
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -308,7 +391,9 @@ export function validateLeaveInput(
     } else {
       const eligibleDate = annualEligibilityDate(context.employee.joinedAt);
       if (input.startDate < eligibleDate) {
-        errors.startDate = `Hak cuti tahunan aktif setelah 12 bulan masa kerja (${eligibleDate}).`;
+        errors.startDate = `Hak cuti tahunan aktif setelah 12 bulan masa kerja (${formatDateID(
+          eligibleDate
+        )}).`;
       } else if (!context.balance) {
         errors.form = "Saldo cuti tahunan belum bisa dimuat.";
       } else if (days > context.balance.remaining) {

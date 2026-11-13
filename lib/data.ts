@@ -55,10 +55,15 @@ const STAGE_TONES: Record<string, string> = {
 export const stageTone = (stage: string) => STAGE_TONES[stage] || "t-mute";
 
 export const ini = (name: string) => {
-  const words = name.split(" ");
-  return (
-    words.length > 1 ? words[0][0] + words[1][0] : name.slice(0, 2)
-  ).toUpperCase();
+  const cleaned = name
+    .replace(/^(\s*[\[(][^\])]*[\])]\s*)+/g, "")
+    .replace(/[^\p{L}\s]/gu, " ")
+    .trim();
+  const words = cleaned.split(/\s+/).filter(Boolean);
+
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
 };
 
 export const RATING_KEYS = [

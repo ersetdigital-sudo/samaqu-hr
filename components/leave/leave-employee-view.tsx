@@ -13,7 +13,7 @@ import {
   type DataTableColumn,
 } from "@/components/ui/data-table";
 import { formatDateID } from "@/lib/datetime";
-import { leaveCategoryLabel } from "@/lib/leave/rules";
+import { leaveBalanceDisplay, leaveCategoryLabel } from "@/lib/leave/rules";
 import type {
   LeaveEmployeeData,
   LeaveRequest,
@@ -91,6 +91,7 @@ export function LeaveEmployeeView({
   };
 
   const balance = data.balance;
+  const balanceView = leaveBalanceDisplay(balance, data.todayIso);
   const canApply =
     Boolean(data.linked && data.employee) &&
     data.employee?.status !== "Nonaktif";
@@ -211,9 +212,9 @@ export function LeaveEmployeeView({
                 </div>
               </div>
               <span
-                className={`tag ${balance?.eligible ? "t-ok" : "t-mute"}`}
+                className={`tag ${balanceView?.statusTone ?? "t-mute"}`}
               >
-                {balance?.eligible ? "Hak aktif" : "Belum berhak"}
+                {balanceView?.statusLabel ?? "Belum berhak"}
               </span>
             </div>
 
@@ -221,17 +222,17 @@ export function LeaveEmployeeView({
               {[
                 {
                   label: "Hak",
-                  value: balance?.entitlement ?? 0,
+                  value: balanceView?.entitlement ?? 0,
                   hint: "hari kerja / tahun",
                 },
                 {
                   label: "Terpakai",
-                  value: balance?.used ?? 0,
+                  value: balanceView?.used ?? 0,
                   hint: "dari pengajuan disetujui",
                 },
                 {
                   label: "Sisa",
-                  value: balance?.remaining ?? 0,
+                  value: balanceView?.remaining ?? 0,
                   hint: "siap diajukan",
                 },
               ].map((item) => (
@@ -250,15 +251,8 @@ export function LeaveEmployeeView({
             </div>
 
             <div className="text-[12px] sub mt-3">
-              {balance?.eligible
-                ? "Hak cuti tahunan aktif. Cuti tahunan tidak dapat dibawa ke tahun berikutnya."
-                : data.employee.status === "Probation"
-                  ? `Hak cuti tahunan belum aktif karena status masih Probation. Hak aktif setelah status Aktif dan 12 bulan masa kerja (${formatDateID(
-                      balance?.eligibleDate
-                    )}).`
-                  : `Hak cuti tahunan aktif setelah 12 bulan masa kerja (${formatDateID(
-                      balance?.eligibleDate
-                    )}).`}
+              {balanceView?.note ??
+                "Saldo cuti tahunan belum bisa dimuat."}
             </div>
           </div>
 
@@ -306,6 +300,7 @@ export function LeaveEmployeeView({
         request={selected}
         mode="employee"
         balance={balance}
+        todayIso={data.todayIso}
         onClose={() => setSelectedId(null)}
         onMutated={(message) => {
           setSelectedId(null);

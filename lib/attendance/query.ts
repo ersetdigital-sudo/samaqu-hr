@@ -120,6 +120,7 @@ export type AttendanceDailySummary = {
   belumMasuk: number;
   alfa: number;
   belumCheckOut: number;
+  leave: number;
 };
 
 export function buildAttendanceDailySummary(
@@ -134,6 +135,12 @@ export function buildAttendanceDailySummary(
       (row) =>
         row.day.status === "Belum Check-out" ||
         row.day.status === "Lupa Check-out"
+    ).length,
+    leave: rows.filter(
+      (row) =>
+        row.day.status === "Cuti" ||
+        row.day.status === "Sakit" ||
+        row.day.status === "Izin"
     ).length,
   };
 }

@@ -10,6 +10,7 @@ import { FormSection } from "@/components/ui/form-section";
 import { formatDateID, formatDateTimeID } from "@/lib/datetime";
 import { formatFileSize } from "@/lib/documents/query";
 import { ini } from "@/lib/data";
+import { leaveBalanceDisplay } from "@/lib/leave/rules";
 import type {
   LeaveBalance,
   LeaveCalendarEntry,
@@ -23,6 +24,7 @@ export function LeaveRequestDetailDrawer({
   request,
   mode,
   balance,
+  todayIso,
   teamOverlaps = [],
   onClose,
   onMutated,
@@ -30,6 +32,7 @@ export function LeaveRequestDetailDrawer({
   request: LeaveRequest | null;
   mode: "employee" | "staff";
   balance: LeaveBalance | null;
+  todayIso: string;
   teamOverlaps?: LeaveCalendarEntry[];
   onClose: () => void;
   onMutated: (message: string) => void;
@@ -37,6 +40,7 @@ export function LeaveRequestDetailDrawer({
   const [dialog, setDialog] = useState<DialogKind>(null);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
+  const balanceView = leaveBalanceDisplay(balance, todayIso);
 
   useEffect(() => {
     setDialog(null);
@@ -313,29 +317,27 @@ export function LeaveRequestDetailDrawer({
               title="Saldo Cuti Tahunan"
               description="Saldo dihitung dari pengajuan yang disetujui."
             >
-              {balance ? (
+              {balanceView ? (
                 <InfoGrid>
                   <InfoItem
                     label="Hak tahunan"
-                    value={`${balance.entitlement} hari`}
+                    value={`${balanceView.entitlement} hari`}
                   />
                   <InfoItem
                     label="Terpakai"
-                    value={`${balance.used} hari`}
+                    value={`${balanceView.used} hari`}
                   />
                   <InfoItem
                     label="Sisa"
-                    value={`${balance.remaining} hari`}
+                    value={`${balanceView.remaining} hari`}
                   />
                   <InfoItem
                     label="Status hak"
-                    value={
-                      balance.eligible
-                        ? "Hak aktif"
-                        : `Belum berhak · aktif ${formatDateID(
-                            balance.eligibleDate
-                          )}`
-                    }
+                    value={`${balanceView.statusLabel}${
+                      balanceView.activeDateLabel
+                        ? ` · aktif ${balanceView.activeDateLabel}`
+                        : ""
+                    }`}
                     full
                   />
                 </InfoGrid>

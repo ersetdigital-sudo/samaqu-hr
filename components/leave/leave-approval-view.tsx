@@ -342,6 +342,7 @@ export function LeaveApprovalView({
         request={selected}
         mode="staff"
         balance={selectedBalance}
+        todayIso={data.todayIso}
         teamOverlaps={selectedOverlaps}
         onClose={() => setSelectedId(null)}
         onMutated={(message) => {

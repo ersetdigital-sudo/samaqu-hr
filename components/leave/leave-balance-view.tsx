@@ -9,6 +9,7 @@ import {
   type DataTableColumn,
 } from "@/components/ui/data-table";
 import { formatDateID } from "@/lib/datetime";
+import { leaveBalanceDisplay } from "@/lib/leave/rules";
 import type {
   LeaveBalance,
   LeaveBalanceData,
@@ -33,7 +34,7 @@ export function LeaveBalanceView({
       total: data.balances.length,
       eligible: eligible.length,
       used: data.balances.reduce((sum, balance) => sum + balance.used, 0),
-      remaining: data.balances.reduce(
+      remaining: eligible.reduce(
         (sum, balance) => sum + balance.remaining,
         0
       ),
@@ -85,9 +86,12 @@ export function LeaveBalanceView({
       key: "entitlement",
       label: "Hak",
       width: "13%",
-      render: (balance) => (
-        <span className="text-[13px]">{balance.entitlement} hari</span>
-      ),
+      render: (balance) => {
+        const view = leaveBalanceDisplay(balance, data.todayIso);
+        return (
+          <span className="text-[13px]">{view?.entitlement ?? 0} hari</span>
+        );
+      },
     },
     {
       key: "used",
@@ -101,26 +105,31 @@ export function LeaveBalanceView({
       key: "remaining",
       label: "Sisa",
       width: "12%",
-      render: (balance) => (
-        <b className="text-[13px]">{balance.remaining} hari</b>
-      ),
+      render: (balance) => {
+        const view = leaveBalanceDisplay(balance, data.todayIso);
+        return (
+          <b className="text-[13px]">{view?.remaining ?? 0} hari</b>
+        );
+      },
     },
     {
       key: "status",
       label: "Status Hak",
       width: "16%",
-      render: (balance) => (
-        <span className="flex flex-col items-start gap-1">
-          <span className={`tag ${balance.eligible ? "t-ok" : "t-mute"}`}>
-            {balance.eligible ? "Hak aktif" : "Belum berhak"}
+      render: (balance) => {
+        const view = leaveBalanceDisplay(balance, data.todayIso);
+        if (!view) return <span className="sub text-[12px]">—</span>;
+        return (
+          <span className="flex flex-col items-start gap-1">
+            <span className={`tag ${view.statusTone}`}>{view.statusLabel}</span>
+            {view.activeDateLabel && (
+              <span className="text-[10px] sub">
+                aktif {view.activeDateLabel}
+              </span>
+            )}
           </span>
-          {!balance.eligible && (
-            <span className="text-[10px] sub">
-              aktif {formatDateID(balance.eligibleDate)}
-            </span>
-          )}
-        </span>
-      ),
+        );
+      },
     },
   ];
 
@@ -169,7 +178,7 @@ export function LeaveBalanceView({
           {
             label: "Total Sisa",
             value: `${stats.remaining} hari`,
-            hint: "akumulasi semua karyawan",
+            hint: "dari karyawan yang berhak",
           },
         ].map((card) => (
           <div className="card p-4" key={card.label}>

@@ -171,6 +171,24 @@ body {
   transform: scale(0.97);
 }
 
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  background: #ece7e4;
+  border-color: #e1d9d4;
+  color: #a79d99;
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn:disabled:hover,
+.btn[aria-disabled="true"]:hover {
+  background: #ece7e4;
+  border-color: #e1d9d4;
+  color: #a79d99;
+}
+
 .tag {
   display: inline-flex;
   align-items: center;

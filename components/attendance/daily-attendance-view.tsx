@@ -214,6 +214,7 @@ export function DailyAttendanceView({
     { label: "Belum Masuk", value: summary.belumMasuk },
     { label: "Alfa", value: summary.alfa },
     { label: "Belum Check-out", value: summary.belumCheckOut },
+    { label: "Cuti/Izin/Sakit", value: summary.leave },
   ];
 
   return (
@@ -232,7 +233,7 @@ export function DailyAttendanceView({
         </button>
       </PageHead>
 
-      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 mb-5">
+      <div className="grid grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
         {summaryCards.map((card) => (
           <div className="card p-4" key={card.label}>
             <div className="text-[11px] sub font-semibold">{card.label}</div>
