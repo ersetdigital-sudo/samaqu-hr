@@ -4,10 +4,14 @@ import "server-only";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { isoDateJakarta } from "@/lib/datetime";
 import { monthRange } from "@/lib/attendance/rules";
+import { addDaysIso, leaveDayStatusForCategory } from "@/lib/leave/rules";
+import type { LeaveCategory, LeaveDayStatus } from "@/lib/leave/types";
 import type {
   AttendanceCorrection,
   AttendanceDailyData,
   AttendanceEmployee,
+  AttendanceLeaveDay,
+  AttendanceLeaveStatus,
   AttendanceMonthData,
   AttendanceRecord,
   CorrectionInput,
@@ -86,12 +90,25 @@ type EmployeeRow = {
   joined_at: string;
 };
 
+type LeaveRequestRow = {
+  employee_id: string;
+  start_date: string;
+  end_date: string;
+  leave_type_code: string;
+  leave_types:
+    | { category: LeaveCategory }
+    | { category: LeaveCategory }[]
+    | null;
+};
+
 const SCHEDULE_COLUMNS =
   "id, employee_id, name, work_days, start_time, end_time, break_minutes, late_tolerance_minutes, is_active";
 const HOLIDAY_COLUMNS = "id, holiday_date, name";
 const ATTENDANCE_COLUMNS =
   "id, employee_id, work_date, check_in_at, check_out_at, source, notes, updated_at";
 const EMPLOYEE_COLUMNS = "id, full_name, position, department, status, joined_at";
+const LEAVE_COLUMNS =
+  "employee_id, start_date, end_date, leave_type_code, leave_types(category)";
 
 const normalizeTime = (value: string): string => value.slice(0, 5);
 
@@ -164,6 +181,52 @@ const toEmployee = (row: EmployeeRow): AttendanceEmployee => ({
   status: row.status,
   joinedAt: row.joined_at,
 });
+
+const leaveCategoryOf = (row: LeaveRequestRow): LeaveCategory => {
+  const relation = Array.isArray(row.leave_types)
+    ? row.leave_types[0]
+    : row.leave_types;
+  if (relation?.category) return relation.category;
+  if (row.leave_type_code === "sick") return "sick";
+  if (row.leave_type_code === "permission") return "permission";
+  if (row.leave_type_code === "annual") return "annual";
+  return "special";
+};
+
+const leaveStatusOf = (row: LeaveRequestRow): LeaveDayStatus =>
+  leaveDayStatusForCategory(leaveCategoryOf(row));
+
+const buildLeaveDays = (
+  rows: LeaveRequestRow[],
+  from: string,
+  to: string
+): AttendanceLeaveDay[] => {
+  const byDate = new Map<string, LeaveDayStatus>();
+
+  for (const row of rows) {
+    const status = leaveStatusOf(row);
+    let cursor = row.start_date > from ? row.start_date : from;
+    const limit = row.end_date < to ? row.end_date : to;
+    while (cursor <= limit) {
+      byDate.set(cursor, status);
+      cursor = addDaysIso(cursor, 1);
+    }
+  }
+
+  return [...byDate.entries()]
+    .map(([date, status]) => ({ date, status }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+};
+
+const leaveStatusOnDate = (
+  rows: LeaveRequestRow[],
+  date: string
+): LeaveDayStatus | null => {
+  const row = rows.find(
+    (item) => item.start_date <= date && item.end_date >= date
+  );
+  return row ? leaveStatusOf(row) : null;
+};
 
 const getActiveSchedule = async (): Promise<WorkSchedule | null> => {
   const { data, error } = await (await getServerSupabase())
@@ -246,11 +309,13 @@ export async function getMyAttendanceMonth(
       todayRecord: null,
       monthRecords: [],
       holidays: [],
+      leaveDays: [],
+      todayLeaveStatus: null,
     };
   }
 
   const { from, to } = monthRange(monthKey);
-  const [employeeResult, schedule, holidayResult, todayHolidayResult, recordResult, todayRecordResult] =
+  const [employeeResult, schedule, holidayResult, todayHolidayResult, recordResult, todayRecordResult, leaveResult, todayLeaveResult] =
     await Promise.all([
       db
         .from("employees")
@@ -282,6 +347,20 @@ export async function getMyAttendanceMonth(
         .eq("employee_id", employeeId)
         .eq("work_date", todayIso)
         .maybeSingle(),
+      db
+        .from("leave_requests")
+        .select(LEAVE_COLUMNS)
+        .eq("employee_id", employeeId)
+        .eq("status", "Disetujui")
+        .lte("start_date", to)
+        .gte("end_date", from),
+      db
+        .from("leave_requests")
+        .select(LEAVE_COLUMNS)
+        .eq("employee_id", employeeId)
+        .eq("status", "Disetujui")
+        .lte("start_date", todayIso)
+        .gte("end_date", todayIso),
     ]);
 
   if (employeeResult.error) {
@@ -298,6 +377,12 @@ export async function getMyAttendanceMonth(
   }
   if (todayRecordResult.error) {
     throw mapDbError(todayRecordResult.error, "memuat kehadiran hari ini");
+  }
+  if (leaveResult.error) {
+    throw mapDbError(leaveResult.error, "memuat cuti bulan ini");
+  }
+  if (todayLeaveResult.error) {
+    throw mapDbError(todayLeaveResult.error, "memuat cuti hari ini");
   }
 
   const holidayMap = new Map<string, HolidayEntry>();
@@ -326,6 +411,15 @@ export async function getMyAttendanceMonth(
     holidays: [...holidayMap.values()].sort((a, b) =>
       a.holidayDate.localeCompare(b.holidayDate)
     ),
+    leaveDays: buildLeaveDays(
+      (leaveResult.data ?? []) as LeaveRequestRow[],
+      from,
+      to
+    ),
+    todayLeaveStatus: leaveStatusOnDate(
+      (todayLeaveResult.data ?? []) as LeaveRequestRow[],
+      todayIso
+    ),
   };
 }
 
@@ -336,7 +430,7 @@ export async function getDailyAttendance(
   const todayIso = isoDateJakarta();
   const serverNow = new Date().toISOString();
 
-  const [schedule, holidayResult, employeeResult, attendanceResult, correctionResult] =
+  const [schedule, holidayResult, employeeResult, attendanceResult, correctionResult, leaveResult] =
     await Promise.all([
       getActiveSchedule(),
       db
@@ -361,6 +455,12 @@ export async function getDailyAttendance(
         )
         .eq("work_date", dateIso)
         .order("corrected_at", { ascending: false }),
+      db
+        .from("leave_requests")
+        .select(LEAVE_COLUMNS)
+        .eq("status", "Disetujui")
+        .lte("start_date", dateIso)
+        .gte("end_date", dateIso),
     ]);
 
   if (holidayResult.error) {
@@ -375,9 +475,18 @@ export async function getDailyAttendance(
   if (correctionResult.error) {
     throw mapDbError(correctionResult.error, "memuat riwayat koreksi");
   }
+  if (leaveResult.error) {
+    throw mapDbError(leaveResult.error, "memuat cuti karyawan");
+  }
 
   const correctionRows = (correctionResult.data ?? []) as CorrectionRow[];
   const actorNames = await loadActorNames(correctionRows);
+  const leaveStatuses: AttendanceLeaveStatus[] = (
+    (leaveResult.data ?? []) as LeaveRequestRow[]
+  ).map((row) => ({
+    employeeId: row.employee_id,
+    status: leaveStatusOf(row),
+  }));
 
   return {
     date: dateIso,
@@ -392,6 +501,7 @@ export async function getDailyAttendance(
       toAttendance
     ),
     corrections: correctionRows.map((row) => toCorrection(row, actorNames)),
+    leaveStatuses,
   };
 }
 

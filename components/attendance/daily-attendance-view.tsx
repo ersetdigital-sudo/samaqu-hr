@@ -65,6 +65,7 @@ export function DailyAttendanceView({
         corrections: data.corrections,
         schedule: data.schedule,
         holiday: data.holiday,
+        leaveStatuses: data.leaveStatuses,
       }),
     [data]
   );

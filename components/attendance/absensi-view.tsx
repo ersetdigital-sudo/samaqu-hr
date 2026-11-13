@@ -49,6 +49,14 @@ export function AbsensiView({
     (holiday) => holiday.holidayDate === todayIso
   );
 
+  const leaveStatusByDate = useMemo(
+    () =>
+      new Map(
+        data.leaveDays.map((entry) => [entry.date, entry.status] as const)
+      ),
+    [data.leaveDays]
+  );
+
   const todayDay = useMemo(() => {
     if (!employee) return null;
     return computeAttendanceDay({
@@ -58,8 +66,16 @@ export function AbsensiView({
       holidayName: todayHoliday?.name ?? null,
       record: data.todayRecord,
       joinedAt: employee.joinedAt,
+      leaveStatus: data.todayLeaveStatus,
     });
-  }, [employee, todayIso, data.schedule, data.todayRecord, todayHoliday?.name]);
+  }, [
+    employee,
+    todayIso,
+    data.schedule,
+    data.todayRecord,
+    todayHoliday?.name,
+    data.todayLeaveStatus,
+  ]);
 
   const monthDays = useMemo(() => {
     const days = buildAttendanceMonthDays({
@@ -69,6 +85,7 @@ export function AbsensiView({
       holidays: data.holidays,
       records: data.monthRecords,
       joinedAt: employee?.joinedAt ?? null,
+      leaveStatusForDate: (date) => leaveStatusByDate.get(date) ?? null,
     });
 
     return days
@@ -76,7 +93,15 @@ export function AbsensiView({
         (day) => day.date <= todayIso && day.dayType !== "before-employment"
       )
       .reverse();
-  }, [month, todayIso, data.schedule, data.holidays, data.monthRecords, employee?.joinedAt]);
+  }, [
+    month,
+    todayIso,
+    data.schedule,
+    data.holidays,
+    data.monthRecords,
+    employee?.joinedAt,
+    leaveStatusByDate,
+  ]);
 
   const loadMonth = useCallback(
     async (nextMonth: string) => {
@@ -147,9 +172,11 @@ export function AbsensiView({
 
   const activeEmployee =
     employee?.status === "Aktif" || employee?.status === "Probation";
+  const todayLeaveStatus = data.todayLeaveStatus;
   const canCheckIn =
     Boolean(activeEmployee && data.schedule && todayDay?.dayType === "workday") &&
-    !data.todayRecord?.checkInAt;
+    !data.todayRecord?.checkInAt &&
+    !todayLeaveStatus;
   const canCheckOut =
     Boolean(activeEmployee && data.schedule && todayDay?.dayType === "workday") &&
     Boolean(data.todayRecord?.checkInAt) &&
@@ -161,6 +188,9 @@ export function AbsensiView({
       return "Status karyawan Nonaktif. Hubungi HR untuk reaktivasi.";
     }
     if (!data.schedule) return "Jadwal kerja belum diatur oleh HR.";
+    if (todayLeaveStatus) {
+      return `Kamu sedang ${todayLeaveStatus.toLowerCase()} hari ini — check-in tidak diperlukan.`;
+    }
     if (todayDay?.dayType === "before-employment") {
       return "Belum memasuki masa kerja.";
     }

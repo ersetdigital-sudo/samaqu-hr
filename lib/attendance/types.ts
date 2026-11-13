@@ -1,6 +1,7 @@
 /** Tipe domain Attendance Tahap A. */
 
 import type { EmployeeStatus } from "@/lib/employees/types";
+import type { LeaveDayStatus } from "@/lib/leave/types";
 
 export type AttendanceStatus =
   | "Hadir"
@@ -10,8 +11,8 @@ export type AttendanceStatus =
   | "Lupa Check-out"
   | "Alfa"
   | "Belum Masuk"
-  /** Titik sambung modul Cuti: nanti menimpa Alfa/Belum Masuk. */
-  | "Cuti";
+  /** Diisi modul Cuti saat pengajuan Disetujui. */
+  | LeaveDayStatus;
 
 export type AttendanceDayType =
   | "workday"
@@ -86,6 +87,16 @@ export type AttendanceDay = {
   record: AttendanceRecord | null;
 };
 
+export type AttendanceLeaveDay = {
+  date: string;
+  status: LeaveDayStatus;
+};
+
+export type AttendanceLeaveStatus = {
+  employeeId: string;
+  status: LeaveDayStatus;
+};
+
 export type AttendanceMonthData = {
   linked: boolean;
   employee: AttendanceEmployee | null;
@@ -95,6 +106,10 @@ export type AttendanceMonthData = {
   todayRecord: AttendanceRecord | null;
   monthRecords: AttendanceRecord[];
   holidays: HolidayEntry[];
+  /** Hari cuti Disetujui pada bulan yang sedang dilihat. */
+  leaveDays: AttendanceLeaveDay[];
+  /** Cuti Disetujui pada hari ini, dipakai untuk status hari ini. */
+  todayLeaveStatus: LeaveDayStatus | null;
 };
 
 export type AttendanceDailyRow = {
@@ -112,6 +127,8 @@ export type AttendanceDailyData = {
   employees: AttendanceEmployee[];
   attendance: AttendanceRecord[];
   corrections: AttendanceCorrection[];
+  /** Karyawan dengan cuti Disetujui pada tanggal ini. */
+  leaveStatuses: AttendanceLeaveStatus[];
 };
 
 export type ScheduleInput = {

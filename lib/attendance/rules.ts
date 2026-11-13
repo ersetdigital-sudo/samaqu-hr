@@ -7,6 +7,7 @@
  */
 
 import { formatClockID } from "@/lib/datetime";
+import type { LeaveDayStatus } from "@/lib/leave/types";
 import type {
   AttendanceDay,
   AttendanceRecord,
@@ -113,7 +114,7 @@ export type AttendanceComputationInput = {
   record: AttendanceRecord | null;
   joinedAt?: string | null;
   /** Titik sambung modul Cuti. Null/undefined = belum ada data cuti. */
-  leaveStatus?: "Cuti" | null;
+  leaveStatus?: LeaveDayStatus | null;
 };
 
 export function computeAttendanceDay({
@@ -215,8 +216,8 @@ export function computeAttendanceDay({
     return base;
   }
 
-  if (leaveStatus === "Cuti") {
-    return { ...base, status: "Cuti" };
+  if (leaveStatus) {
+    return { ...base, status: leaveStatus };
   }
 
   if (date < todayIso) {
@@ -242,6 +243,8 @@ export function attendanceStatusTone(status: AttendanceStatus): string {
       return "t-bad";
     case "Belum Check-out":
     case "Cuti":
+    case "Sakit":
+    case "Izin":
       return "t-info";
     case "Belum Masuk":
     default:
@@ -287,7 +290,7 @@ export type BuildMonthDaysInput = {
   holidays: HolidayEntry[];
   records: AttendanceRecord[];
   joinedAt?: string | null;
-  leaveStatusForDate?: (dateIso: string) => "Cuti" | null;
+  leaveStatusForDate?: (dateIso: string) => LeaveDayStatus | null;
 };
 
 export function buildAttendanceMonthDays({

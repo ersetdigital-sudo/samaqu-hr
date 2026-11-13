@@ -100,11 +100,19 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Absensi",
         icon: "clock",
         href: "/absensi",
-        description: "Check-in, check-out, dan riwayat kehadiran milikmu.",
+        description: "Check-in, check-out, cuti, dan riwayat kehadiran milikmu.",
         status: "live",
         roles: ["employee"],
         employeeOnly: true,
-        items: [],
+        items: [
+          {
+            id: "kehadiran",
+            label: "Absensi Harian",
+            href: "/absensi",
+            status: "live",
+          },
+          { id: "cuti", label: "Cuti & Izin", href: "/absensi/cuti", status: "live" },
+        ],
       },
       {
         id: "employees",
@@ -195,7 +203,13 @@ export const NAV_GROUPS: NavGroup[] = [
             href: "/attendance/harian",
             status: "live",
           },
-          { id: "cuti", label: "Cuti & Izin", href: "/attendance/cuti" },
+          { id: "cuti", label: "Persetujuan Cuti", href: "/attendance/cuti", status: "live" },
+          {
+            id: "saldo-cuti",
+            label: "Saldo Cuti",
+            href: "/attendance/cuti/saldo",
+            status: "live",
+          },
           { id: "lembur", label: "Lembur", href: "/attendance/lembur" },
           {
             id: "shift",
@@ -366,9 +380,11 @@ export function findSubItem(
   pathname: string | null,
 ): NavSubItem | undefined {
   const current = pathname ?? "/";
-  return module?.items.find(
-    (item) => current === item.href || current.startsWith(`${item.href}/`),
-  );
+  return module?.items
+    .filter(
+      (item) => current === item.href || current.startsWith(`${item.href}/`),
+    )
+    .sort((a, b) => b.href.length - a.href.length)[0];
 }
 
 /** Role superuser: semua modul dan submenu terbuka. */

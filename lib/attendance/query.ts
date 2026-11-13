@@ -8,6 +8,7 @@ import type {
   AttendanceCorrection,
   AttendanceDailyRow,
   AttendanceEmployee,
+  AttendanceLeaveStatus,
   AttendanceRecord,
   AttendanceStatus,
   HolidayEntry,
@@ -23,6 +24,8 @@ export const ATTENDANCE_STATUS_VALUES: AttendanceStatus[] = [
   "Belum Masuk",
   "Alfa",
   "Cuti",
+  "Sakit",
+  "Izin",
 ];
 
 export type AttendanceDailyFilters = {
@@ -52,6 +55,7 @@ export function buildAttendanceDailyRows({
   corrections,
   schedule,
   holiday,
+  leaveStatuses = [],
 }: {
   date: string;
   todayIso: string;
@@ -60,9 +64,13 @@ export function buildAttendanceDailyRows({
   corrections: AttendanceCorrection[];
   schedule: WorkSchedule | null;
   holiday: HolidayEntry | null;
+  leaveStatuses?: AttendanceLeaveStatus[];
 }): AttendanceDailyRow[] {
   const recordByEmployee = new Map(
     attendance.map((record) => [record.employeeId, record])
+  );
+  const leaveByEmployee = new Map(
+    leaveStatuses.map((entry) => [entry.employeeId, entry.status])
   );
   const correctionsByEmployee = new Map<string, AttendanceCorrection[]>();
 
@@ -81,6 +89,7 @@ export function buildAttendanceDailyRows({
       holidayName: holiday?.name ?? null,
       record: recordByEmployee.get(employee.id) ?? null,
       joinedAt: employee.joinedAt,
+      leaveStatus: leaveByEmployee.get(employee.id) ?? null,
     }),
     corrections: correctionsByEmployee.get(employee.id) ?? [],
   }));
