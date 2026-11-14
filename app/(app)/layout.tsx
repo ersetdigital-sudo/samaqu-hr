@@ -11,6 +11,7 @@ import { Toast } from "@/components/toast";
 import { Topbar } from "@/components/topbar";
 import { requireUser } from "@/lib/auth/session";
 import { getRecruitmentSnapshot } from "@/lib/recruitment/repository";
+import { hasOpenPerformanceAssignment } from "@/lib/performance/repository";
 import { canAccess, findModule } from "@/lib/navigation";
 import {
   SIDEBAR_COOKIE,
@@ -31,14 +32,22 @@ export default async function AppLayout({
   const initial = recruitment && canAccess(user.role, recruitment)
     ? await getRecruitmentSnapshot()
     : { jobs: [], candidates: [], interviews: [], activities: [] };
+  const performanceReviewer =
+    user.role === "employee"
+      ? await hasOpenPerformanceAssignment(user.employeeId)
+      : true;
 
   return (
     <RecruitmentProvider initial={initial}>
       <div className="flex min-h-screen">
-        <Sidebar user={user} initialCollapsed={sidebarCollapsed} />
+        <Sidebar
+          user={user}
+          initialCollapsed={sidebarCollapsed}
+          performanceReviewer={performanceReviewer}
+        />
         <div className="flex-1 min-w-0 flex flex-col">
           <Topbar user={user} />
-          <MobileTabs user={user} />
+          <MobileTabs user={user} performanceReviewer={performanceReviewer} />
           <main
             id="view"
             className="min-w-0 p-5 lg:p-8 max-w-[1320px] w-full"

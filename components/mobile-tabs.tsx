@@ -12,13 +12,27 @@ import {
 import type { SessionUser } from "@/lib/session";
 
 /** Navigasi mobile: baris modul, lalu submenu modul yang sedang dibuka. */
-export function MobileTabs({ user }: { user: SessionUser }) {
+export function MobileTabs({
+  user,
+  performanceReviewer = false,
+}: {
+  user: SessionUser;
+  performanceReviewer?: boolean;
+}) {
   const pathname = usePathname();
   const activeModule = findModuleByPath(pathname);
   const subItems = activeModule
-    ? visibleSubItems(user.role, activeModule).filter((item) =>
-        isSubItemLive(activeModule, item),
-      )
+    ? visibleSubItems(user.role, activeModule)
+        .filter(
+          (item) =>
+            !(
+              activeModule.id === "performance" &&
+              item.id === "tim" &&
+              user.role === "employee" &&
+              !performanceReviewer
+            )
+        )
+        .filter((item) => isSubItemLive(activeModule, item))
     : [];
 
   return (

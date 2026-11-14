@@ -64,9 +64,11 @@ function ItemContent({
 export function Sidebar({
   user,
   initialCollapsed,
+  performanceReviewer = false,
 }: {
   user: SessionUser;
   initialCollapsed: boolean;
+  performanceReviewer?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -194,7 +196,15 @@ export function Sidebar({
               </div>
               <nav className="nav" aria-label={group.label}>
                 {modules.map((module) => {
-                  const subItems = visibleSubItems(user.role, module);
+                  const subItems = visibleSubItems(user.role, module).filter(
+                    (item) =>
+                      !(
+                        module.id === "performance" &&
+                        item.id === "tim" &&
+                        user.role === "employee" &&
+                        !performanceReviewer
+                      )
+                  );
                   const active = activeModule?.id === module.id;
                   const open = openModules.has(module.id);
                   const flyoutOpen = flyout?.module.id === module.id;

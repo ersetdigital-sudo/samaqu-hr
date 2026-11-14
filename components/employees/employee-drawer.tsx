@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { EmployeeDocumentsPanel } from "@/components/documents/employee-documents-panel";
+import { PerformanceEmployeeHistory } from "@/components/performance/performance-employee-history";
 import { EmployeePositionHistory } from "@/components/position-history/employee-position-history";
 import { employeeStatusTone } from "@/components/employees/status-tone";
 import { Icon } from "@/components/icons";
@@ -31,6 +32,7 @@ const EMPLOYEE_SECTIONS: DrawerNavSection[] = [
   { id: "employee-contract", label: "Kontrak" },
   { id: "employee-position", label: "Riwayat Jabatan" },
   { id: "employee-documents", label: "Dokumen" },
+  { id: "employee-performance", label: "Performa" },
 ];
 
 const EMPLOYEE_STATUS_SECTION: DrawerNavSection = {
@@ -445,6 +447,15 @@ export function EmployeeDrawer({
                 showHeading={false}
                 onMutated={(message) => onChanged(message)}
               />
+            </FormSection>
+
+            <FormSection
+              sectionId="employee-performance"
+              icon="target"
+              title="Performa"
+              description="Riwayat skor Final dari periode penilaian yang sudah ditutup."
+            >
+              <PerformanceEmployeeHistory employeeId={detail.id} />
             </FormSection>
 
             {detail.status === "Nonaktif" && (
