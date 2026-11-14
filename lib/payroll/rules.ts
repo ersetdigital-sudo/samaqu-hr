@@ -505,9 +505,15 @@ export function calculatePayrollRow(
     toleranceMinutes: input.lateToleranceMinutes,
   });
 
-  // Premi yang dibayar perusahaan dan masuk ke penghasilan bruto pajak.
+  // Premi yang dibayar perusahaan masuk penghasilan bruto pajak; potongan
+  // alfa/keterlambatan mengurangi penghasilan karena tidak dibayarkan.
   const taxGross = round2(
-    grossIncome + bpjsKesehatanEmployer + jkkEmployer + jkmEmployer
+    grossIncome -
+      alfaDeduction -
+      lateDeduction +
+      bpjsKesehatanEmployer +
+      jkkEmployer +
+      jkmEmployer
   );
 
   let pph21 = 0;
