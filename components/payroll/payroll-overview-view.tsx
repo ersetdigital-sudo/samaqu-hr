@@ -79,7 +79,7 @@ export function PayrollOverviewView({
       width: "14%",
       render: (run) => (
         <span className="text-[13px] font-semibold">
-          {formatMonthYearID(run.periodMonth + "-01")}
+          {formatMonthYearID(run.periodMonth)}
         </span>
       ),
     },
@@ -170,7 +170,7 @@ export function PayrollOverviewView({
       {latest && (
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="text-[12px] sub">
-            Ringkasan run terbaru: {formatMonthYearID(latest.periodMonth + "-01")}
+            Ringkasan run terbaru: {formatMonthYearID(latest.periodMonth)}
           </div>
           <span className={`tag ${payrollRunStatusTone(latest.status)}`}>
             {latest.status}
@@ -214,12 +214,12 @@ export function PayrollOverviewView({
           rows={runs}
           rowKey={(run) => run.id}
           rowLabel={(run) =>
-            `Buka payroll ${formatMonthYearID(run.periodMonth + "-01")}`
+            `Buka payroll ${formatMonthYearID(run.periodMonth)}`
           }
           onRowActivate={(run) => router.push(`/payroll/runs/${run.id}`)}
           rowAction={{
             ariaLabel: (run) =>
-              `Buka payroll ${formatMonthYearID(run.periodMonth + "-01")}`,
+              `Buka payroll ${formatMonthYearID(run.periodMonth)}`,
             label: "Buka run",
           }}
           empty="Belum ada payroll run."

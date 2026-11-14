@@ -21,7 +21,7 @@ export function PayslipView({
     <>
       <PageHead
         title="Slip Gaji"
-        subtitle={`${formatMonthYearID(payslip.periodMonth + "-01")} · ${payslip.employee.name}`}
+        subtitle={`${formatMonthYearID(payslip.periodMonth)} · ${payslip.employee.name}`}
       >
         <Link className="btn btn-g" href={backHref}>
           {backLabel}
@@ -43,7 +43,7 @@ export function PayslipView({
           </div>
           <div className="text-right">
             <div className="text-[13px] font-bold">
-              {formatMonthYearID(payslip.periodMonth + "-01")}
+              {formatMonthYearID(payslip.periodMonth)}
             </div>
             <div className="text-[11px] sub">
               Status: {payslip.status}

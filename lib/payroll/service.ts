@@ -51,7 +51,7 @@ export async function recalculatePayrollRun(runId: string): Promise<void> {
       getPayrollSettings(),
       getPayrollProfiles(),
       getPayrollTerRates(),
-      getRecapData(detail.run.periodMonth),
+      getRecapData(detail.run.periodMonth.slice(0, 7)),
       detail.run.periodMonth.slice(5, 7) === "12"
         ? getPriorPayrollData(detail.run.periodMonth)
         : Promise.resolve(new Map<string, PriorPayrollYearData>())
@@ -81,6 +81,7 @@ export async function recalculatePayrollRun(runId: string): Promise<void> {
 
   const rows: PayrollRunCalculationRow[] = [];
   const calculationResults: {
+    employeeName: string;
     calculation: ReturnType<typeof calculatePayrollRow>["calculation"];
     status: string;
   }[] = [];
@@ -143,6 +144,7 @@ export async function recalculatePayrollRun(runId: string): Promise<void> {
       calculation: result.calculation,
     });
     calculationResults.push({
+      employeeName: recapRow.employee.fullName,
       calculation: result.calculation,
       status: result.status,
     });

@@ -8,8 +8,35 @@ import { PayrollDataError } from "@/lib/payroll/repository";
 export const payrollStaffGuard = () => requireApiRole(["hr_manager"]);
 export const payrollSelfGuard = () => requireApiRole(["employee"]);
 
+function technicalDetails(error: unknown) {
+  if (error instanceof PayrollDataError) {
+    if (error.technical) {
+      return {
+        code: error.technical.code,
+        function: error.technical.functionName,
+        message: error.technical.message,
+      };
+    }
+    return { message: error.message };
+  }
+  if (error && typeof error === "object") {
+    const candidate = error as { code?: unknown; message?: unknown };
+    return {
+      code: typeof candidate.code === "string" ? candidate.code : undefined,
+      message:
+        typeof candidate.message === "string"
+          ? candidate.message
+          : "Kesalahan tidak diketahui",
+    };
+  }
+  return { message: "Kesalahan tidak diketahui" };
+}
+
 export function payrollFailure(error: unknown, context: string) {
   if (error instanceof PayrollDataError) {
+    if (error.status >= 500) {
+      console.error(`[payroll] ${context}`, technicalDetails(error));
+    }
     return NextResponse.json(
       {
         error: error.message,
@@ -18,7 +45,7 @@ export function payrollFailure(error: unknown, context: string) {
       { status: error.status, headers: { "Cache-Control": "no-store" } }
     );
   }
-  console.error(`[payroll] ${context}`, error);
+  console.error(`[payroll] ${context}`, technicalDetails(error));
   return NextResponse.json(
     { error: "Terjadi kesalahan pada data payroll" },
     { status: 500, headers: { "Cache-Control": "no-store" } }

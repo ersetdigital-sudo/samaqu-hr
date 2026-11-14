@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DetailDrawer } from "@/components/ui/detail-drawer";
 import { InfoGrid, InfoItem } from "@/components/ui/detail-info";
 import { FormSection } from "@/components/ui/form-section";
-import { formatDateID } from "@/lib/datetime";
+import { formatMonthYearID } from "@/lib/datetime";
 import { ini } from "@/lib/data";
 import {
   formatPayrollHours,
@@ -103,7 +103,7 @@ export function PayrollRunEmployeeDrawer({
     <DetailDrawer
       open={Boolean(employee)}
       title="Rincian Payroll Karyawan"
-      description={`${formatDateID(run.periodMonth)} · ${employee.employeeName}`}
+      description={`${formatMonthYearID(run.periodMonth)} · ${employee.employeeName}`}
       size="md"
       onClose={onClose}
       footer={

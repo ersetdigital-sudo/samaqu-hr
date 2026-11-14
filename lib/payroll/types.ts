@@ -149,6 +149,7 @@ export type PayrollRun = {
   employeeCount: number;
   grossTotal: number;
   deductionTotal: number;
+  pph21Total: number;
   takeHomeTotal: number;
   employerCostTotal: number;
   warnings: string[];

@@ -66,7 +66,7 @@ export async function buildPayrollXlsx(
 
   for (const row of employees) {
     sheet.addRow([
-      formatMonthYearID(run.periodMonth + "-01"),
+      formatMonthYearID(run.periodMonth),
       row.employeeName,
       row.employeeId,
       row.department,
@@ -137,7 +137,7 @@ export async function buildPayrollTransferXlsx(
   styleHeader(sheet, headers.length);
   for (const row of rows) {
     sheet.addRow([
-      formatMonthYearID(run.periodMonth + "-01"),
+      formatMonthYearID(run.periodMonth),
       row.bankName,
       row.bankAccountHolder,
       row.bankAccountNumber,

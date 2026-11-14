@@ -685,14 +685,26 @@ export type PayrollRunTotals = {
   employeeCount: number;
   grossTotal: number;
   deductionTotal: number;
+  pph21Total: number;
   takeHomeTotal: number;
   employerCostTotal: number;
   warnings: string[];
 };
 
 export function buildPayrollRunTotals(
-  results: { calculation: PayrollCalculation; status: string }[]
+  results: {
+    employeeName?: string;
+    calculation: PayrollCalculation;
+    status: string;
+  }[]
 ): PayrollRunTotals {
+  const warnings = results.flatMap((result) => {
+    const employee = result.employeeName?.trim() || "Karyawan";
+    const issues: string[] = [];
+    if (result.status !== "Lengkap") issues.push(result.status);
+    if (result.calculation.npwpMissing) issues.push("NPWP belum diisi");
+    return issues.map((issue) => `${employee}: ${issue}`);
+  });
   return {
     employeeCount: results.length,
     grossTotal: round2(
@@ -704,14 +716,15 @@ export function buildPayrollRunTotals(
         0
       )
     ),
+    pph21Total: round2(
+      results.reduce((sum, result) => sum + result.calculation.pph21, 0)
+    ),
     takeHomeTotal: round2(
       results.reduce((sum, result) => sum + result.calculation.takeHomePay, 0)
     ),
     employerCostTotal: round2(
       results.reduce((sum, result) => sum + result.calculation.employerCost, 0)
     ),
-    warnings: results.flatMap((result) =>
-      result.status === "Lengkap" ? [] : [result.status]
-    ),
+    warnings,
   };
 }

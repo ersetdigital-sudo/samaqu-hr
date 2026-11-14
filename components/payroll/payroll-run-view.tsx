@@ -192,6 +192,7 @@ export function PayrollRunView({
   const summary = [
     { label: "Total Bruto", value: formatRupiah(run.grossTotal) },
     { label: "Total Potongan", value: formatRupiah(run.deductionTotal) },
+    { label: "PPh 21", value: formatRupiah(run.pph21Total) },
     { label: "Take Home Pay", value: formatRupiah(run.takeHomeTotal) },
     { label: "Biaya Perusahaan", value: formatRupiah(run.employerCostTotal) },
     { label: "Jumlah Karyawan", value: run.employeeCount },
@@ -269,7 +270,7 @@ export function PayrollRunView({
   return (
     <>
       <PageHead
-        title={`Payroll ${formatMonthYearID(run.periodMonth + "-01")}`}
+        title={`Payroll ${formatMonthYearID(run.periodMonth)}`}
         subtitle={`Status ${run.status} · dibuat ${formatDateID(run.createdAt)}`}
       >
         {actions}
@@ -291,7 +292,7 @@ export function PayrollRunView({
         )}
       </div>
 
-      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 mb-5">
+      <div className="grid grid-cols-2 xl:grid-cols-6 gap-4 mb-5">
         {summary.map((card) => (
           <div className="card p-4" key={card.label}>
             <div className="text-[11px] sub font-semibold">{card.label}</div>
@@ -310,7 +311,11 @@ export function PayrollRunView({
 
       {run.warnings.length > 0 && (
         <div className="card p-4 mb-4 text-[12px]" style={{ background: "#FFF7E6", borderColor: "#E8D3B8", color: "#8A5A12" }}>
-          {run.warnings.join(" ")}
+          <div className="flex flex-col gap-1">
+            {run.warnings.map((warning) => (
+              <div key={warning}>{warning}</div>
+            ))}
+          </div>
         </div>
       )}
 

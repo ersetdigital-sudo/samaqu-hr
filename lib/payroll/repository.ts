@@ -31,18 +31,27 @@ import type {
 } from "@/lib/payroll/types";
 import type { HolidayEntry, WorkSchedule } from "@/lib/attendance/types";
 
+export type PayrollTechnicalError = {
+  code?: string;
+  functionName?: string;
+  message?: string;
+};
+
 export class PayrollDataError extends Error {
   readonly status: number;
   readonly errors?: Record<string, string>;
+  readonly technical?: PayrollTechnicalError;
   constructor(
     message: string,
     status = 400,
-    errors?: Record<string, string>
+    errors?: Record<string, string>,
+    technical?: PayrollTechnicalError
   ) {
     super(message);
     this.name = "PayrollDataError";
     this.status = status;
     this.errors = errors;
+    this.technical = technical;
   }
 }
 
@@ -117,6 +126,7 @@ type RunRow = {
   employee_count: number;
   gross_total: number;
   deduction_total: number;
+  pph21_total: number;
   take_home_total: number;
   employer_cost_total: number;
   warnings: string[] | null;
@@ -190,33 +200,35 @@ type RunHistoryRow = {
   acted_at: string;
 };
 
-const mapDbError = (error: { code?: string }, action: string) => {
+const mapDbError = (
+  error: { code?: string; message?: string },
+  action: string
+) => {
   if (error.code === "42501") {
     return new PayrollDataError("Akses ditolak oleh aturan keamanan data", 403);
   }
-  return new PayrollDataError(`Gagal ${action} data payroll`, 500);
+  return new PayrollDataError(
+    `Gagal ${action} data payroll`,
+    500,
+    undefined,
+    { code: error.code, message: error.message }
+  );
 };
 
-export const mapPayrollRpcError = (error: {
-  message?: string;
-  code?: string;
-}) => {
-  const message =
-    error.message?.replace(/^.*?:\s*/, "") || "Gagal memproses payroll";
+export const mapPayrollRpcError = (
+  error: { message?: string; code?: string },
+  functionName: string
+) => {
+  const message = error.message?.trim() || "Gagal memproses payroll";
   if (error.code === "42501") return new PayrollDataError(message, 403);
   if (error.code === "P0002") return new PayrollDataError(message, 404);
-  if (
-    error.code === "P0001" ||
-    error.code === "23514" ||
-    error.code === "23502" ||
-    error.code === "22P02" ||
-    error.code === "22007" ||
-    error.code === "22008" ||
-    error.code === "23505"
-  ) {
-    return new PayrollDataError(message, 400);
-  }
-  return new PayrollDataError("Gagal memproses payroll", 500);
+  if (error.code === "P0001") return new PayrollDataError(message, 400);
+  return new PayrollDataError(
+    "Gagal memproses payroll",
+    500,
+    undefined,
+    { code: error.code, functionName, message }
+  );
 };
 
 const actorNames = async (
@@ -264,6 +276,7 @@ const runFromRow = (row: RunRow): PayrollRun => ({
   employeeCount: row.employee_count,
   grossTotal: row.gross_total,
   deductionTotal: row.deduction_total,
+  pph21Total: row.pph21_total,
   takeHomeTotal: row.take_home_total,
   employerCostTotal: row.employer_cost_total,
   warnings: row.warnings ?? [],
@@ -346,7 +359,7 @@ export async function savePayrollSettings(
       p_reason: reason,
     }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "save_payroll_settings");
 }
 
 export async function getPayrollTerRates(): Promise<TerRate[]> {
@@ -442,14 +455,14 @@ export async function savePayrollProfile(
       p_reason: reason,
     }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "save_payroll_profile");
 }
 
 export async function listPayrollRuns(): Promise<PayrollRun[]> {
   const { data, error } = await (await getServerSupabase())
     .from("payroll_runs")
     .select(
-      "id, period_month, status, revision_of, revision_reason, notes, employee_count, gross_total, deduction_total, take_home_total, employer_cost_total, warnings, calculated_at, finalized_at, paid_at, paid_date, created_at"
+      "id, period_month, status, revision_of, revision_reason, notes, employee_count, gross_total, deduction_total, pph21_total, take_home_total, employer_cost_total, warnings, calculated_at, finalized_at, paid_at, paid_date, created_at"
     )
     .order("period_month", { ascending: false })
     .order("created_at", { ascending: false });
@@ -465,7 +478,7 @@ export async function getPayrollRunDetail(
     db
       .from("payroll_runs")
       .select(
-        "id, period_month, status, revision_of, revision_reason, notes, employee_count, gross_total, deduction_total, take_home_total, employer_cost_total, warnings, calculated_at, finalized_at, paid_at, paid_date, created_at"
+        "id, period_month, status, revision_of, revision_reason, notes, employee_count, gross_total, deduction_total, pph21_total, take_home_total, employer_cost_total, warnings, calculated_at, finalized_at, paid_at, paid_date, created_at"
       )
       .eq("id", runId)
       .maybeSingle(),
@@ -589,7 +602,7 @@ export async function createPayrollRun(periodMonth: string): Promise<PayrollRun>
     "create_payroll_run",
     { p_period_month: periodMonth }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "create_payroll_run");
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) throw new PayrollDataError("Run gagal dibuat", 500);
   return runFromRow(row as RunRow);
@@ -602,6 +615,7 @@ export async function savePayrollCalculation(
     employeeCount: number;
     grossTotal: number;
     deductionTotal: number;
+    pph21Total: number;
     takeHomeTotal: number;
     employerCostTotal: number;
     warnings: string[];
@@ -652,16 +666,17 @@ export async function savePayrollCalculation(
         calculation: row.calculation,
       })),
       p_totals: {
-        employeeCount: totals.employeeCount,
-        grossTotal: totals.grossTotal,
-        deductionTotal: totals.deductionTotal,
-        takeHomeTotal: totals.takeHomeTotal,
-        employerCostTotal: totals.employerCostTotal,
+        employee_count: totals.employeeCount,
+        gross_total: totals.grossTotal,
+        deduction_total: totals.deductionTotal,
+        pph21_total: totals.pph21Total,
+        take_home_total: totals.takeHomeTotal,
+        employer_cost_total: totals.employerCostTotal,
         warnings: totals.warnings,
       },
     }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "save_payroll_run_calculation");
 }
 
 export async function addPayrollItem(
@@ -683,7 +698,7 @@ export async function addPayrollItem(
       p_reason: reason,
     }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "add_payroll_run_item");
 }
 
 export async function deletePayrollItem(itemId: string): Promise<void> {
@@ -691,7 +706,7 @@ export async function deletePayrollItem(itemId: string): Promise<void> {
     "delete_payroll_run_item",
     { p_item_id: itemId }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "delete_payroll_run_item");
 }
 
 export async function finalizePayrollRun(runId: string): Promise<void> {
@@ -699,7 +714,7 @@ export async function finalizePayrollRun(runId: string): Promise<void> {
     "finalize_payroll_run",
     { p_run_id: runId }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "finalize_payroll_run");
 }
 
 export async function markPayrollRunPaid(
@@ -710,7 +725,7 @@ export async function markPayrollRunPaid(
     "mark_payroll_run_paid",
     { p_run_id: runId, p_paid_date: paidDate }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "mark_payroll_run_paid");
 }
 
 export async function revisePayrollRun(
@@ -721,7 +736,7 @@ export async function revisePayrollRun(
     "revise_payroll_run",
     { p_run_id: runId, p_reason: reason }
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "revise_payroll_run");
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) throw new PayrollDataError("Revisi gagal dibuat", 500);
   return runFromRow(row as RunRow);
@@ -834,7 +849,7 @@ export async function listMyPayslips(): Promise<MyPayslipListItem[]> {
   const { data, error } = await (await getServerSupabase()).rpc(
     "list_my_payslips"
   );
-  if (error) throw mapPayrollRpcError(error);
+  if (error) throw mapPayrollRpcError(error, "list_my_payslips");
   return ((data ?? []) as {
     run_id: string;
     period_month: string;
@@ -918,7 +933,7 @@ export async function getMyPayslip(runId: string): Promise<Payslip | null> {
   );
   if (error) {
     if (error.code === "P0002") return null;
-    throw mapPayrollRpcError(error);
+    throw mapPayrollRpcError(error, "get_my_payslip");
   }
   if (!data) return null;
   return data as Payslip;

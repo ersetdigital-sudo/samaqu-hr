@@ -33,7 +33,7 @@ export function MyPayslipsView({
             >
               <div>
                 <div className="font-bold">
-                  {formatMonthYearID(slip.periodMonth + "-01")}
+                  {formatMonthYearID(slip.periodMonth)}
                 </div>
                 <div className="text-[11px] sub">
                   {slip.status}
