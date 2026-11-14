@@ -62,6 +62,7 @@ export function PerformanceReviewForm({
   const [generalNotes, setGeneralNotes] = useState(initialDetail.generalNotes);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const editable =
     detail.periodStatus === "Terbuka" &&
@@ -156,6 +157,7 @@ export function PerformanceReviewForm({
   };
 
   const submit = async () => {
+    setSubmitAttempted(true);
     const issues = performanceReviewIssues({
       scores: detail.scores.map((score) => ({
         ...score,
@@ -294,7 +296,7 @@ export function PerformanceReviewForm({
       <FormSection
         icon="target"
         title="Aspek Penilaian"
-        description="Pilih skor 1–5 dan isi catatan bila diperlukan."
+        description="Pilih skor 1–5. Catatan wajib untuk skor 1, 2, dan 5 saat dikirim ke HR; Simpan Draft tetap bisa dilakukan tanpa catatan lengkap."
       >
         <div className="flex flex-col gap-4">
           {detail.scores.map((aspect) => {
@@ -335,13 +337,27 @@ export function PerformanceReviewForm({
                     maxLength={2000}
                     value={current.note}
                     disabled={!editable || busy}
+                    aria-invalid={
+                      submitAttempted &&
+                      scoreNeedsNote(current.score) &&
+                      !current.note.trim()
+                    }
+                    style={
+                      submitAttempted &&
+                      scoreNeedsNote(current.score) &&
+                      !current.note.trim()
+                        ? { borderColor: "var(--bad)" }
+                        : undefined
+                    }
                     onChange={(event) => setNote(aspect.id, event.target.value)}
                   />
-                  {scoreNeedsNote(current.score) && !current.note.trim() && (
-                    <span className="text-[11px]" style={{ color: "var(--bad)" }}>
-                      Catatan wajib untuk skor {current.score}.
-                    </span>
-                  )}
+                  {submitAttempted &&
+                    scoreNeedsNote(current.score) &&
+                    !current.note.trim() && (
+                      <span className="text-[11px]" style={{ color: "var(--bad)" }}>
+                        Catatan wajib untuk skor {current.score}.
+                      </span>
+                    )}
                 </label>
               </div>
             );
