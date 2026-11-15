@@ -426,11 +426,19 @@ export function LaporanView({
   initialPeriod,
   initialJob,
   initialError,
+  title = "Laporan",
+  subtitle = "Performa rekrutmen dari data asli, dihitung per periode dan lowongan.",
+  basePath = "/recruitment/laporan",
+  exportMode = "csv",
 }: {
   initial: ReportData | null;
   initialPeriod: ReportPeriod;
   initialJob: string;
   initialError?: string;
+  title?: string;
+  subtitle?: string;
+  basePath?: string;
+  exportMode?: "csv" | "xlsx";
 }) {
   const [report, setReport] = useState<ReportData | null>(initial);
   const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
@@ -450,7 +458,7 @@ export function LaporanView({
     window.history.replaceState(
       null,
       "",
-      `/recruitment/laporan?${params.toString()}`
+      `${basePath}?${params.toString()}`
     );
 
     const request = ++requestId.current;
@@ -486,13 +494,13 @@ export function LaporanView({
     return `/api/recruitment/reports/export?${params.toString()}`;
   };
 
+  const xlsxParams = new URLSearchParams({ period });
+  if (job !== "all") xlsxParams.set("job", job);
+
   if (!report) {
     return (
       <>
-        <PageHead
-          title="Laporan"
-          subtitle="Performa rekrutmen dari data asli, dihitung per periode dan lowongan."
-        />
+        <PageHead title={title} subtitle={subtitle} />
         <div className="card p-8 text-center">
           <div className="font-bold mb-1">Laporan belum dapat dimuat</div>
           <p className="sub text-[13px] mb-4">
@@ -516,10 +524,18 @@ export function LaporanView({
   return (
     <div className="flex flex-col gap-6">
       <PageHead
-        title="Laporan"
-        subtitle="Performa rekrutmen dari data asli, dihitung per periode dan lowongan."
+        title={title}
+        subtitle={subtitle}
       >
-        <details className="relative">
+        {exportMode === "xlsx" ? (
+          <a
+            className="btn btn-g"
+            href={`/api/reports/rekrutmen/export?${xlsxParams.toString()}`}
+          >
+            Ekspor XLSX
+          </a>
+        ) : (
+          <details className="relative">
           <summary
             className="btn btn-g cursor-pointer [&::-webkit-details-marker]:hidden"
             style={{ listStyle: "none" }}
@@ -540,7 +556,8 @@ export function LaporanView({
               Daftar pelamar
             </a>
           </div>
-        </details>
+          </details>
+        )}
       </PageHead>
 
       <div className="flex flex-wrap items-center gap-3">
