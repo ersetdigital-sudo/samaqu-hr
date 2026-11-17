@@ -132,7 +132,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: "users",
         href: "/employees",
         description: "Data induk karyawan, kontrak, dan struktur organisasi.",
-        status: "planned",
+        status: "live",
         roles: ["hr_manager"],
         items: [
           {
@@ -206,7 +206,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: "cal",
         href: "/attendance",
         description: "Kehadiran harian, cuti, izin, dan lembur.",
-        status: "planned",
+        status: "live",
         roles: ["hr_manager"],
         items: [
           {
@@ -386,7 +386,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: "settings",
         href: "/settings",
         description: "Pengaturan aplikasi, pengguna, dan hak akses.",
-        status: "planned",
+        status: "live",
         roles: ["admin", "hr_manager"],
         items: [
           { id: "umum", label: "Umum", href: "/settings/umum", status: "live" },
@@ -397,15 +397,31 @@ export const NAV_GROUPS: NavGroup[] = [
             roles: ["admin"],
             status: "live",
           },
-          { id: "hak-akses", label: "Hak Akses", href: "/settings/hak-akses" },
-          { id: "integrasi", label: "Integrasi", href: "/settings/integrasi" },
+          {
+            id: "hak-akses",
+            label: "Hak Akses",
+            href: "/settings/hak-akses",
+            status: "live",
+          },
+          {
+            id: "integrasi",
+            label: "Integrasi",
+            href: "/settings/integrasi",
+            roles: ["admin"],
+            status: "live",
+          },
           {
             id: "notifikasi",
             label: "Notifikasi",
             href: "/settings/notifikasi",
+            status: "planned",
+          },
+          {
+            id: "audit",
+            label: "Audit Log",
+            href: "/settings/audit",
             status: "live",
           },
-          { id: "audit", label: "Audit Log", href: "/settings/audit" },
         ],
       },
     ],

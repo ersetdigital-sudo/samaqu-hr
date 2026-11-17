@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHead } from "@/components/page-head";
 import { ACADEMY_URL } from "@/lib/external-links";
-import { findModule, isSubItemLive } from "@/lib/navigation";
+import { findModule, isModuleLive, isSubItemLive } from "@/lib/navigation";
 
 /**
  * Halaman pembuka modul yang strukturnya sudah terdaftar tetapi halamannya
@@ -13,10 +13,14 @@ export function ModuleLandingView({ moduleId }: { moduleId: string }) {
 
   if (!module) return null;
 
+  const moduleLive = isModuleLive(module);
+
   return (
     <>
       <PageHead title={module.label} subtitle={module.description}>
-        <span className="tag t-warn">Tahap persiapan</span>
+        <span className={`tag ${moduleLive ? "t-ok" : "t-warn"}`}>
+          {moduleLive ? "Tersedia" : "Tahap persiapan"}
+        </span>
       </PageHead>
 
       <div className="card p-6 mb-6">
