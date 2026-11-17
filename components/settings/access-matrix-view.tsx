@@ -100,9 +100,13 @@ function GroupRows({
           </td>
           {ACCESS_ROLES.map((role) => (
             <td className="p-2.5 text-center" key={role}>
-              <span className={`tag ${row.roles[role] ? "t-ok" : "t-mute"}`}>
-                {row.roles[role] ? "Bisa" : "Tidak"}
-              </span>
+              {row.planned ? (
+                <span className="tag t-mute">Segera</span>
+              ) : (
+                <span className={`tag ${row.roles[role] ? "t-ok" : "t-mute"}`}>
+                  {row.roles[role] ? "Bisa" : "Tidak"}
+                </span>
+              )}
             </td>
           ))}
         </tr>

@@ -1,5 +1,6 @@
 import {
   NAV_GROUPS,
+  isSubItemLive,
   isSuperuser,
   type Role,
 } from "@/lib/navigation";
@@ -22,6 +23,7 @@ export type AccessMatrixRow = {
   id: string;
   label: string;
   level: 0 | 1;
+  planned: boolean;
   roles: Record<Role, boolean>;
 };
 
@@ -45,12 +47,14 @@ export function buildAccessMatrix(): AccessMatrixGroup[] {
         id: `module-${module.id}`,
         label: module.label,
         level: 0,
+        planned: false,
         roles: roleMap((role) => module.roles.includes(role)),
       };
       const itemRows: AccessMatrixRow[] = module.items.map((item) => ({
         id: `item-${module.id}-${item.id}`,
         label: item.label,
         level: 1,
+        planned: !isSubItemLive(module, item),
         roles: roleMap((role) =>
           (item.roles ?? module.roles).includes(role)
         ),
