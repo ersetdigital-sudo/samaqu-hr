@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 export function SummaryCard({
@@ -8,7 +9,7 @@ export function SummaryCard({
 }: {
   label: string;
   value: string;
-  hint: string;
+  hint: ReactNode;
   href: string;
 }) {
   return (

@@ -20,7 +20,10 @@ import type {
   ScheduleInput,
   WorkSchedule,
 } from "@/lib/attendance/types";
-import type { EmployeeStatus } from "@/lib/employees/types";
+import {
+  ACTIVE_WORKING_STATUSES,
+  type EmployeeStatus,
+} from "@/lib/employees/types";
 import type { OvertimeDailyMarker } from "@/lib/overtime/types";
 
 export class AttendanceDataError extends Error {
@@ -444,7 +447,7 @@ export async function getDailyAttendance(
       db
         .from("employees")
         .select(EMPLOYEE_COLUMNS)
-        .in("status", ["Aktif", "Probation"])
+        .in("status", [...ACTIVE_WORKING_STATUSES])
         .lte("joined_at", dateIso)
         .order("full_name", { ascending: true }),
       db

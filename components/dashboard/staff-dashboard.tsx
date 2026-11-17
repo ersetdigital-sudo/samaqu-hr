@@ -100,11 +100,18 @@ export function StaffDashboard({
             <>
               <SummaryCard
                 label="Karyawan Aktif"
-                value={String(employeeStats.active)}
+                value={String(employeeStats.activeWorking)}
                 hint={
-                  employeeStats.joinedThisMonth > 0
-                    ? `+${employeeStats.joinedThisMonth} bergabung bulan ini`
-                    : "Belum ada karyawan baru bulan ini"
+                  <>
+                    <span className="block">
+                      {employeeStats.active} aktif, {employeeStats.probation} probation
+                    </span>
+                    <span className="block">
+                      {employeeStats.joinedThisMonth > 0
+                        ? `+${employeeStats.joinedThisMonth} bergabung bulan ini`
+                        : "Belum ada karyawan baru bulan ini"}
+                    </span>
+                  </>
                 }
                 href="/employees/direktori"
               />

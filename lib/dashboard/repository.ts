@@ -7,6 +7,7 @@ import {
 } from "@/lib/attendance/query";
 import { isoWeekday } from "@/lib/attendance/rules";
 import { isoDateJakarta } from "@/lib/datetime";
+import { ACTIVE_WORKING_STATUSES } from "@/lib/employees/types";
 import { getRecruitmentOverviewBoard } from "@/lib/recruitment/live/candidates";
 import {
   getInterviewDashboardStats,
@@ -30,7 +31,9 @@ export type RecruitmentDashboard = {
 };
 
 export type EmployeeDashboardStats = {
+  activeWorking: number;
   active: number;
+  probation: number;
   joinedThisMonth: number;
 };
 
@@ -133,25 +136,38 @@ export async function getEmployeeDashboardStats(
 ): Promise<EmployeeDashboardStats> {
   const db = await getServerSupabase();
   const { start, next } = jakartaMonthRange(now);
+  const todayIso = isoDateJakarta();
 
-  const [activeResult, joinedResult] = await Promise.all([
+  const [activeResult, probationResult, joinedResult] = await Promise.all([
     db
       .from("employees")
       .select("id", { count: "exact", head: true })
-      .eq("status", "Aktif"),
+      .eq("status", "Aktif")
+      .lte("joined_at", todayIso),
     db
       .from("employees")
       .select("id", { count: "exact", head: true })
-      .neq("status", "Nonaktif")
+      .eq("status", "Probation")
+      .lte("joined_at", todayIso),
+    db
+      .from("employees")
+      .select("id", { count: "exact", head: true })
+      .in("status", [...ACTIVE_WORKING_STATUSES])
       .gte("joined_at", start)
-      .lt("joined_at", next),
+      .lt("joined_at", next)
+      .lte("joined_at", todayIso),
   ]);
 
-  if (activeResult.error || joinedResult.error)
+  if (activeResult.error || probationResult.error || joinedResult.error) {
     throw new Error("Data karyawan belum dapat dimuat");
+  }
 
+  const active = activeResult.count ?? 0;
+  const probation = probationResult.count ?? 0;
   return {
-    active: activeResult.count ?? 0,
+    activeWorking: active + probation,
+    active,
+    probation,
     joinedThisMonth: joinedResult.count ?? 0,
   };
 }

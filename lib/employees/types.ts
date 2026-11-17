@@ -11,6 +11,10 @@ export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number];
 export const EMPLOYEE_STATUSES = ["Aktif", "Probation", "Nonaktif"] as const;
 export type EmployeeStatus = (typeof EMPLOYEE_STATUSES)[number];
 
+/** Status yang dianggap aktif bekerja di seluruh modul. */
+export const ACTIVE_WORKING_STATUSES = ["Aktif", "Probation"] as const;
+export type ActiveWorkingStatus = (typeof ACTIVE_WORKING_STATUSES)[number];
+
 export const GENDERS = ["Laki-laki", "Perempuan"] as const;
 export type Gender = (typeof GENDERS)[number];
 
