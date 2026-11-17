@@ -1,5 +1,12 @@
 import "server-only";
 import { getServerSupabase } from "@/lib/supabase/server";
+import { getDailyAttendance } from "@/lib/attendance/repository";
+import {
+  buildAttendanceDailyRows,
+  buildAttendanceDailySummary,
+} from "@/lib/attendance/query";
+import { isoWeekday } from "@/lib/attendance/rules";
+import { isoDateJakarta } from "@/lib/datetime";
 import { getRecruitmentOverviewBoard } from "@/lib/recruitment/live/candidates";
 import {
   getInterviewDashboardStats,
@@ -25,6 +32,15 @@ export type RecruitmentDashboard = {
 export type EmployeeDashboardStats = {
   active: number;
   joinedThisMonth: number;
+};
+
+export type AttendanceDashboardStats = {
+  date: string;
+  kind: "workday" | "holiday" | "offday" | "no-schedule";
+  checkedIn: number;
+  totalActive: number;
+  late: number;
+  note: string | null;
 };
 
 export type OwnEmployeeProfile = {
@@ -137,6 +153,66 @@ export async function getEmployeeDashboardStats(
   return {
     active: activeResult.count ?? 0,
     joinedThisMonth: joinedResult.count ?? 0,
+  };
+}
+
+/** Angka kehadiran hari ini memakai sumber dan builder yang sama dengan halaman harian. */
+export async function getAttendanceDashboardStats(
+  dateIso = isoDateJakarta()
+): Promise<AttendanceDashboardStats> {
+  const data = await getDailyAttendance(dateIso);
+  const rows = buildAttendanceDailyRows({
+    date: data.date,
+    todayIso: data.todayIso,
+    employees: data.employees,
+    attendance: data.attendance,
+    corrections: data.corrections,
+    schedule: data.schedule,
+    holiday: data.holiday,
+    leaveStatuses: data.leaveStatuses,
+    overtimeStatuses: data.overtimeStatuses,
+  });
+  const totalActive = data.employees.length;
+
+  if (data.holiday) {
+    return {
+      date: data.date,
+      kind: "holiday",
+      checkedIn: 0,
+      totalActive,
+      late: 0,
+      note: `Hari libur: ${data.holiday.name}`,
+    };
+  }
+  if (!data.schedule) {
+    return {
+      date: data.date,
+      kind: "no-schedule",
+      checkedIn: 0,
+      totalActive,
+      late: 0,
+      note: "Jadwal kerja belum diatur.",
+    };
+  }
+  if (!data.schedule.workDays.includes(isoWeekday(data.date))) {
+    return {
+      date: data.date,
+      kind: "offday",
+      checkedIn: 0,
+      totalActive,
+      late: 0,
+      note: "Hari ini bukan hari kerja.",
+    };
+  }
+
+  const summary = buildAttendanceDailySummary(rows);
+  return {
+    date: data.date,
+    kind: "workday",
+    checkedIn: rows.filter((row) => Boolean(row.day.record?.checkInAt)).length,
+    totalActive,
+    late: summary.terlambat,
+    note: null,
   };
 }
 

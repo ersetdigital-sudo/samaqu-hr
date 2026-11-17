@@ -12,6 +12,7 @@ import {
 } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
 import type {
+  AttendanceDashboardStats,
   EmployeeDashboardStats,
   RecruitmentDashboard,
 } from "@/lib/dashboard/repository";
@@ -22,12 +23,14 @@ export function StaffDashboard({
   user,
   recruitment,
   employees,
+  attendance,
   showEmployees,
   error,
 }: {
   user: SessionUser;
   recruitment: RecruitmentDashboard | null;
   employees: EmployeeDashboardStats | null;
+  attendance: AttendanceDashboardStats | null;
   showEmployees: boolean;
   error?: string;
 }) {
@@ -41,7 +44,11 @@ export function StaffDashboard({
     (module) => module.external && canAccess(user.role, module)
   );
   const employeeStats = showEmployees ? employees : null;
+  const attendanceStats = showEmployees ? attendance : null;
   const showStats = Boolean(recruitment || employeeStats);
+  const attendanceCard = attendanceStats
+    ? attendanceSummary(attendanceStats)
+    : null;
 
   return (
     <>
@@ -49,7 +56,7 @@ export function StaffDashboard({
         title={`Halo, ${user.name}`}
         subtitle={
           showEmployees
-            ? "Ringkasan rekrutmen dan data karyawan dari data terbaru. Modul Kehadiran, Payroll, dan Performance belum tersedia."
+            ? "Ringkasan rekrutmen dan data karyawan dari data terbaru."
             : "Ringkasan rekrutmen dari data terbaru."
         }
       >
@@ -101,12 +108,14 @@ export function StaffDashboard({
                 }
                 href="/employees/direktori"
               />
-              <SummaryCard
-                label="Kehadiran Hari Ini"
-                value="Segera"
-                hint="Modul Attendance & Leave belum tersedia"
-                href="/attendance"
-              />
+              {attendanceCard && (
+                <SummaryCard
+                  label="Kehadiran Hari Ini"
+                  value={attendanceCard.value}
+                  hint={attendanceCard.hint}
+                  href="/attendance/harian"
+                />
+              )}
             </>
           )}
           {recruitment && (
@@ -215,4 +224,26 @@ export function StaffDashboard({
       </div>
     </>
   );
+}
+
+function attendanceSummary(stats: AttendanceDashboardStats): {
+  value: string;
+  hint: string;
+} {
+  if (stats.kind === "holiday") {
+    return { value: "Libur", hint: stats.note ?? "Hari libur" };
+  }
+  if (stats.kind === "offday") {
+    return { value: "Non-kerja", hint: stats.note ?? "Hari ini bukan hari kerja" };
+  }
+  if (stats.kind === "no-schedule") {
+    return { value: "—", hint: stats.note ?? "Jadwal kerja belum diatur" };
+  }
+  return {
+    value: `${stats.checkedIn} / ${stats.totalActive}`,
+    hint:
+      stats.totalActive > 0
+        ? `${stats.late} terlambat`
+        : "Belum ada karyawan aktif",
+  };
 }

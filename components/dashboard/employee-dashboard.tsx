@@ -59,8 +59,8 @@ export function EmployeeDashboard({
           </p>
         )}
         <p className="sub text-[12px] mt-6">
-          Modul kehadiran, cuti, dan payroll belum tersedia. Materi pelatihan
-          dan SOP internal tersedia di Samaqu Academy.
+          Menu kehadiran, cuti, slip gaji, dan penilaian tersedia di sidebar.
+          Materi pelatihan dan SOP internal tersedia di Samaqu Academy.
         </p>
       </div>
     </>
