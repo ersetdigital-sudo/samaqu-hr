@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useRecruitment } from "@/components/recruitment-provider";
 import { findModuleByPath, findSubItem } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/session";
@@ -67,6 +68,10 @@ export function Topbar({ user }: { user: SessionUser }) {
           />
         </div>
       )}
+
+      <NotificationBell
+        canManage={user.role === "admin" || user.role === "hr_manager"}
+      />
 
       <div className="hidden lg:flex items-center gap-2 text-[12px] sub">
         <span className="font-semibold" style={{ color: "var(--ink)" }}>

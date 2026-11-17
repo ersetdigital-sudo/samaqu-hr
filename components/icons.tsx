@@ -106,6 +106,12 @@ const ICONS: Record<IconName, ReactNode> = {
       <circle cx="12" cy="12" r="0.75" />
     </>
   ),
+  bell: (
+    <>
+      <path d="M18 8.5a6 6 0 0 0-12 0c0 6.5-2.5 6.5-2.5 6.5h17S18 15 18 8.5" />
+      <path d="M10 19.5a2.2 2.2 0 0 0 4 0" />
+    </>
+  ),
   settings: (
     <>
       <circle cx="12" cy="12" r="3" />

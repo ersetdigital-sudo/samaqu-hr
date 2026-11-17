@@ -403,6 +403,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: "notifikasi",
             label: "Notifikasi",
             href: "/settings/notifikasi",
+            status: "live",
           },
           { id: "audit", label: "Audit Log", href: "/settings/audit" },
         ],

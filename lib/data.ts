@@ -18,6 +18,7 @@ export type IconName =
   | "phone"
   | "wallet"
   | "target"
+  | "bell"
   | "settings"
   | "panel"
   | "chevron"
